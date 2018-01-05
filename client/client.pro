@@ -145,7 +145,17 @@ win32: {
 
 linux: {
 
-    #LIBS += -L$$PWD/../_lib/wxwidgets/lib/linux -lfreeimage-3.17.0
+    #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
+    LIBS += -L$$PWD/../_lib/libuv/lib/linux -luv
+
+    #wxCXXFLAGS = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
+    #wxLinkOptions = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
+    #wxCXXFLAGS = $$system(wx-config --prefix=$$WXWIN --wxcfg=$$WXCFG --unicode=yes --static=yes)
+    #注意点2：在wxwidget目录下，执行 ./wx-config --cxxflags  得到
+    wxCXXFLAGS = -I/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib/wx/include/gtk2-unicode-3.1 -I/home/cz_jjq/Downloads/wxWidgets-3.1.0/include -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__ -pthread
+    #wxLinkOptions = $$system(wx-config --prefix=$$WXWIN --wxcfg=$$WXCFG --unicode=yes --static=yes)
+    #注意点3#：在wxwidget目录下，执行 ./wx-config --cxxflags  得到
+    wxLinkOptions = -L/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -pthread   -Wl,-rpath,/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -lwx_gtk2u_xrc-3.1 -lwx_gtk2u_html-3.1 -lwx_gtk2u_qa-3.1 -lwx_gtk2u_adv-3.1 -lwx_gtk2u_core-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -lwx_baseu-3.1
 
 
 }
@@ -173,26 +183,23 @@ QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 
 INCLUDEPATH += $$PWD/include/
 
+INCLUDEPATH += $$PWD/../_lib/libuv/include
+
 INCLUDEPATH += $$PWD/../_lib/wxwidgets/include
 #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
 INCLUDEPATH += $$PWD/../_lib/wxwidgets/lib/linux/wx/include/gtk2-unicode-3.1
 
+
+
 #注意点1：使用wxwidget必须在这里配置下Defines
 DEFINES +=  __WXGTK__
-#wxCXXFLAGS = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
-#wxLinkOptions = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
-#wxCXXFLAGS = $$system(wx-config --prefix=$$WXWIN --wxcfg=$$WXCFG --unicode=yes --static=yes)
-#注意点2：在wxwidget目录下，执行 ./wx-config --cxxflags  得到
-wxCXXFLAGS = -I/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib/wx/include/gtk2-unicode-3.1 -I/home/cz_jjq/Downloads/wxWidgets-3.1.0/include -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__ -pthread
-#wxLinkOptions = $$system(wx-config --prefix=$$WXWIN --wxcfg=$$WXCFG --unicode=yes --static=yes)
-#注意点3#：在wxwidget目录下，执行 ./wx-config --cxxflags  得到
-wxLinkOptions = -L/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -pthread   -Wl,-rpath,/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -lwx_gtk2u_xrc-3.1 -lwx_gtk2u_html-3.1 -lwx_gtk2u_qa-3.1 -lwx_gtk2u_adv-3.1 -lwx_gtk2u_core-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -lwx_baseu-3.1
 LIBS += $$wxLinkOptions
 QMAKE_CXXFLAGS_RELEASE += $$wxCXXFLAGS
 
 
 message("Defines:")
 message($$DEFINES)
+
 
 # Visual Leak Detector
 #win32: LIBS += -L"C:/Program Files (x86)/Visual Leak Detector/lib/Win32/" -lvld
