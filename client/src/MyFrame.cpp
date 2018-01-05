@@ -2,6 +2,9 @@
 #include "wx/menu.h"
 #include "wx/msgdlg.h"
 #include "wx/log.h"
+#include "wx/stattext.h"
+
+#include "wx/button.h"
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 {
@@ -25,6 +28,15 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 
+
+    wxStaticText* stText = new wxStaticText(this,-1,"test label");
+    txtName = new wxTextCtrl(this,-1,"name");//style=wx.TE_MULTILINE  多行样式
+    wxTextCtrl* txtPassword = new wxTextCtrl(this, -1, "password",wxPoint(20,20), wxSize(175, -1),wxTE_PASSWORD);
+    txtName->SetInsertionPoint(0);
+
+    wxButton* btnTest = new wxButton(this,ID_GetName,"Test",wxPoint(30,50));
+    Bind(wxEVT_BUTTON,&MyFrame::OnButtonClick,this,ID_GetName);
+
 }
 
 void MyFrame::OnExit(wxCommandEvent& event)
@@ -41,4 +53,17 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 void MyFrame::OnHello(wxCommandEvent& event)
 {
     wxLogMessage("Hello world from wxWidgets!");
+}
+
+void MyFrame::OnButtonClick(wxCommandEvent& event)
+{
+
+    wxString str =  txtName->GetLineText(0);
+    wxLogMessage("The name is : " + str);
+    txtName->SetValue("11223344");//改变文本框的内容
+  /*
+ if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
+  choice->Select(choice->GetCurrentSelection() + 1);
+ else
+  choice->Select(-1);*/
 }
