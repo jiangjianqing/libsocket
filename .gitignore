@@ -1,32 +1,65 @@
-# Prerequisites
-*.d
-
-# Compiled Object files
+# C++ objects and libs
 *.slo
 *.lo
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
+*.a
+*.la
+*.lai
+*.so
+#.dll
+#.dylib
+*.pdb
+*.suo
+*.sdf
+*.opensdf
 *.pch
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Qt-es
+*.pro.user
+*.pro.user.*
+moc_*.cpp
+qrc_*.cpp
+Makefile
+.qmake.stash
+*-build-*
 
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
+*.obj
+*.manifest
+*.res
+*.tlog
+*.log
 *.exe
-*.out
-*.app
+*.exp
+
+# Mac
+*.DS_Store
+*.o
+*.o-i386
+*.o-x86_64
+Makefile.Debug
+Makefile.Release
+
+
+# temporary and html doc files
+intermediate/
+_intermediate/
+_doc/
+_bin/
+.settings/
+ImagePlay.VC.db
+
+
+
+build-*-Desktop_Qt_*/
+build/
+*.pro.user*
+*.autosave
+
+
+x64/
+GeneratedFiles/
+*.sdf
+*.opensdf
+.vs/
+*.vcxproj.user*
+_lib/
