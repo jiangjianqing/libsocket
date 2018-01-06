@@ -2,13 +2,14 @@
 #include "wx/filename.h"
 #include "wx/dynlib.h"
 #include "wx/msgdlg.h"
+#include "wx/event.h"
 
 CodeRepo::CodeRepo()
 {
 
 }
 
-void DynamicLibraryExample()
+void CodeRepo::DynamicLibraryExample()
 {
     //wxString dir(wxGetWorkingDirectory());
         //wxMessageBox(dir,_T("dir"),wxOK);
@@ -34,4 +35,34 @@ void DynamicLibraryExample()
                 wxOK | wxICON_ERROR);
         return;
     }
+}
+
+void CodeRepo::OnChar(wxKeyEvent& event)
+
+{
+
+  if ( wxIsalpha( event.GetKeyCode() ) )
+
+  {
+
+      //这些按键在可以接受的范围，所以按照正常的流程处理
+
+      event.Skip();
+
+   }
+
+  else
+
+   {
+
+      // 这些事件不在我们可以接受的范围，所以我们不调用Skip函数
+
+      // 由于事件表已经匹配并且没有调用Skip函数，所以事件处理过程不会
+
+      // 再继续匹配别的事件表，而是认为事件处理已经结束
+
+      wxBell();
+
+   }
+
 }

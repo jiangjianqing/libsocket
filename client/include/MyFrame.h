@@ -23,6 +23,7 @@ public:
     virtual ~MyFrame();
 
 private:
+    void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
     void OnExit(wxCommandEvent& event);
     void OnAbout(wxCommandEvent& event);

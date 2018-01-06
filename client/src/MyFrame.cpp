@@ -65,6 +65,11 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     wxButton* btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
     Bind(wxEVT_BUTTON,&MyFrame::OnButtonClick,this,ID_GetName);
 
+    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
+    Bind(wxEVT_CLOSE_WINDOW,&MyFrame::OnClose,this);
+
+    Centre();
+
 }
 
 MyFrame::~MyFrame()
@@ -74,16 +79,34 @@ MyFrame::~MyFrame()
     }
 }
 
-void MyFrame::OnExit(wxCommandEvent& event)
+void MyFrame::OnClose(wxCloseEvent & event)
 {
+    /*
     if(wxMessageBox(wxT("用wxT支持中文，Are you sure to Quit?"),"Question",wxYES_NO | wxICON_QUESTION) != wxYES){
         //event.Skip();//event.Skip()方法是将此事件向MainFrame的父级传递，使用上要注意
         //此时MainApp中的事 件处理也会被触发，如果我们不使用event.Skip()，则事件在MainFrame中被处理后就停止发送了。当然这里调用Skip，只是为了加深理 解wxWidgets的事件处理机制，在实际应用中，视具体需求而定
+        event.Veto();
         return;
     }
+    */
+
+    wxMessageDialog * dial = new wxMessageDialog(NULL, _T("Are you sure to quit?"),
+                                                     _T("Question"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+    int ret = dial->ShowModal();
+    dial->Destroy();
+    //注意:要销毁一个窗口，必须要调用它的Destroy()方法。
+    if(ret == wxID_YES){
+        Destroy();
+    }else{
+        event.Veto();
+    }
+}
+
+void MyFrame::OnExit(wxCommandEvent& event)
+{
     //The parameter true indicates that other windows have no veto power such as after asking "Do you really want to close?".
     //If there is no other main window left, the application will quit
-    Close(true);
+    Close();
 }
 void MyFrame::OnAbout(wxCommandEvent& event)
 {
