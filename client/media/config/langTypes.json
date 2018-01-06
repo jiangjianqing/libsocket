@@ -1,0 +1,11 @@
+{
+    "en" :{
+        "description" :"English",
+        "destDir" : "english"
+    },
+    "ch" : {
+        "description" :"中文",
+        "destDir" : "chinese"
+    }
+	
+}
