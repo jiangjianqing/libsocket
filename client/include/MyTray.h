@@ -4,6 +4,9 @@
 #include "wx/taskbar.h"
 #include "wx/menu.h"
 #include "wx/msgdlg.h"
+#include "MyFrame.h"
+
+class MyFrame;
 
 /*
 使用 wxTaskBarIcon 的退出流程
@@ -17,12 +20,21 @@
 class MyTray : public wxTaskBarIcon
 {
 public:
-    MyTray();
+    MyTray(MyFrame* mainFrame);
 
     void OnAbout(wxCommandEvent& event);
+    void OnExit(wxCommandEvent& event);
+
+    /*
+    template <typename EventTag, typename Class, typename EventArg>
+    void bindClose(const EventTag &eventType,void (Class::*method)(EventArg &));
+    */
 
 protected:
     virtual wxMenu *CreatePopupMenu();
+
+private:
+    MyFrame* m_mainFrame;
 };
 
 #endif // MYTRAY_H

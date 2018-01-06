@@ -7,10 +7,13 @@
 #include "wx/button.h"
 #include "wx/panel.h"
 #include "wx/sizer.h"
+#include "wx/toolbar.h"
+#include "MyTray.h"
+
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 {
-    m_tray = new MyTray();
+    m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
 
     //创建最低层面板,垂直布局
@@ -50,6 +53,8 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 
+    wxToolBar* pMainToolBar = CreateToolBar( wxTB_DOCKABLE|wxTB_HORIZONTAL, 6000 );
+    //pMainToolBar->AddTool( 6001, wxT("tool"), wxNullBitmap, wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT("") );
 
 
     wxStaticText* stText = new wxStaticText(upPanel,-1,"test label");
@@ -71,6 +76,11 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnExit(wxCommandEvent& event)
 {
+    if(wxMessageBox(wxT("用wxT支持中文，Are you sure to Quit?"),"Question",wxYES_NO | wxICON_QUESTION) != wxYES){
+        //event.Skip();//event.Skip()方法是将此事件向MainFrame的父级传递，使用上要注意
+        //此时MainApp中的事 件处理也会被触发，如果我们不使用event.Skip()，则事件在MainFrame中被处理后就停止发送了。当然这里调用Skip，只是为了加深理 解wxWidgets的事件处理机制，在实际应用中，视具体需求而定
+        return;
+    }
     //The parameter true indicates that other windows have no veto power such as after asking "Do you really want to close?".
     //If there is no other main window left, the application will quit
     Close(true);

@@ -3,20 +3,22 @@
 
 #include "wx/frame.h"
 #include "wx/textctrl.h" //文本框
-#include "MyTray.h"
+
+class MyTray;
 
 //这种方式定义ID更好
 #define OKBTNID   wxID_HIGHEST+21
 
 class MyFrame : public wxFrame
 {
+    friend class MyTray;
+public:
     enum
     {
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName
     };
 
-public:
     explicit MyFrame();
     virtual ~MyFrame();
 
