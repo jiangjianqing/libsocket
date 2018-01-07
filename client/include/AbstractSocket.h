@@ -19,10 +19,14 @@ public:
     bool setNoDelay(bool enable);
     bool setKeepAlive(int enable, unsigned int delay);
 
-    string getUVError(int retcode);
+    static string getUVError(int retcode);
+
+    virtual bool init();
 protected:
+    uv_loop_t *m_loop;
     uv_tcp_t m_socket;
     string m_errmsg;
+    bool m_isInited;
 };
 
 #endif // ABSTRACTSOCKET_H
