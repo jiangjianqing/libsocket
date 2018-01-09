@@ -3,12 +3,19 @@
 AbstractSocket::AbstractSocket()
     :m_isInited(false)
 {
-
+    m_loop = uv_default_loop();
+    //uv_loop_t* loop = uv_default_loop()
 }
 
 AbstractSocket::~AbstractSocket()
 {
 
+}
+
+void AbstractSocket::setErrMsg(int uvErrId)
+{
+    m_errmsg = getUVError(uvErrId);
+    //LOGE(tcpsock->errmsg_);
 }
 
 string AbstractSocket::getUVError(int retcode)

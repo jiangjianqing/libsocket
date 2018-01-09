@@ -65,6 +65,9 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     wxButton* btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
     Bind(wxEVT_BUTTON,&MyFrame::OnButtonClick,this,ID_GetName);
 
+    wxButton* btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
+    Bind(wxEVT_BUTTON,&MyFrame::OnStopButtonClick,this,ID_STOP);
+
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
     Bind(wxEVT_CLOSE_WINDOW,&MyFrame::OnClose,this);
 
@@ -124,9 +127,16 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     wxString str =  txtName->GetLineText(0);
     wxLogMessage("The name is : " + str);
     txtName->SetValue("11223344");//改变文本框的内容
+
+    server.start("0.0.0.0",11211);
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
   choice->Select(choice->GetCurrentSelection() + 1);
  else
   choice->Select(-1);*/
+}
+
+void MyFrame::OnStopButtonClick(wxCommandEvent& event)
+{
+    server.close();
 }

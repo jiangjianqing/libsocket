@@ -9,7 +9,7 @@ public:
     explicit TcpClient();
     virtual ~TcpClient();
 
-    bool connect(const string &ip, int port) override;
+    //bool connect(const string &ip, int port) override;
     void close() override;
 };
 

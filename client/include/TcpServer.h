@@ -4,6 +4,12 @@
 #include "AbstractSocket.h"
 #include "SocketData.h"
 #include <map>
+#include <atomic>
+#include <thread>
+#include <mutex>
+
+
+#define DEFAULT_BACKLOG 128
 
 class TcpServer : public AbstractSocket
 {
@@ -11,20 +17,22 @@ public:
     explicit TcpServer();
     virtual ~TcpServer();
 
-    bool connect(const string &ip, int port) override;
+    bool start( const string& ip, int port );
+
     void close() override;
 
-    bool init() override;
     void setNewConnectCb(new_connect_cb cb);
 
 private:
+    thread* m_mainThread;
     new_connect_cb m_newConnect_cb;
-    uv_mutex_t m_mutexClients;//保护clients_list_
+    mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接
 
+    bool run(int mode = UV_RUN_DEFAULT);
     bool bind(const string& ip, int port);
-    bool listen(int backlog);
-    int getAvailableClientId() const{static int s_id = 0; return ++s_id; }
+    bool listen(int backlog = DEFAULT_BACKLOG);
+    int getAvailableClientId() const{static atomic<int> s_id(0); return ++s_id; }//没有考虑频繁连接、断开导致s_id资源耗尽的情况
 
     bool deleteClient( int clientId );
 
@@ -32,6 +40,7 @@ private:
     static void onAcceptConnection(uv_stream_t *server, int status);
     static void onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
     static void onAfterClientClose(uv_handle_t *handle);
+    static void onAfterServerClose(uv_handle_t *handle);
 
 };
 

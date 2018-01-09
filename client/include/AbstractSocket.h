@@ -12,7 +12,7 @@ class AbstractSocket
 public:
     explicit AbstractSocket();
     virtual ~AbstractSocket();
-    virtual bool connect(const string& ip,int port) = 0;
+    //virtual bool connect(const string& ip,int port) = 0;
     virtual void close() = 0;
 
     //是否启用Nagle算法
@@ -27,6 +27,8 @@ protected:
     uv_tcp_t m_socket;
     string m_errmsg;
     bool m_isInited;
+
+    void setErrMsg(int uvErrId);
 };
 
 #endif // ABSTRACTSOCKET_H

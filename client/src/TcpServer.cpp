@@ -2,21 +2,87 @@
 
 TcpServer::TcpServer() : m_newConnect_cb(nullptr)
 {
-
+    //deprecated 不使用libuv提供的mutex，改用c++ 标准库中的mutex
+    //int iret = uv_mutex_init(&m_mutexClients);
+    /*
+    if (iret) {
+        m_errmsg = getUVError(iret);
+        //LOGE(errmsg_);
+        return false;
+    }*/
 }
 
 TcpServer::~TcpServer()
 {
+    close();
 
+    //deprecated
+   // uv_mutex_destroy(&m_mutexClients);
 }
 
-bool TcpServer::connect(const string &ip, int port)
+bool TcpServer::start( const string& ip, int port )
 {
-    return false;
+    close();
+    if (!init()) {
+        return false;
+    }
+    if (!bind(ip,port)) {
+        return false;
+    }
+    //DEFAULT_BACKLOG 是自己定义的，目前使用libuv定义的SOMAXCONN
+    if (!listen(SOMAXCONN)) {
+        return false;
+    }
+    if (!run()) {
+        return false;
+    }
+    //LOGI("start listen "<<ip<<": "<<port);
+    return true;
+}
+
+bool TcpServer::run(int mode)
+{
+    //LOGI("server runing.");
+    int iret;
+    m_mainThread = new thread([this,mode](){
+        uv_run(m_loop,(uv_run_mode)mode);
+        int i = 0;
+        i = i + 1;
+    });
+    //int iret = uv_run(m_loop,(uv_run_mode)mode);
+    /*
+    if (iret) {
+        m_errmsg = getUVError(iret);
+        //LOGE(errmsg_);
+        return false;
+    }*/
+    return true;
 }
 
 void TcpServer::close()
 {
+    if(!m_isInited){
+        return;
+    }
+    for (auto it = m_clients.begin(); it!=m_clients.end(); ++it) {
+        SocketData* cdata = it->second;
+        uv_close((uv_handle_t*)cdata->socketHandle(),onAfterClientClose);
+        delete cdata;
+    }
+    m_clients.clear();
+
+    //LOGI("close server");
+    if (m_isInited) {
+        uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
+        //uv_stop(m_loop);
+        //LOGI("close server");
+    }
+    if(m_mainThread != nullptr){
+        m_mainThread->join();
+        delete m_mainThread;
+        m_mainThread = nullptr;
+    }
+    m_isInited = false;
 
 }
 
@@ -24,23 +90,6 @@ void TcpServer::close()
 void TcpServer::setNewConnectCb(new_connect_cb cb)
 {
     m_newConnect_cb = cb;
-}
-
-bool TcpServer::init()
-{
-    bool ret = AbstractSocket::init();
-    if(ret == false){
-        return false;
-    }
-
-    int iret = uv_mutex_init(&m_mutexClients);
-    if (iret) {
-        m_errmsg = getUVError(iret);
-        //LOGE(errmsg_);
-        return false;
-    }
-
-    return true;
 }
 
 bool TcpServer::bind(const string& ip, int port)
@@ -84,24 +133,23 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
     }
     TcpServer *tcpsock = (TcpServer *)server->data;
     int clientId = tcpsock->getAvailableClientId();
-    SocketData* cdata = new SocketData(clientId,tcpsock);//uv_close回调函数中释放
+    SocketData* cdata = new SocketData(clientId , tcpsock);//uv_close回调函数中释放
     //cdata->tcp_server = tcpsock;//保存服务器的信息
-    int iret = uv_tcp_init(tcpsock->m_loop, cdata->socketHandle());//析构函数释放
+    int iret = uv_tcp_init(tcpsock->m_loop , cdata->socketHandle());//由析构函数释放
     if (iret) {
         delete cdata;
-        tcpsock->m_errmsg = getUVError(iret);
-        //LOGE(tcpsock->errmsg_);
+        tcpsock->setErrMsg(iret);
         return;
     }
-    iret = uv_accept((uv_stream_t*)&tcpsock->m_socket, (uv_stream_t*) cdata->socketHandle());
+    iret = uv_accept(server, (uv_stream_t*) cdata->socketHandle());
+    //iret = uv_accept((uv_stream_t*)&tcpsock->m_socket, (uv_stream_t*) cdata->socketHandle());
     if ( iret) {
-        tcpsock->m_errmsg = getUVError(iret);
+        tcpsock->setErrMsg(iret);
         uv_close((uv_handle_t*) cdata->socketHandle(), NULL);
         delete cdata;
-        //LOGE(tcpsock->errmsg_);
         return;
     }
-    tcpsock->m_clients.insert(std::make_pair(clientId,cdata));//加入到链接队列
+    tcpsock->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
     if (tcpsock->m_newConnect_cb) {
         tcpsock->m_newConnect_cb(clientId);
     }
@@ -142,9 +190,9 @@ void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_b
         return;
     } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
-    }/* else if (client->recvcb_) {
-        client->recvcb_(client->client_id,buf->base,nread);
-    }*/
+    } else /*if (client->recvcb_)*/ {//正常读取数据
+        //client->recvcb_(client->client_id,buf->base,nread);
+    }
 }
 
 void TcpServer::onAfterClientClose(uv_handle_t *handle)
@@ -154,24 +202,37 @@ void TcpServer::onAfterClientClose(uv_handle_t *handle)
     delete cdata;
 }
 
+void TcpServer::onAfterServerClose(uv_handle_t *handle)
+{
+    //服务器,不需要做什么
+    int i = 0;
+    i = i + 1;
+}
+
 bool TcpServer::deleteClient( int clientId )
 {
-    uv_mutex_lock(&m_mutexClients);
+    unique_lock<mutex> lock1(m_mutexClients);
+    //unique_lock<mutex> lock1(m_mutexClients,defer_lock_t());//使用defer_lock_t是为了能够用泛型lock函数，一次锁定多个mutex
+    //lock(lock1,lock2);
+    //uv_mutex_lock(&m_mutexClients);
     auto itfind = m_clients.find(clientId);
     if (itfind == m_clients.end()) {
         //errmsg_ = "can't find client ";
         //errmsg_ += std::to_string((long long)clientid);
         //LOGE(errmsg_);
-        uv_mutex_unlock(&m_mutexClients);
+        //uv_mutex_unlock(&m_mutexClients);
         return false;
     }
-    if (uv_is_active((uv_handle_t*)itfind->second->socket())) {
-        uv_read_stop((uv_stream_t*)itfind->second->socket());
+    SocketData* cdata = itfind->second;
+
+    if (uv_is_active((uv_handle_t*)cdata->socketHandle())) {
+        uv_read_stop((uv_stream_t*)cdata->socketHandle());
     }
-    uv_close((uv_handle_t*)itfind->second->socket(),onAfterClientClose);
+
+    uv_close((uv_handle_t*)cdata->socketHandle(),onAfterClientClose);
 
     m_clients.erase(itfind);
     //LOGI("删除客户端"<<clientid);
-    uv_mutex_unlock(&m_mutexClients);
+    //uv_mutex_unlock(&m_mutexClients);
     return true;
 }
