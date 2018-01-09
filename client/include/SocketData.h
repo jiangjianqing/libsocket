@@ -17,7 +17,7 @@ public:
 
     AbstractSocket* socket(){return m_socket;}
 
-    uv_tcp_t* socketHandle(){return m_socketHandle;}
+    uv_tcp_t* handle(){return m_socketHandle;}
 
     int clientId(){return m_clientId;}
 

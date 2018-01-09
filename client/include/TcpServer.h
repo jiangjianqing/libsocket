@@ -24,7 +24,7 @@ public:
     void setNewConnectCb(new_connect_cb cb);
 
 private:
-    thread* m_mainThread;
+
     new_connect_cb m_newConnect_cb;
     mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接
@@ -41,6 +41,7 @@ private:
     static void onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
     static void onAfterClientClose(uv_handle_t *handle);
     static void onAfterServerClose(uv_handle_t *handle);
+
 
 };
 

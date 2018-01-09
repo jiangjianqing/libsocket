@@ -42,20 +42,20 @@ bool TcpServer::start( const string& ip, int port )
 
 bool TcpServer::run(int mode)
 {
+
     //LOGI("server runing.");
     int iret;
-    m_mainThread = new thread([this,mode](){
-        uv_run(m_loop,(uv_run_mode)mode);
+    thread t1([this,mode](){
+        int iret = uv_run(m_loop,(uv_run_mode)mode);
+        if (iret) {
+            //m_errmsg = getUVError(iret);
+        }
         int i = 0;
         i = i + 1;
     });
-    //int iret = uv_run(m_loop,(uv_run_mode)mode);
-    /*
-    if (iret) {
-        m_errmsg = getUVError(iret);
-        //LOGE(errmsg_);
-        return false;
-    }*/
+    t1.detach();//脱离主线程的绑定，主线程挂了，子线程不报错，子线程执行完自动退出。
+    //detach以后，子线程会成为孤儿线程，线程之间将无法通信。
+
     return true;
 }
 
@@ -64,24 +64,25 @@ void TcpServer::close()
     if(!m_isInited){
         return;
     }
+
     for (auto it = m_clients.begin(); it!=m_clients.end(); ++it) {
         SocketData* cdata = it->second;
-        uv_close((uv_handle_t*)cdata->socketHandle(),onAfterClientClose);
-        delete cdata;
+        //奇怪：为什么onAfterClientClose没有被调用？？？？
+        if (uv_is_active((uv_handle_t*)cdata->handle())) {
+            uv_read_stop((uv_stream_t*)cdata->handle());
+        }
+        uv_close((uv_handle_t*)cdata->handle(),onAfterClientClose);
+        //delete cdata;
     }
     m_clients.clear();
 
-    //LOGI("close server");
-    if (m_isInited) {
-        uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
-        //uv_stop(m_loop);
+    uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
+
         //LOGI("close server");
-    }
-    if(m_mainThread != nullptr){
-        m_mainThread->join();
-        delete m_mainThread;
-        m_mainThread = nullptr;
-    }
+    uv_stop(m_loop);
+
+    //AbstractSocket::close();
+
     m_isInited = false;
 
 }
@@ -135,17 +136,17 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
     int clientId = tcpsock->getAvailableClientId();
     SocketData* cdata = new SocketData(clientId , tcpsock);//uv_close回调函数中释放
     //cdata->tcp_server = tcpsock;//保存服务器的信息
-    int iret = uv_tcp_init(tcpsock->m_loop , cdata->socketHandle());//由析构函数释放
+    int iret = uv_tcp_init(tcpsock->m_loop , cdata->handle());//由析构函数释放
     if (iret) {
         delete cdata;
         tcpsock->setErrMsg(iret);
         return;
     }
-    iret = uv_accept(server, (uv_stream_t*) cdata->socketHandle());
+    iret = uv_accept(server, (uv_stream_t*) cdata->handle());
     //iret = uv_accept((uv_stream_t*)&tcpsock->m_socket, (uv_stream_t*) cdata->socketHandle());
     if ( iret) {
         tcpsock->setErrMsg(iret);
-        uv_close((uv_handle_t*) cdata->socketHandle(), NULL);
+        uv_close((uv_handle_t*) cdata->handle(), NULL);
         delete cdata;
         return;
     }
@@ -154,7 +155,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
         tcpsock->m_newConnect_cb(clientId);
     }
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
-    iret = uv_read_start((uv_stream_t*)cdata->socketHandle(), onAllocBuffer, onAfterServerRecv);//服务器开始接收客户端的数据
+    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterServerRecv);//服务器开始接收客户端的数据
     return;
 }
 
@@ -198,6 +199,7 @@ void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_b
 void TcpServer::onAfterClientClose(uv_handle_t *handle)
 {
     SocketData *cdata = (SocketData*)handle->data;
+    handle->data = nullptr;
     //LOGI("client "<<cdata->client_id<<" had closed.");
     delete cdata;
 }
@@ -225,14 +227,17 @@ bool TcpServer::deleteClient( int clientId )
     }
     SocketData* cdata = itfind->second;
 
-    if (uv_is_active((uv_handle_t*)cdata->socketHandle())) {
-        uv_read_stop((uv_stream_t*)cdata->socketHandle());
+    if (uv_is_active((uv_handle_t*)cdata->handle())) {
+        uv_read_stop((uv_stream_t*)cdata->handle());
     }
 
-    uv_close((uv_handle_t*)cdata->socketHandle(),onAfterClientClose);
+    uv_close((uv_handle_t*)cdata->handle(),onAfterClientClose);
 
     m_clients.erase(itfind);
     //LOGI("删除客户端"<<clientid);
     //uv_mutex_unlock(&m_mutexClients);
     return true;
 }
+
+
+

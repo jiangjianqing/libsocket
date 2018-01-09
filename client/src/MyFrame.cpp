@@ -139,4 +139,5 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     server.close();
+    wxLogMessage("server stoped!");
 }
