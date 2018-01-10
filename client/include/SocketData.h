@@ -23,6 +23,8 @@ public:
 
     uv_buf_t readbuffer;//接受数据的buf
 
+    void refreshInfo();
+
 protected:
     uv_tcp_t* m_socketHandle;//客户端句柄
 private:

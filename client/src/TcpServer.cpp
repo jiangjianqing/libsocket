@@ -105,6 +105,7 @@ bool TcpServer::listen(int backlog)
         //LOGE(errmsg_);
         return false;
     }
+    refreshInfo();//刷新一下自己的ip和端口
     //LOGI("server listen");
     return true;
 }
@@ -133,6 +134,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
         return;
     }
 
+    cdata->refreshInfo();//刷新一下信息，可以得到客户端的IP和端口
     unique_lock<mutex> lock1(tcpsock->m_mutexClients);//开启互锁
     tcpsock->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
     lock1.unlock();

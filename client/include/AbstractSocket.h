@@ -27,6 +27,8 @@ public:
 
     virtual bool init();
 protected:
+    string m_ip;
+    int m_port;
     uv_loop_t *m_loop;
     uv_tcp_t m_socket;
     string m_errmsg;
@@ -35,6 +37,8 @@ protected:
 
     void setErrMsg(int uvErrId);
     void run(int mode = UV_RUN_DEFAULT);
+
+    void refreshInfo();
 
 private:
     static void onIdle(uv_idle_t *handle);

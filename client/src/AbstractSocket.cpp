@@ -1,5 +1,6 @@
 #include "AbstractSocket.h"
 #include <thread>
+#include <string.h>
 
 AbstractSocket::AbstractSocket()
     :m_isInited(false),m_loop(nullptr)
@@ -143,6 +144,32 @@ bool AbstractSocket::init()
     //  return false;
     //}
     return true;
+}
+
+void AbstractSocket::refreshInfo()
+{
+    struct sockaddr sockname,peername;
+    int namelen;
+    int r;
+
+    //获得自己监听的ip和端口
+    memset(&sockname, -1, sizeof sockname);
+    namelen = sizeof sockname;
+    r = uv_tcp_getsockname(&m_socket, &sockname, &namelen);
+
+    m_ip = string(inet_ntoa(((sockaddr_in *)&sockname)->sin_addr));
+    m_port = ntohs(((sockaddr_in *)&sockname)->sin_port);
+
+    //获得对方 的IP和端口，当没有连接时，peername是无意义的
+    /*
+    namelen = sizeof peername;
+
+    uv_tcp_getpeername(&m_socket, &peername, &namelen);
+    string ip(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
+    int port = ntohs(((sockaddr_in *)&peername)->sin_port);
+    */
+
+    //check_sockname(&sockname, "0.0.0.0", server_port, "server socket");
 }
 
 void AbstractSocket::onIdle(uv_idle_t *handle)

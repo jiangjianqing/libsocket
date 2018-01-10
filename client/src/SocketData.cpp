@@ -12,6 +12,8 @@ SocketData::SocketData(int clientId,AbstractSocket* socket)
     m_socketHandle->data = this;
     readbuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
     writebuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
+
+
 }
 
 SocketData::~SocketData()
@@ -26,6 +28,22 @@ SocketData::~SocketData()
 
     free(m_socketHandle);
     m_socketHandle = nullptr;
+}
+
+void SocketData::refreshInfo()
+{
+    //有连接，可以获得目标的ip和端口
+    struct sockaddr sockname, peername;
+    int namelen;
+    int r;
+    namelen = sizeof(peername);
+    memset(&peername, -1, namelen);
+    r = uv_tcp_getpeername(handle(), &peername, &namelen);
+
+    string ip(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
+    int port = ntohs(((sockaddr_in *)&peername)->sin_port);
+    int i = 0;
+    i = i + 1;
 }
 
 void check_sockname(struct sockaddr* addr, const char* compare_ip,
