@@ -35,6 +35,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     topSizer->Add(bottomPanel,0,wxEXPAND);
 
 /*
+    //2018.1.10  windows下尚未找到使用wxMenu应该加载哪个lib文件
     menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
                      "Help string shown in status bar for this menu item");
