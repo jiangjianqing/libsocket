@@ -14,10 +14,11 @@ AbstractSocket::AbstractSocket()
 AbstractSocket::~AbstractSocket()
 {
     close();
+    /*
     for(auto itor = m_ptrList.begin(); itor != m_ptrList.end(); itor++){
         void* p = *itor;
         free(p);
-    }
+    }*/
 }
 
 void AbstractSocket::setErrMsg(int uvErrId)
@@ -33,6 +34,26 @@ string AbstractSocket::getUVError(int retcode)
     err +=":";
     err += uv_strerror(retcode);
     return std::move(err);
+}
+
+void AbstractSocket::run(int mode)
+{
+    unique_lock<mutex> lock1(m_mutexRun);
+    //LOGI("server runing.");
+    int iret;
+    thread t1([this,mode](){
+        int iret = uv_run(m_loop,(uv_run_mode)mode);
+        if (iret) {
+            m_errmsg = getUVError(iret);
+        }
+        m_condVarRun.notify_all();
+        int i = 0;
+        i = i + 1;
+    });
+    t1.detach();//脱离主线程的绑定，主线程挂了，子线程不报错，子线程执行完自动退出。
+    //detach以后，子线程会成为孤儿线程，线程之间将无法通信。
+
+    //return true;
 }
 
 bool AbstractSocket::setNoDelay(bool enable)
@@ -59,38 +80,21 @@ bool AbstractSocket::setKeepAlive(int enable, unsigned int delay)
 
 void AbstractSocket::close()
 {
-    /*
-    if(m_loop != nullptr){
-        std::this_thread::sleep_for(chrono::milliseconds(500));
-    }*/
+    unique_lock<mutex> lock1(m_mutexRun);
 
-
-    /*
-    if(m_idler != nullptr){
-        uv_idle_stop(m_idler);
-        //free(m_idler);
-        m_idler = nullptr;
-    }*/
     if(m_loop != nullptr){
         uv_idle_stop(&m_idler);
         uv_stop(m_loop);
-        std::this_thread::sleep_for(chrono::milliseconds(200));
+        //std::this_thread::sleep_for(chrono::milliseconds(200));
+        m_condVarRun.wait(lock1);
+        int activeCounat = uv_loop_alive(m_loop);
         int iret = uv_loop_close(m_loop);
-        if (UV_EBUSY == iret){
+        if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
             int i = 0;
             i = i + 1;
         }
-        int activeCounat = uv_loop_alive(m_loop);
-/*
-        while(true){
-            if(UV_EBUSY != uv_loop_close(m_loop)){
-                break;
-            }
-            uv_stop(m_loop);
-            std::this_thread::sleep_for(chrono::milliseconds(200));
-        }
-*/
-        //free(m_loop);
+
+        free(m_loop);
         m_loop = nullptr;
     }
     m_isInited = false;
@@ -105,7 +109,7 @@ bool AbstractSocket::init()
 
     close();
     m_loop = (uv_loop_t*)malloc(sizeof(uv_loop_t));
-    m_ptrList.push_back(m_loop);
+    //m_ptrList.push_back(m_loop);
 
     int iret = uv_loop_init(m_loop);
     if (iret) {

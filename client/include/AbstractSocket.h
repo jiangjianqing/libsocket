@@ -3,6 +3,8 @@
 
 #include <string>
 #include <vector>
+#include <mutex>
+#include <condition_variable>
 
 #include "uv.h"
 
@@ -32,10 +34,12 @@ protected:
     uv_idle_t m_idler;
 
     void setErrMsg(int uvErrId);
+    void run(int mode = UV_RUN_DEFAULT);
 
 private:
     static void onIdle(uv_idle_t *handle);
-    vector<void*> m_ptrList;
+    mutex m_mutexRun;
+    condition_variable m_condVarRun;
 };
 
 #endif // ABSTRACTSOCKET_H

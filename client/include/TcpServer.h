@@ -29,7 +29,6 @@ private:
     mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接
 
-    bool run(int mode = UV_RUN_DEFAULT);
     bool bind(const string& ip, int port);
     bool listen(int backlog = DEFAULT_BACKLOG);
     int getAvailableClientId() const{static atomic<int> s_id(0); return ++s_id; }//没有考虑频繁连接、断开导致s_id资源耗尽的情况

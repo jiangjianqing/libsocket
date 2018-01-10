@@ -34,31 +34,12 @@ bool TcpServer::start( const string& ip, int port )
     if (!listen(SOMAXCONN)) {
         return false;
     }
-    if (!run()) {
-        return false;
-    }
+    run();
     //LOGI("start listen "<<ip<<": "<<port);
     return true;
 }
 
-bool TcpServer::run(int mode)
-{
 
-    //LOGI("server runing.");
-    int iret;
-    thread t1([this,mode](){
-        int iret = uv_run(m_loop,(uv_run_mode)mode);
-        if (iret) {
-            m_errmsg = getUVError(iret);
-        }
-        int i = 0;
-        i = i + 1;
-    });
-    t1.detach();//脱离主线程的绑定，主线程挂了，子线程不报错，子线程执行完自动退出。
-    //detach以后，子线程会成为孤儿线程，线程之间将无法通信。
-
-    return true;
-}
 
 void TcpServer::close()
 {
