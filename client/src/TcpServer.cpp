@@ -1,6 +1,7 @@
 #include "TcpServer.h"
 
-TcpServer::TcpServer() : m_newConnect_cb(nullptr)
+TcpServer::TcpServer()
+    : m_newConnect_cb(nullptr),m_cbConnectionAccpeted(nullptr)
 {
     //deprecated 不使用libuv提供的mutex，改用c++ 标准库中的mutex
     //int iret = uv_mutex_init(&m_mutexClients);
@@ -137,11 +138,12 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
     cdata->refreshInfo();//刷新一下信息，可以得到客户端的IP和端口
     unique_lock<mutex> lock1(tcpsock->m_mutexClients);//开启互锁
     tcpsock->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
+    if (tcpsock->m_cbConnectionAccpeted) {
+        tcpsock->m_cbConnectionAccpeted(cdata->ip(),cdata->port());
+    }
     lock1.unlock();
 
-    if (tcpsock->m_newConnect_cb) {
-        tcpsock->m_newConnect_cb(clientId);
-    }
+
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
     iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterServerRecv);//服务器开始接收客户端的数据
 

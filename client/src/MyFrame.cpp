@@ -9,6 +9,7 @@
 #include "wx/sizer.h"
 #include "wx/toolbar.h"
 #include "MyTray.h"
+#include <functional>
 
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
@@ -71,7 +72,12 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
     Bind(wxEVT_CLOSE_WINDOW,&MyFrame::OnClose,this);
 
+    Bind(wxEVT_THREAD,&MyFrame::OnMyThreadEvent,this);
+
     Centre();
+
+    connection_accepted_cb f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
+    server.setConnectionAcceptedCb(f1);
 
 }
 
@@ -146,7 +152,9 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     txtName->SetValue("11223344");//改变文本框的内容
 
+
     server.start("0.0.0.0",11211);
+
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
   choice->Select(choice->GetCurrentSelection() + 1);
@@ -158,4 +166,33 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     server.close();
     wxLogMessage("server stoped!");
+}
+
+void MyFrame::onClientAccepted(const string& ip,int port)
+{
+    //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
+    wxThreadEvent* e = new wxThreadEvent(wxEVT_COMMAND_THREAD, wxID_ANY);
+    e->SetId(1);
+    e->SetString(ip + ":" + std::to_string(port));
+    wxQueueEvent(this,e);
+    //wxTheApp->QueueEvent(e.Clone());
+}
+
+void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
+{
+    if(event.GetId() == 1){
+        wxString msg = event.GetString();
+
+        SetStatusText("client accepted : " + msg);
+    }
+
+/*
+ *
+ * //另一个thread中发送消息
+    wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
+    e.SetString(_T("Some string"));
+    wxTheApp->QueueEvent(e.Clone());
+  */
+
+
 }

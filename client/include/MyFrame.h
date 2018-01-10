@@ -38,6 +38,11 @@ private:
     void OnButtonClick(wxCommandEvent& event);
     void OnStopButtonClick(wxCommandEvent& event);
 
+    //线程处理函数
+    void OnMyThreadEvent(wxThreadEvent& event);
+
+    void onClientAccepted(const string& ip,int port);
+
     wxTextCtrl* txtName;
     MyTray* m_tray;
 

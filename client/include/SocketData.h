@@ -3,10 +3,16 @@
 
 #include "uv.h"
 #include "AbstractSocket.h"
+#include <functional>
+
+using namespace std;
 
 typedef void (*new_connect_cb)(int clientid);
 typedef void (*server_recvcb)(int cliendid, const char* buf, int bufsize);
 typedef void (*client_recvcb)(const char* buf, int bufsize, void* userdata);
+
+
+typedef function<void (const string& ip,int port)> connection_accepted_cb;
 
 class SocketData
 {
@@ -20,6 +26,8 @@ public:
     uv_tcp_t* handle(){return m_socketHandle;}
 
     int clientId(){return m_clientId;}
+    string ip(){return m_ip;}
+    int port(){return m_port;}
 
     uv_buf_t readbuffer;//接受数据的buf
 
@@ -29,6 +37,9 @@ protected:
     uv_tcp_t* m_socketHandle;//客户端句柄
 private:
     int m_clientId;//客户端id,惟一
+
+    string m_ip;
+    int m_port;
 
     AbstractSocket* m_socket;//服务器句柄(保存是因为某些回调函数需要到)
 

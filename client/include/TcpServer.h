@@ -22,9 +22,10 @@ public:
     void close() override;
 
     void setNewConnectCb(new_connect_cb cb);
+    void setConnectionAcceptedCb(connection_accepted_cb cb){m_cbConnectionAccpeted = cb;}
 
 private:
-
+    connection_accepted_cb m_cbConnectionAccpeted;
     new_connect_cb m_newConnect_cb;
     mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接

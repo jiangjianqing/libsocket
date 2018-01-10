@@ -40,10 +40,9 @@ void SocketData::refreshInfo()
     memset(&peername, -1, namelen);
     r = uv_tcp_getpeername(handle(), &peername, &namelen);
 
-    string ip(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
-    int port = ntohs(((sockaddr_in *)&peername)->sin_port);
-    int i = 0;
-    i = i + 1;
+    m_ip = string(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
+    m_port = ntohs(((sockaddr_in *)&peername)->sin_port);
+
 }
 
 void check_sockname(struct sockaddr* addr, const char* compare_ip,
