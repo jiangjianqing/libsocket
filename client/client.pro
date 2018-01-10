@@ -89,11 +89,8 @@ win32: {
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswu
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswud
 
-    LIBS += -L$$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll -lwxbase31ud
-    LIBS += -lwxbase31ud_net -lwxbase31ud_xml -lwxexpatd -lwxjpegd -lwxpngd -lwxregexud -lwxscintillad
-    LIBS += -lwxtiffd -lwxzlibd
-    LIBS += -lwxmsw31ud_adv -lwxmsw31ud_aui -lwxmsw31ud_core -lwxmsw31ud_gl -lwxmsw31ud_html -lwxmsw31ud_media -lwxmsw31ud_propgrid
-    LIBS += -lwxmsw31ud_qa -lwxmsw31ud_ribbon -lwxmsw31ud_richtext -lwxmsw31ud_stc -lwxmsw31ud_webview -lwxmsw31ud_xrc
+    LIBS += -L$$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll -lwxmsw31ud_xrc -lwxmsw31ud_html -lwxmsw31ud_adv -lwxmsw31ud_core -lwxbase31ud_xml -lwxbase31ud_net -lwxbase31ud -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwxregexu -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lShlwapi -lversion
+    #官方在编译时使用了动态库配置
     DEFINES += WXUSINGDLL
     #DEFINES += __WXMSW__ __WXDEBUG__
 

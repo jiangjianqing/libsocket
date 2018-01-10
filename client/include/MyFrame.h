@@ -53,7 +53,7 @@ private:
     wxStaticText* stText;
     wxTextCtrl* txtPassword;
     wxToolBar* pMainToolBar;
-    wxMenu *menuFile;
+    //wxMenu *menuFile;
 
     wxPanel *bottomPanel;
     wxPanel *centerPanel;

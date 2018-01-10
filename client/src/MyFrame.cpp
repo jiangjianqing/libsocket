@@ -34,7 +34,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     topSizer->Add(centerPanel,1,wxEXPAND|wxALL);
     topSizer->Add(bottomPanel,0,wxEXPAND);
 
-
+/*
     menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
                      "Help string shown in status bar for this menu item");
@@ -46,6 +46,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     menuBar->Append(menuFile, "&File");
     menuBar->Append(menuHelp, "&Help");
     SetMenuBar( menuBar );
+    */
     statusbar = CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
     Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
