@@ -56,6 +56,29 @@ void AbstractSocket::run(int mode)
     //return true;
 }
 
+void AbstractSocket::close()
+{
+    unique_lock<mutex> lock1(m_mutexRun);
+
+    if(m_loop != nullptr){
+        uv_idle_stop(&m_idler);
+        //stop以后不能马上执行uv_loop_close()，等条件变量触发后再free掉loop指针
+        uv_stop(m_loop);
+        //std::this_thread::sleep_for(chrono::milliseconds(200));
+        m_condVarRun.wait(lock1);
+        int activeCounat = uv_loop_alive(m_loop);
+        int iret = uv_loop_close(m_loop);
+        if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
+            int i = 0;
+            i = i + 1;
+        }
+
+        free(m_loop);
+        m_loop = nullptr;
+    }
+    m_isInited = false;
+}
+
 bool AbstractSocket::setNoDelay(bool enable)
 {
     int iret = uv_tcp_nodelay(&m_socket, enable ? 1 : 0);
@@ -76,28 +99,6 @@ bool AbstractSocket::setKeepAlive(int enable, unsigned int delay)
         return false;
     }
     return true;
-}
-
-void AbstractSocket::close()
-{
-    unique_lock<mutex> lock1(m_mutexRun);
-
-    if(m_loop != nullptr){
-        uv_idle_stop(&m_idler);
-        uv_stop(m_loop);
-        //std::this_thread::sleep_for(chrono::milliseconds(200));
-        m_condVarRun.wait(lock1);
-        int activeCounat = uv_loop_alive(m_loop);
-        int iret = uv_loop_close(m_loop);
-        if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
-            int i = 0;
-            i = i + 1;
-        }
-
-        free(m_loop);
-        m_loop = nullptr;
-    }
-    m_isInited = false;
 }
 
 //初始化与关闭--服务器与客户端一致

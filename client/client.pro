@@ -1,5 +1,7 @@
 TEMPLATE = app
-CONFIG += console c++11
+#设置console就会从shell启动
+#CONFIG += console c++11
+CONFIG += c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
@@ -176,12 +178,12 @@ msvc {
 }
 
 clang {
-    CONFIG +=c++14
+    #CONFIG +=c++14
 }
 
 gcc:!clang {
-    CONFIG +=c++14
-    LIBS += -lgomp
+    #CONFIG +=c++14
+    #LIBS += -lgomp
 }
 
 #使Release版本可调试
