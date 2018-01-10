@@ -6,6 +6,7 @@
 #endif
 
 #include "MyFrame.h"
+#include "TcpServer.h"
 
 #include <iostream>
 
@@ -52,3 +53,5 @@ class MyApp: public wxApp
 //IMPLEMENT_APP(app)宏调用了wxIMPLEMENT_WXWIN_MAIN并且完成了许多wx初始化的工作，所以在我们的程序中，只需加上IMPLEMENT_APP(OurApp)作为入口即可，预处理器会自动替换…
 //上面的IMPLEMENT_APP宏接受一个wxApp在类型，即OurApp必需是wxApp类型或wxApp的派生类型，所以我们先定义一个继承自wxApp的类OurApp：
 wxIMPLEMENT_APP(MyApp);
+
+

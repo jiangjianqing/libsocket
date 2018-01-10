@@ -3,6 +3,10 @@
 
 #include "wx/frame.h"
 #include "wx/textctrl.h" //文本框
+#include "wx/button.h"
+#include "wx/sizer.h"
+#include "wx/panel.h"
+#include "wx/stattext.h"
 
 #include "TcpServer.h"
 
@@ -36,6 +40,20 @@ private:
 
     wxTextCtrl* txtName;
     MyTray* m_tray;
+
+    wxButton* btnTest;
+    wxButton* btnClose;
+
+    wxStaticText* stText;
+    wxTextCtrl* txtPassword;
+    wxToolBar* pMainToolBar;
+    wxMenu *menuFile;
+
+    wxPanel *bottomPanel;
+    wxPanel *centerPanel;
+    wxPanel *upPanel;
+    wxBoxSizer *topSizer;
+    wxStatusBar* statusbar;
 
     TcpServer server;
 };

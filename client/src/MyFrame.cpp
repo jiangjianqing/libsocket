@@ -18,15 +18,15 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 
     //创建最低层面板,垂直布局
     //wxPanel *topPanel=new wxPanel(this);
-    wxBoxSizer *topSizer=new wxBoxSizer(wxVERTICAL);//垂直布局，可用wxHORIZONTAL水平布局替换。
+    topSizer=new wxBoxSizer(wxVERTICAL);//垂直布局，可用wxHORIZONTAL水平布局替换。
     //topPanel->SetSizer(topSizer);
     this->SetSizer(topSizer);
     //创建上中下三个面板,上下面板高度固定,宽度自由伸展,中间面板上下左右四个方向自由伸展
-    wxPanel *upPanel=new wxPanel(this);
+    upPanel=new wxPanel(this);
     upPanel->SetBackgroundColour(*wxBLACK);//黑色背景
-    wxPanel *centerPanel=new wxPanel(this);
+    centerPanel=new wxPanel(this);
     centerPanel->SetBackgroundColour(*wxWHITE);//白色背景
-    wxPanel *bottomPanel=new wxPanel(this);
+    bottomPanel=new wxPanel(this);
     bottomPanel->SetBackgroundColour(*wxRED);//红色背景
 
     topSizer->Add(upPanel,0,wxEXPAND);
@@ -34,7 +34,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     topSizer->Add(bottomPanel,0,wxEXPAND);
 
 
-    wxMenu *menuFile = new wxMenu;
+    menuFile = new wxMenu;
     menuFile->Append(ID_Hello, "&Hello...\tCtrl-H",
                      "Help string shown in status bar for this menu item");
     menuFile->AppendSeparator();
@@ -45,7 +45,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     menuBar->Append(menuFile, "&File");
     menuBar->Append(menuHelp, "&Help");
     SetMenuBar( menuBar );
-    CreateStatusBar();
+    statusbar = CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
     Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
@@ -53,19 +53,19 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
 
-    wxToolBar* pMainToolBar = CreateToolBar( wxTB_DOCKABLE|wxTB_HORIZONTAL, 6000 );
+    pMainToolBar = CreateToolBar( wxTB_DOCKABLE|wxTB_HORIZONTAL, 6000 );
     //pMainToolBar->AddTool( 6001, wxT("tool"), wxNullBitmap, wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT("") );
 
 
-    wxStaticText* stText = new wxStaticText(upPanel,-1,"test label");
+    stText = new wxStaticText(upPanel,-1,"test label");
     txtName = new wxTextCtrl(this,-1,"name");//style=wx.TE_MULTILINE  多行样式
-    wxTextCtrl* txtPassword = new wxTextCtrl(centerPanel, -1, "password",wxPoint(20,20), wxSize(175, -1),wxTE_PASSWORD);
+    txtPassword = new wxTextCtrl(centerPanel, -1, "password",wxPoint(20,20), wxSize(175, -1),wxTE_PASSWORD);
     txtName->SetInsertionPoint(0);
 
-    wxButton* btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
+    btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
     Bind(wxEVT_BUTTON,&MyFrame::OnButtonClick,this,ID_GetName);
 
-    wxButton* btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
+    btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
     Bind(wxEVT_BUTTON,&MyFrame::OnStopButtonClick,this,ID_STOP);
 
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
@@ -80,6 +80,24 @@ MyFrame::~MyFrame()
     if(m_tray){
         delete m_tray;
     }
+
+/* 2018.01.10 手动释放并不能修正wxwidgets的内存泄露
+    delete btnTest;
+    delete btnClose;
+
+    delete stText;
+    delete txtPassword;
+    delete bottomPanel;
+    delete centerPanel;
+    delete upPanel;
+
+    //手动释放以下组件wxFrame会报错
+    //delete topSizer;
+    //delete menuFile;
+    //delete pMainToolBar;
+    //delete statusbar;
+
+    */
 }
 
 void MyFrame::OnClose(wxCloseEvent & event)
