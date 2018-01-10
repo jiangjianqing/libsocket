@@ -13,8 +13,8 @@ void CodeRepo::DynamicLibraryExample()
 {
     //wxString dir(wxGetWorkingDirectory());
         //wxMessageBox(dir,_T("dir"),wxOK);
-    int MAX_PATH = 255;
-    wxChar name[MAX_PATH] = {0};
+    //const int MAX_PATH = 255;
+    wxChar name[MAX_PATH] = {0};//vc下已包含MAX_PATH定义，会冲突
     //GetModuleFileName(0L, name, MAX_PATH);
         //wxMessageBox(name,_T("dir"),wxOK);
     wxFileName fname("path");

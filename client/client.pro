@@ -84,29 +84,26 @@ win32: {
     #CONFIG(release, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
 
-    LIBS += -L$$PWD/../_lib/libxml2 -llibxml2
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/include
+    #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswu
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswud
 
-    LIBS += -L$$PWD/../_lib/jsoncpp/lib/$$CONFIGURATION/$$PLATFORM -ljsoncpp
+    LIBS += -L$$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll -lwxbase31ud
+    LIBS += -lwxbase31ud_net -lwxbase31ud_xml -lwxexpatd -lwxjpegd -lwxpngd -lwxregexud -lwxscintillad
+    LIBS += -lwxtiffd -lwxzlibd
+    LIBS += -lwxmsw31ud_adv -lwxmsw31ud_aui -lwxmsw31ud_core -lwxmsw31ud_gl -lwxmsw31ud_html -lwxmsw31ud_media -lwxmsw31ud_propgrid
+    LIBS += -lwxmsw31ud_qa -lwxmsw31ud_ribbon -lwxmsw31ud_richtext -lwxmsw31ud_stc -lwxmsw31ud_webview -lwxmsw31ud_xrc
+    DEFINES += WXUSINGDLL
+    #DEFINES += __WXMSW__ __WXDEBUG__
 
-    LIBS += -L$$PWD/../_lib/iconv -liconv
+    #重要：目的就是让别的头文件别包含了”winsock.h”内容，否则加入libuv会导致编译错误： 'sockaddr': 'struct' type redefinition
+    DEFINES += _WINSOCKAPI_
+    LIBS += -L$$PWD/../_lib/libuv/lib/windows/$$CONFIGURATION/$$PLATFORM -llibuv
+    LIBS += wsock32.lib Ws2_32.lib Advapi32.lib User32.lib Iphlpapi.lib Psapi.lib Userenv.lib
 
-    CONFIG(release, debug|release): LIBS += -L$$PWD/../_lib/curl/lib/windows/$$CONFIGURATION/$$PLATFORM -llibcurl
-    else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_lib/curl/lib/windows/$$CONFIGURATION/$$PLATFORM -llibcurl_debug
+    #LIBS += core.lib
 
-
-    #dump解析的话，我利用的是在release中加入调试信息，然后生成pdb配合传上来的dump进行代码的定位解析。
-    #debug {#调试模式下才使用DumpHelper
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lexception_handler
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcrash_generation_client
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcommon
-
-        LIBS += -L$$PWD/../DumpHelper/_lib/$$CONFIGURATION/$$PLATFORM -lDumpHelper
-    #}
-
-    LIBS += -L$$PWD/../CommonUtils/_lib/$$CONFIGURATION/$$PLATFORM -lCommonUtils
-    LIBS += -L$$PWD/../Lighting/_lib/$$CONFIGURATION/$$PLATFORM -lLighting
-
-    LIBS += -L$$PWD/../AlgRepoLib/_lib/$$CONFIGURATION/$$PLATFORM -lAlgRepoLib
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -150,6 +147,10 @@ linux: {
     #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
     LIBS += -L$$PWD/../_lib/libuv/lib/linux -luv
 
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/include
+    #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/lib/linux/wx/include/gtk2-unicode-3.1
+
     #wxCXXFLAGS = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
     #wxLinkOptions = $$system(wx-config --prefix=D:\wxWidgets-3.0.1-rel-static --wxcfg=gcc_lib\mswud --unicode=yes --debug=yes --static=yes)
     #wxCXXFLAGS = $$system(wx-config --prefix=$$WXWIN --wxcfg=$$WXCFG --unicode=yes --static=yes)
@@ -160,6 +161,10 @@ linux: {
     wxLinkOptions = -L/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -pthread   -Wl,-rpath,/home/cz_jjq/Downloads/wxWidgets-3.1.0/lib -lwx_gtk2u_xrc-3.1 -lwx_gtk2u_html-3.1 -lwx_gtk2u_qa-3.1 -lwx_gtk2u_adv-3.1 -lwx_gtk2u_core-3.1 -lwx_baseu_xml-3.1 -lwx_baseu_net-3.1 -lwx_baseu-3.1
 
 
+    #注意点1：使用wxwidget必须在这里配置下Defines
+    DEFINES +=  __WXGTK__
+    LIBS += $$wxLinkOptions
+    QMAKE_CXXFLAGS_RELEASE += $$wxCXXFLAGS
     #QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media/process_icons/ $$DESTDIR && \
                         #$${QMAKE_COPY_DIR} media/examples/ ../_bin/$$CONFIGURATION/$$PLATFORM/ &&\
                         #$${QMAKE_MKDIR} ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development && \
@@ -194,17 +199,6 @@ QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 INCLUDEPATH += $$PWD/include/
 
 INCLUDEPATH += $$PWD/../_lib/libuv/include
-
-INCLUDEPATH += $$PWD/../_lib/wxwidgets/include
-#DEPENDPATH += $$PWD/../_lib/wxwidgets/include
-INCLUDEPATH += $$PWD/../_lib/wxwidgets/lib/linux/wx/include/gtk2-unicode-3.1
-
-
-
-#注意点1：使用wxwidget必须在这里配置下Defines
-DEFINES +=  __WXGTK__
-LIBS += $$wxLinkOptions
-QMAKE_CXXFLAGS_RELEASE += $$wxCXXFLAGS
 
 
 message("Defines:")
