@@ -42,6 +42,7 @@ private:
     void OnMyThreadEvent(wxThreadEvent& event);
 
     void onClientAccepted(const string& ip,int port);
+    void onClientClosed(int id,const string& ip,int port);
 
     wxTextCtrl* txtName;
     MyTray* m_tray;

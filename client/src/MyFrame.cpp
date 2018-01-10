@@ -76,8 +76,10 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 
     Centre();
 
-    connection_accepted_cb f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
+    auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
     server.setConnectionAcceptedCb(f1);
+    auto f2 = bind(&MyFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
+    server.setClientClosedCb(f2);
 
 }
 
@@ -178,12 +180,24 @@ void MyFrame::onClientAccepted(const string& ip,int port)
     //wxTheApp->QueueEvent(e.Clone());
 }
 
+void MyFrame::onClientClosed(int id,const string& ip,int port)
+{
+    wxThreadEvent* e = new wxThreadEvent(wxEVT_COMMAND_THREAD, wxID_ANY);
+    e->SetId(2);
+    e->SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
+    wxQueueEvent(this,e);
+}
+
 void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
 {
-    if(event.GetId() == 1){
-        wxString msg = event.GetString();
-
+    wxString msg = event.GetString();
+    switch(event.GetId()){
+    case 1:
         SetStatusText("client accepted : " + msg);
+        break;
+    case 2:
+        SetStatusText("client closed : " + msg);
+        break;
     }
 
 /*

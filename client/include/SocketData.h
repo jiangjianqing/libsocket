@@ -7,12 +7,11 @@
 
 using namespace std;
 
-typedef void (*new_connect_cb)(int clientid);
 typedef void (*server_recvcb)(int cliendid, const char* buf, int bufsize);
 typedef void (*client_recvcb)(const char* buf, int bufsize, void* userdata);
 
-
 typedef function<void (const string& ip,int port)> connection_accepted_cb;
+typedef function<void (int id, const string& ip,int port)> client_close_cb;
 
 class SocketData
 {

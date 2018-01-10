@@ -1,7 +1,7 @@
 #include "TcpServer.h"
 
 TcpServer::TcpServer()
-    : m_newConnect_cb(nullptr),m_cbConnectionAccpeted(nullptr)
+    : m_cbConnectionAccpeted(nullptr),m_cbClientClosed(nullptr)
 {
     //deprecated 不使用libuv提供的mutex，改用c++ 标准库中的mutex
     //int iret = uv_mutex_init(&m_mutexClients);
@@ -68,12 +68,6 @@ void TcpServer::close()
 
 
 
-}
-
-//服务器-新链接回调函数
-void TcpServer::setNewConnectCb(new_connect_cb cb)
-{
-    m_newConnect_cb = cb;
 }
 
 bool TcpServer::bind(const string& ip, int port)
@@ -190,6 +184,11 @@ void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_b
 void TcpServer::onAfterClientClose(uv_handle_t *handle)
 {
     SocketData *cdata = (SocketData*)handle->data;
+    TcpServer *server = (TcpServer *)cdata->socket();
+    if(server->m_cbClientClosed){
+
+        server->m_cbClientClosed(cdata->clientId(),cdata->ip(),cdata->port());
+    }
     handle->data = nullptr;
     //LOGI("client "<<cdata->client_id<<" had closed.");
     delete cdata;
