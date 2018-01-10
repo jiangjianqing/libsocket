@@ -26,6 +26,7 @@ bool TcpServer::start( const string& ip, int port )
     if (!init()) {
         return false;
     }
+
     if (!bind(ip,port)) {
         return false;
     }
@@ -48,7 +49,7 @@ bool TcpServer::run(int mode)
     thread t1([this,mode](){
         int iret = uv_run(m_loop,(uv_run_mode)mode);
         if (iret) {
-            //m_errmsg = getUVError(iret);
+            m_errmsg = getUVError(iret);
         }
         int i = 0;
         i = i + 1;
@@ -79,9 +80,14 @@ void TcpServer::close()
     uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
 
         //LOGI("close server");
+    uv_idle_stop(m_idler);
     uv_stop(m_loop);
+//}
 
-    //AbstractSocket::close();
+    //if(m_idler != nullptr){
+
+
+    AbstractSocket::close();
 
     m_isInited = false;
 
@@ -192,6 +198,7 @@ void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_b
     } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
     } else /*if (client->recvcb_)*/ {//正常读取数据
+        //uv_as
         //client->recvcb_(client->client_id,buf->base,nread);
     }
 }

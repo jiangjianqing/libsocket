@@ -2,6 +2,7 @@
 #define ABSTRACTSOCKET_H
 
 #include <string>
+#include <vector>
 
 #include "uv.h"
 
@@ -34,6 +35,7 @@ protected:
 
 private:
     static void onIdle(uv_idle_t *handle);
+    vector<void*> m_ptrList;
 };
 
 #endif // ABSTRACTSOCKET_H

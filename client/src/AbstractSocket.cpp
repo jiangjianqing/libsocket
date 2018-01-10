@@ -14,6 +14,10 @@ AbstractSocket::AbstractSocket()
 AbstractSocket::~AbstractSocket()
 {
     close();
+    for(auto itor = m_ptrList.begin(); itor != m_ptrList.end(); itor++){
+        void* p = *itor;
+        free(p);
+    }
 }
 
 void AbstractSocket::setErrMsg(int uvErrId)
@@ -55,12 +59,24 @@ bool AbstractSocket::setKeepAlive(int enable, unsigned int delay)
 
 void AbstractSocket::close()
 {
+    /*
+    if(m_loop != nullptr){
+        std::this_thread::sleep_for(chrono::milliseconds(500));
+    }*/
+
     if(m_idler != nullptr){
         uv_idle_stop(m_idler);
-        free(m_idler);
+        //free(m_idler);
         m_idler = nullptr;
     }
     if(m_loop != nullptr){
+        int iret = uv_loop_close(m_loop);
+        if (UV_EBUSY == iret){
+            int i = 0;
+            i = i + 1;
+        }
+        int activeCounat = uv_loop_alive(m_loop);
+/*
         while(true){
             if(UV_EBUSY != uv_loop_close(m_loop)){
                 break;
@@ -68,8 +84,8 @@ void AbstractSocket::close()
             uv_stop(m_loop);
             std::this_thread::sleep_for(chrono::milliseconds(200));
         }
-
-        free(m_loop);
+*/
+        //free(m_loop);
         m_loop = nullptr;
     }
 }
@@ -83,6 +99,8 @@ bool AbstractSocket::init()
 
     close();
     m_loop = (uv_loop_t*)malloc(sizeof(uv_loop_t));
+    m_ptrList.push_back(m_loop);
+
     int iret = uv_loop_init(m_loop);
     if (iret) {
         m_errmsg = getUVError(iret);
@@ -102,6 +120,7 @@ bool AbstractSocket::init()
     //uv_idle_stop(m_idler); //停止监听，事件环停止，程序停止
 
     m_idler = (uv_idle_t*)malloc(sizeof(uv_idle_t));
+    m_ptrList.push_back(m_idler);
     uv_idle_init(m_loop,m_idler);  //初始化监视器
     uv_idle_start(m_idler, onIdle);  //设置监视器的回调函数
 
@@ -117,6 +136,5 @@ bool AbstractSocket::init()
 
 void AbstractSocket::onIdle(uv_idle_t *handle)
 {
-    int i = 0;
-    i = i + 1;
+
 }
