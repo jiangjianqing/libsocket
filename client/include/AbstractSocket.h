@@ -29,7 +29,7 @@ protected:
     uv_tcp_t m_socket;
     string m_errmsg;
     bool m_isInited;
-    uv_idle_t* m_idler;
+    uv_idle_t m_idler;
 
     void setErrMsg(int uvErrId);
 

@@ -80,16 +80,11 @@ void TcpServer::close()
     uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
 
         //LOGI("close server");
-    uv_idle_stop(m_idler);
-    uv_stop(m_loop);
-//}
-
-    //if(m_idler != nullptr){
 
 
     AbstractSocket::close();
 
-    m_isInited = false;
+
 
 }
 

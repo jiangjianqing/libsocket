@@ -2,7 +2,7 @@
 #include <thread>
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_idler(nullptr),m_loop(nullptr)
+    :m_isInited(false),m_loop(nullptr)
 {
 
 
@@ -64,12 +64,17 @@ void AbstractSocket::close()
         std::this_thread::sleep_for(chrono::milliseconds(500));
     }*/
 
+
+    /*
     if(m_idler != nullptr){
         uv_idle_stop(m_idler);
         //free(m_idler);
         m_idler = nullptr;
-    }
+    }*/
     if(m_loop != nullptr){
+        uv_idle_stop(&m_idler);
+        uv_stop(m_loop);
+        std::this_thread::sleep_for(chrono::milliseconds(200));
         int iret = uv_loop_close(m_loop);
         if (UV_EBUSY == iret){
             int i = 0;
@@ -88,6 +93,7 @@ void AbstractSocket::close()
         //free(m_loop);
         m_loop = nullptr;
     }
+    m_isInited = false;
 }
 
 //初始化与关闭--服务器与客户端一致
@@ -119,10 +125,10 @@ bool AbstractSocket::init()
     //也许nodejs也在其中默认加入了idle,所以发现不了该问题
     //uv_idle_stop(m_idler); //停止监听，事件环停止，程序停止
 
-    m_idler = (uv_idle_t*)malloc(sizeof(uv_idle_t));
-    m_ptrList.push_back(m_idler);
-    uv_idle_init(m_loop,m_idler);  //初始化监视器
-    uv_idle_start(m_idler, onIdle);  //设置监视器的回调函数
+    //m_idler = (uv_idle_t*)malloc(sizeof(uv_idle_t));
+    //m_ptrList.push_back(m_idler);
+    uv_idle_init(m_loop,&m_idler);  //初始化监视器
+    uv_idle_start(&m_idler, onIdle);  //设置监视器的回调函数
 
     m_isInited = true;
     m_socket.data = this;
