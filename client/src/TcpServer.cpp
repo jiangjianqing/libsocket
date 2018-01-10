@@ -125,7 +125,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
         return;
     }
     iret = uv_accept(server, (uv_stream_t*) cdata->handle());
-    //iret = uv_accept((uv_stream_t*)&tcpsock->m_socket, (uv_stream_t*) cdata->socketHandle());
+    //如果不允许接受连接, 可以在这里(uv_listen 的回调函数中)关闭套接字.
     if ( iret) {
         tcpsock->setErrMsg(iret);
         uv_close((uv_handle_t*) cdata->handle(), NULL);
