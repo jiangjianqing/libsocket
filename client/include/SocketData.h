@@ -31,6 +31,7 @@ public:
     uv_buf_t readbuffer;//接受数据的buf
 
     void refreshInfo();
+    bool send(const char* data, std::size_t len);
 
 protected:
     uv_tcp_t* m_socketHandle;//客户端句柄
@@ -45,6 +46,8 @@ private:
     uv_buf_t writebuffer;//写数据的buf
     uv_write_t write_req;
     server_recvcb recvcb_;//接收数据回调给用户的函数
+
+    static void onAfterSend(uv_write_t *req, int status);
 };
 
 #endif // SOCKETDATA_H

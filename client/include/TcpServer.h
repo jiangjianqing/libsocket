@@ -7,6 +7,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <shared_mutex>
 
 
 #define DEFAULT_BACKLOG 128
@@ -24,10 +25,12 @@ public:
     void setConnectionAcceptedCb(connection_accepted_cb cb){m_cbConnectionAccpeted = cb;}
     void setClientClosedCb(client_close_cb cb){m_cbClientClosed = cb;}
 
+    bool send(int clientid, const char* data, std::size_t len);
+
 private:
     connection_accepted_cb m_cbConnectionAccpeted;
     client_close_cb m_cbClientClosed;
-    mutex m_mutexClients;//保护clients_list_
+    shared_timed_mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接
 
     bool bind(const string& ip, int port);

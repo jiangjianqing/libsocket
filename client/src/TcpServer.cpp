@@ -130,7 +130,8 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
     }
 
     cdata->refreshInfo();//刷新一下信息，可以得到客户端的IP和端口
-    unique_lock<mutex> lock1(tcpsock->m_mutexClients);//开启互锁
+
+    unique_lock<shared_timed_mutex> lock1(tcpsock->m_mutexClients);//开启互锁
     tcpsock->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
     if (tcpsock->m_cbConnectionAccpeted) {
         tcpsock->m_cbConnectionAccpeted(cdata->ip(),cdata->port());
@@ -203,7 +204,7 @@ void TcpServer::onAfterServerClose(uv_handle_t *handle)
 
 bool TcpServer::deleteClient( int clientId )
 {
-    unique_lock<mutex> lock1(m_mutexClients);
+    unique_lock<shared_timed_mutex> lock1(m_mutexClients);
     //unique_lock<mutex> lock1(m_mutexClients,defer_lock_t());//使用defer_lock_t是为了能够用泛型lock函数，一次锁定多个mutex
     //lock(lock1,lock2);
     //uv_mutex_lock(&m_mutexClients);
@@ -229,5 +230,21 @@ bool TcpServer::deleteClient( int clientId )
     return true;
 }
 
+//服务器发送函数
+
+bool TcpServer::send(int clientid, const char* data, std::size_t len)
+{
+    shared_lock<shared_timed_mutex> lock1(m_mutexClients);
+    auto itfind = m_clients.find(clientid);
+    if (itfind == m_clients.end()) {
+        m_errmsg = "can't find cliendid ";
+        m_errmsg += std::to_string((long long)clientid);
+           //LOGE(errmsg_);
+           return -1;
+    }
+    //自己控制data的生命周期直到write结束
+    SocketData* cdata = itfind->second;
+    return cdata->send(data,len);
+}
 
 

@@ -83,3 +83,33 @@ void check_sockname(struct sockaddr* addr, const char* compare_ip,
 
     printf("%s: %s:%d\n", context, check_ip, ntohs(check_addr.sin_port));
 }
+
+bool SocketData::send(const char* data, std::size_t len)
+{
+    if (writebuffer.len < len) {
+        writebuffer.base = (char*)realloc(writebuffer.base,len);
+        writebuffer.len = len;
+    }
+    memcpy(writebuffer.base,data,len);
+    uv_buf_t buf = uv_buf_init((char*)writebuffer.base,len);
+    int iret = uv_write(&write_req, (uv_stream_t*)handle(), &buf, 1, onAfterSend);
+    if (iret) {
+           //errmsg = getUVError(iret);
+           //LOGE(errmsg_);
+           return false;
+    }
+    return true;
+}
+
+//服务器与客户端一致
+
+void SocketData::onAfterSend(uv_write_t *req, int status)
+{
+    if (status < 0) {
+        //m_errmsg = "发送数据有误:"<<getUVError(status);
+            //LOGE("发送数据有误:"<<GetUVError(status));
+
+            //fprintf(stderr, "Write error %s\n", GetUVError(status));
+    }
+
+}

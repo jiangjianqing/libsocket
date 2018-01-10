@@ -1,7 +1,7 @@
 TEMPLATE = app
 #设置console就会从shell启动
 #CONFIG += console c++11
-CONFIG += c++11
+CONFIG += c++14
 CONFIG -= app_bundle
 CONFIG -= qt
 
