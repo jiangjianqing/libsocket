@@ -133,7 +133,7 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
     if (!handle->data) {
         return;
     }
-    TcpClient *client = (TcpClient*)handle->data;//服务器的recv带的是TCPClient
+    TcpClient *client = dynamic_cast<TcpClient *>(((SocketData*)handle->data)->socket());//服务器的recv带的是TCPClient
     if (nread < 0) {
         if (nread == UV_EOF) {
             //fprintf(stdout,"服务器(%p)主动断开\n",handle);

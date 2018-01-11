@@ -43,7 +43,7 @@ public:
     } write_req_t;
 
     friend class AbstractSocket;
-    SocketData(int clientid,AbstractSocket* socket);
+    explicit SocketData(int clientid,AbstractSocket* socket);
     virtual ~SocketData();
 
     AbstractSocket* socket(){return m_socket;}
