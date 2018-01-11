@@ -7,6 +7,28 @@
 
 using namespace std;
 
+//注意：这是非常有用的调试函数
+#define FATAL(msg)                                        \
+  do {                                                    \
+    fprintf(stderr,                                       \
+            "Fatal error in %s on line %d: %s\n",         \
+            __FILE__,                                     \
+            __LINE__,                                     \
+            msg);                                         \
+    fflush(stderr);                                       \
+    abort();                                              \
+  } while (0)
+
+#define INFO(msg)                                        \
+  do {                                                    \
+    fprintf(stdout,                                       \
+            "msg on line %d: %s : %s \n",         \
+            __LINE__,                                     \
+            __FILE__,                                     \
+            msg);                                         \
+    fflush(stdout);                                       \
+  } while (0)
+
 typedef void (*server_recvcb)(int cliendid, const char* buf, int bufsize);
 typedef void (*client_recvcb)(const char* buf, int bufsize, void* userdata);
 

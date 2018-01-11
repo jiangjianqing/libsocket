@@ -13,6 +13,12 @@ CodeRepo::CodeRepo()
 
 }
 
+void showcmd(const char *str)  //运行system
+{
+    //执行系统命令，但无法进行交互
+        system(str);
+}
+
 void CodeRepo::DynamicLibraryExample()
 {
     //wxString dir(wxGetWorkingDirectory());
