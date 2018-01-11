@@ -32,8 +32,7 @@ using namespace std;
 typedef void (*server_recvcb)(int cliendid, const char* buf, int bufsize);
 typedef void (*client_recvcb)(const char* buf, int bufsize, void* userdata);
 
-typedef function<void (const string& ip,int port)> connection_accepted_cb;
-typedef function<void (int id, const string& ip,int port)> client_close_cb;
+
 
 class SocketData
 {
@@ -52,13 +51,13 @@ public:
     uv_tcp_t* handle(){return m_socketHandle;}
 
     int clientId(){return m_clientId;}
-    string ip(){return m_ip;}
+    const string& ip(){return m_ip;}
     int port(){return m_port;}
 
     uv_buf_t readbuffer;//接受数据的buf
 
     void refreshInfo();
-    bool send(const char* data, std::size_t len);
+    bool send(const char* data, size_t len,uv_write_cb cb);
 
     /**
      * @brief reverse 反转字符串，用于echo测试
@@ -81,9 +80,34 @@ private:
     uv_write_t write_req;
     server_recvcb recvcb_;//接收数据回调给用户的函数
 
-    static void onAfterSend(uv_write_t *req, int status);
+    static void onAfterWrite(uv_write_t *req, int status);
 
 
 };
+
+
+enum class client_event_type{
+    ReadError,WriteError,ConnectionAccept,ConnectionClose
+};
+
+struct client_event_s{
+    client_event_type type;
+    int clientId;
+    string ip;
+    int port;
+    string msg;
+
+    client_event_s(client_event_type eventType,SocketData* cdata){
+        clientId = cdata->clientId();
+        ip = cdata->ip();
+        port = cdata->port();
+        type = eventType;
+    }
+};
+typedef client_event_s client_event_t;
+
+typedef function<void (const string& ip,int port)> connection_accepted_cb;
+typedef function<void (int id, const string& ip,int port)> client_close_cb;
+typedef function<void (const client_event_t& event)> client_event_cb;
 
 #endif // SOCKETDATA_H

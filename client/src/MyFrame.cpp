@@ -78,10 +78,26 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 
     Centre();
 
-    auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
-    server.setConnectionAcceptedCb(f1);
-    auto f2 = bind(&MyFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
-    server.setClientClosedCb(f2);
+    auto fn= [this](const client_event_t& event){
+        switch(event.type){
+        case client_event_type::ConnectionAccept:
+            onClientAccepted(event.ip,event.port);
+            break;
+        case client_event_type::ConnectionClose:
+            onClientClosed(event.clientId,event.ip,event.port);
+            break;
+        case client_event_type::ReadError:
+            break;
+        case client_event_type::WriteError:
+            break;
+        }
+    };
+    server.setClientEventCb(fn);
+
+    //auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
+    //server.setConnectionAcceptedCb(f1);
+    //auto f2 = bind(&MyFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
+    //server.setClientClosedCb(f2);
 
 }
 
