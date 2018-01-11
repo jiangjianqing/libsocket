@@ -3,6 +3,10 @@
 #include "wx/dynlib.h"
 #include "wx/msgdlg.h"
 #include "wx/event.h"
+#ifndef MAX_PATH
+//windows+vc下已包含MAX_PATH定义，会冲突
+#define MAX_PATH 255
+#endif
 
 CodeRepo::CodeRepo()
 {
@@ -14,7 +18,8 @@ void CodeRepo::DynamicLibraryExample()
     //wxString dir(wxGetWorkingDirectory());
         //wxMessageBox(dir,_T("dir"),wxOK);
     //const int MAX_PATH = 255;
-    wxChar name[MAX_PATH] = {0};//vc下已包含MAX_PATH定义，会冲突
+
+    wxChar name[MAX_PATH] = {0};
     //GetModuleFileName(0L, name, MAX_PATH);
         //wxMessageBox(name,_T("dir"),wxOK);
     wxFileName fname("path");

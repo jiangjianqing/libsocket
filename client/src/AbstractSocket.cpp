@@ -39,7 +39,6 @@ string AbstractSocket::getUVError(int retcode)
 
 void AbstractSocket::run(int mode)
 {
-    unique_lock<mutex> lock1(m_mutexRun);
     //LOGI("server runing.");
     int iret;
     thread t1([this,mode](){

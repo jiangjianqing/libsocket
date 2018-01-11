@@ -175,19 +175,19 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 void MyFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    wxThreadEvent* e = new wxThreadEvent(wxEVT_COMMAND_THREAD, wxID_ANY);
-    e->SetId(1);
-    e->SetString(ip + ":" + std::to_string(port));
-    wxQueueEvent(this,e);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId(1);
+    event.SetString(ip + ":" + std::to_string(port));
+    wxQueueEvent(this,event.Clone());
     //wxTheApp->QueueEvent(e.Clone());
 }
 
 void MyFrame::onClientClosed(int id,const string& ip,int port)
 {
-    wxThreadEvent* e = new wxThreadEvent(wxEVT_COMMAND_THREAD, wxID_ANY);
-    e->SetId(2);
-    e->SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
-    wxQueueEvent(this,e);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId(2);
+    event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
+    wxQueueEvent(this,event.Clone());
 }
 
 void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
