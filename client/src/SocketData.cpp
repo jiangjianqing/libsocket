@@ -13,6 +13,7 @@ SocketData::SocketData(int clientId,AbstractSocket* socket)
     readbuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
     writebuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
 
+    m_useExternalHandle = false;
 
 }
 
@@ -26,8 +27,21 @@ SocketData::~SocketData()
     writebuffer.base = nullptr;
     writebuffer.len = 0;
 
-    free(m_socketHandle);
-    m_socketHandle = nullptr;
+    if(!m_useExternalHandle){
+        free(m_socketHandle);
+        m_socketHandle = nullptr;
+    }
+
+}
+
+void SocketData::setExternalHandle(uv_tcp_t* handle)
+{
+    if(m_socketHandle){
+        free(m_socketHandle);
+
+    }
+    m_useExternalHandle = true;
+    m_socketHandle = handle;
 }
 
 void SocketData::refreshInfo()

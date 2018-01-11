@@ -22,13 +22,11 @@ protected:
     void ConnectThread(const char* ip, int port);
 
     //静态回调函数
+    static void closeCient(SocketData* cdata);
 
     static void onAfterConnect(uv_connect_t* req, int status);
 
     static void onAfterRead(uv_stream_t *client, ssize_t nread, const uv_buf_t* buf);
-
-    static void AfterSend(uv_write_t *req, int status);
-
     static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
 
     static void onAfterClientClose(uv_handle_t *handle);
@@ -39,7 +37,7 @@ private:
      SocketData* m_socketData;
 
      //handle需要使用m_socketData的，从AbstractSocket继承来的m_socket忽略
-     uv_tcp_t* handle(){return m_socketData->handle();}
+     //uv_tcp_t* handle(){return m_socket;}
 };
 
 #endif // TCPCLIENT_H

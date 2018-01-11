@@ -50,6 +50,12 @@ public:
 
     uv_tcp_t* handle(){return m_socketHandle;}
 
+    /**
+     * @brief setExternalHandle //2018.01.11 重要： TcpClient为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
+     * @param handle
+     */
+    void setExternalHandle(uv_tcp_t* handle);
+
     int clientId(){return m_clientId;}
     const string& ip(){return m_ip;}
     int port(){return m_port;}
@@ -70,6 +76,8 @@ protected:
     uv_tcp_t* m_socketHandle;//客户端句柄
 private:
     int m_clientId;//客户端id,惟一
+
+    bool m_useExternalHandle;
 
     string m_ip;
     int m_port;

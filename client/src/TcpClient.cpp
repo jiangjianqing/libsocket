@@ -2,12 +2,16 @@
 
 TcpClient::TcpClient()
 {
-
+    m_socketData = new SocketData(-1,this);
+    //2018.01.11 重要： 为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
+    m_socketData->setExternalHandle(&m_socket);
 }
 
 TcpClient::~TcpClient()
 {
     close();
+
+    delete m_socketData;
 }
 
 /*
@@ -23,9 +27,8 @@ void TcpClient::close()
         return;
     }
 
-    uv_close((uv_handle_t*) handle(), onAfterClientClose);
+    closeCient(m_socketData);//closeClient中负责调用AbstractSocket::close();，关闭连接 = 关闭socket
     //----最后调用parent的close
-    AbstractSocket::close();
 }
 
 //作为client的connect函数
@@ -74,15 +77,15 @@ void TcpClient::ConnectThread(const char* ip, int port)
         //LOGE(pclient->errmsg_);
             return;
     }
-    m_socketData = new SocketData(-1,this);
+/*
     iret = uv_tcp_init(m_loop , handle());//由析构函数释放
     if (iret) {
         //delete cdata;
         //server->setErrMsg(iret);
         return;
-    }
+    }*/
     uv_connect_t* connectReq = (uv_connect_t*)malloc(sizeof(uv_connect_t));//连接时请求
-    iret = uv_tcp_connect(connectReq, handle(), (const sockaddr*)&bind_addr, onAfterConnect);
+    iret = uv_tcp_connect(connectReq, &m_socket, (const sockaddr*)&bind_addr, onAfterConnect);
     if (iret) {
         //pclient->errmsg_ = GetUVError(iret);
         //LOGE(pclient->errmsg_);
@@ -124,7 +127,8 @@ void TcpClient::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf
     if (!handle->data) {
         return;
     }
-    SocketData *cdata = (SocketData*)handle->data;
+    TcpClient* client = static_cast<TcpClient*>(handle->data);
+    SocketData *cdata = client->m_socketData;
     *buf = cdata->readbuffer;
 }
 
@@ -133,7 +137,8 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
     if (!handle->data) {
         return;
     }
-    TcpClient *client = dynamic_cast<TcpClient *>(((SocketData*)handle->data)->socket());//服务器的recv带的是TCPClient
+    TcpClient* client = static_cast<TcpClient*>(handle->data);
+    SocketData* cdata = client->m_socketData;
     if (nread < 0) {
         if (nread == UV_EOF) {
             //fprintf(stdout,"服务器(%p)主动断开\n",handle);
@@ -145,7 +150,7 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
             //fprintf(stdout,"服务器(%p)异常断开:%s\n",handle,GetUVError(nread));
             //LOGW("服务器异常断开"<<GetUVError(nread));
         }
-        uv_close((uv_handle_t*)handle, onAfterClientClose);
+        client->closeCient(cdata);
 
         return;
 
@@ -165,16 +170,6 @@ void TcpClient::onAfterClientClose(uv_handle_t *handle)
     //LOGI("客户端("<<handle<<")已close");
 }
 
-void TcpClient::AfterSend(uv_write_t *req, int status)
-{
-    TcpClient *client = (TcpClient *)req->handle->data;
-    //uv_mutex_unlock(&client->write_mutex_handle_);
-    if (status < 0) {
-        //LOGE("发送数据有误:"<<GetUVError(status));
-        //fprintf(stderr, "Write error %s\n", GetUVError(status));
-    }
-}
-
 bool TcpClient::send(const char* data, std::size_t len)
 {
 
@@ -186,10 +181,33 @@ bool TcpClient::send(const char* data, std::size_t len)
 
 void TcpClient::onAfterWrite(uv_write_t *req, int status)
 {
-    TcpClient *client = (TcpClient *)req->handle->data;
+
     //uv_mutex_unlock(&client->write_mutex_handle_);
     if (status < 0) {
-        //LOGE("发送数据有误:"<<GetUVError(status));
-        //fprintf(stderr, "Write error %s\n", GetUVError(status));
+        TcpClient* client = static_cast<TcpClient*>(req->handle->data);
+        SocketData* cdata = client->m_socketData;
+
+        client_event_t clientEvent(client_event_type::WriteError,cdata);
+        closeCient(cdata);//先关闭连接，再移除clients
+
+        //client->callClientEventCb(clientEvent);
+        //m_errmsg = "发送数据有误:"<<getUVError(status);
+            //LOGE("发送数据有误:"<<GetUVError(status));
+
+            //fprintf(stderr, "Write error %s\n", GetUVError(status));
     }
+}
+
+void TcpClient::closeCient(SocketData* cdata)
+{
+    TcpClient *client = (TcpClient *)cdata->socket();
+    if (uv_is_active((uv_handle_t*)cdata->handle())) {
+        uv_read_stop((uv_stream_t*)cdata->handle());
+    }
+
+    uv_close((uv_handle_t*)cdata->handle(),onAfterClientClose);
+
+    //关闭连 = 关闭整个socket
+    client->AbstractSocket::close();
+
 }
