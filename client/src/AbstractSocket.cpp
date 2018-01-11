@@ -65,9 +65,11 @@ void AbstractSocket::close()
         //stop以后不能马上执行uv_loop_close()，等条件变量触发后再free掉loop指针
         uv_stop(m_loop);
         //std::this_thread::sleep_for(chrono::milliseconds(200));
-        m_condVarRun.wait(lock1);
         int activeCounat = uv_loop_alive(m_loop);
         int iret = uv_loop_close(m_loop);
+        m_condVarRun.wait(lock1);
+        //int activeCounat = uv_loop_alive(m_loop);
+        //int iret = uv_loop_close(m_loop);
         if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
             int i = 0;
             i = i + 1;

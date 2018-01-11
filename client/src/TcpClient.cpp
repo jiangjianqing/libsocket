@@ -60,6 +60,7 @@ bool TcpClient::connect(const char* ip, int port)
     */
 
     //return connectstatus_ == CONNECT_FINISH;
+
     run();
     return true;
 }
@@ -103,6 +104,7 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
     //fprintf(stdout,"start after connect\n");
     TcpClient *client = (TcpClient*)req->handle->data;
     if (status) {
+        client->close();
             //pclient->connectstatus_ = CONNECT_ERROR;
             //fprintf(stdout,"connect error:%s\n",GetUVError(status));
 
