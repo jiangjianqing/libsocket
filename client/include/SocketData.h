@@ -78,11 +78,6 @@ private:
 
     uv_buf_t writebuffer;//写数据的buf
     uv_write_t write_req;
-    server_recvcb recvcb_;//接收数据回调给用户的函数
-
-    static void onAfterWrite(uv_write_t *req, int status);
-
-
 };
 
 

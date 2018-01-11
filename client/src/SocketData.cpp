@@ -5,7 +5,7 @@
 #define BUFFERSIZE (1024*1024)
 
 SocketData::SocketData(int clientId,AbstractSocket* socket)
-    : m_clientId(clientId),m_socket(socket),recvcb_(nullptr)
+    : m_clientId(clientId),m_socket(socket)
 {
     //client_handle = (uv_tcp_t*)malloc(sizeof(*client_handle));
     m_socketHandle = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
@@ -101,24 +101,6 @@ bool SocketData::send(const char* data, std::size_t len,uv_write_cb cb)
     }
     return true;
 }
-
-//服务器与客户端一致
-/*
-void SocketData::onAfterWrite(uv_write_t *req, int status)
-{
-    m_cbAfterWrited(req,status);
-    if (status == 0)
-        return;
-
-    if (status < 0) {
-        //m_errmsg = "发送数据有误:"<<getUVError(status);
-            //LOGE("发送数据有误:"<<GetUVError(status));
-
-            //fprintf(stderr, "Write error %s\n", GetUVError(status));
-    }
-
-
-}*/
 
 //用于echo
 void SocketData::reverse(char *s, int len)

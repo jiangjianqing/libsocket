@@ -16,9 +16,10 @@ public:
 
     bool send(const char* data, std::size_t len);
 
+
 protected:
 
-    static void ConnectThread(TcpClient *client,const char* ip, int port);
+    void ConnectThread(const char* ip, int port);
 
     //静态回调函数
 
@@ -36,6 +37,9 @@ protected:
 private:
 
      SocketData* m_socketData;
+
+     //handle需要使用m_socketData的，从AbstractSocket继承来的m_socket忽略
+     uv_tcp_t* handle(){return m_socketData->handle();}
 };
 
 #endif // TCPCLIENT_H

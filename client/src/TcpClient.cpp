@@ -2,12 +2,12 @@
 
 TcpClient::TcpClient()
 {
-    m_socketData = new SocketData(-1,this);
+
 }
 
 TcpClient::~TcpClient()
 {
-
+    close();
 }
 
 /*
@@ -23,7 +23,7 @@ void TcpClient::close()
         return;
     }
 
-    uv_close((uv_handle_t*) &m_socket, onAfterClientClose);
+    uv_close((uv_handle_t*) handle(), onAfterClientClose);
     //----最后调用parent的close
     AbstractSocket::close();
 }
@@ -36,6 +36,7 @@ bool TcpClient::connect(const char* ip, int port)
     if(!init()){
         return false;
     }
+    ConnectThread(ip,port);
     //connectip_ = ip;
     //connectport_ = port;
     //LOGI("客户端("<<this<<")start connect to server("<<ip<<":"<<port<<")");
@@ -60,7 +61,7 @@ bool TcpClient::connect(const char* ip, int port)
     return true;
 }
 
-void TcpClient::ConnectThread(TcpClient *client,const char* ip, int port)
+void TcpClient::ConnectThread(const char* ip, int port)
 {
     //fprintf(stdout,"client(%p) ConnectThread start\n",pclient);
     //struct sockaddr_in6 bind_addr;
@@ -73,8 +74,15 @@ void TcpClient::ConnectThread(TcpClient *client,const char* ip, int port)
         //LOGE(pclient->errmsg_);
             return;
     }
+    m_socketData = new SocketData(-1,this);
+    iret = uv_tcp_init(m_loop , handle());//由析构函数释放
+    if (iret) {
+        //delete cdata;
+        //server->setErrMsg(iret);
+        return;
+    }
     uv_connect_t* connectReq = (uv_connect_t*)malloc(sizeof(uv_connect_t));//连接时请求
-    iret = uv_tcp_connect(connectReq, &client->m_socket, (const sockaddr*)&bind_addr, onAfterConnect);
+    iret = uv_tcp_connect(connectReq, handle(), (const sockaddr*)&bind_addr, onAfterConnect);
     if (iret) {
         //pclient->errmsg_ = GetUVError(iret);
         //LOGE(pclient->errmsg_);
@@ -141,12 +149,12 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
 
         return;
 
-    }
+    } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
-    if (nread > 0/* && client->recvcb_*/) {
-
-            //client->recvcb_(buf->base,nread,client->userdata_);
-
+    } else /*if (client->recvcb_)*/ {//正常读取数据
+        //echo test
+        SocketData::reverse(buf->base,nread);
+        client->send(buf->base,nread);
     }
 
 }

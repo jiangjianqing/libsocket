@@ -9,6 +9,7 @@
 #include "wx/stattext.h"
 
 #include "TcpServer.h"
+#include "TcpClient.h"
 
 class MyTray;
 
@@ -62,6 +63,7 @@ private:
     wxStatusBar* statusbar;
 
     TcpServer server;
+    TcpClient client;
 };
 
 #endif // MYFRAME_H
