@@ -92,6 +92,7 @@ bool SocketData::send(const char* data, std::size_t len)
     }
     memcpy(writebuffer.base,data,len);
     uv_buf_t buf = uv_buf_init((char*)writebuffer.base,len);
+    //注：如果一次发送多个buf，可以加快性能
     int iret = uv_write(&write_req, (uv_stream_t*)handle(), &buf, 1, onAfterSend);
     if (iret) {
            //errmsg = getUVError(iret);

@@ -12,16 +12,17 @@
 
 #define DEFAULT_BACKLOG 128
 
+enum class StreamType{
+    TCP = 0,
+    UDP,
+    PIPE
+} ;
 
 
 class TcpServer : public AbstractSocket
 {
 public:
-    typedef enum {
-        TCP = 0,
-        UDP,
-        PIPE
-    } stream_type;
+
 
     explicit TcpServer();
     virtual ~TcpServer();
@@ -49,7 +50,8 @@ private:
 
     static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
     static void onAcceptConnection(uv_stream_t *server, int status);
-    static void onAfterRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
+    static void onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
+    static void onAfterShutdown(uv_shutdown_t* req, int status);
     static void onAfterClientClose(uv_handle_t *handle);
     static void onAfterServerClose(uv_handle_t *handle);
 

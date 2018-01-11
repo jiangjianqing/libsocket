@@ -140,7 +140,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
 
 
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
-    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterRecv);//服务器开始接收客户端的数据
+    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterRead);//服务器开始接收客户端的数据
 
 }
 
@@ -154,13 +154,13 @@ void TcpServer::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf
     *buf = cdata->readbuffer;
 }
 
-void TcpServer::onAfterRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
+void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
 {
     if (!handle->data) {
         return;
     }
     SocketData * cdata = (SocketData*)handle->data;//服务器的recv带的是clientdata
-    if (nread < 0) {/* Error or EOF */
+    if (nread < 0) {/*客户端断开连接时 */
         TcpServer *server = (TcpServer *)cdata->socket();
         if (nread == UV_EOF) {
             //fprintf(stdout,"客户端(%d)连接断开，关闭此客户端\n",client->client_id);
@@ -172,7 +172,8 @@ void TcpServer::onAfterRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
             //fprintf(stdout,"%s\n",GetUVError(nread));
             //LOGW("客户端("<<client->client_id<<")异常断开："<<GetUVError(nread));
         }
-        server->deleteClient(cdata->clientId());//连接断开，关闭客户端
+        uv_shutdown_t* req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
+        uv_shutdown(req, handle, onAfterShutdown);
         return;
     } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
@@ -203,6 +204,15 @@ void TcpServer::onAfterServerClose(uv_handle_t *handle)
     //服务器,不需要做什么
     int i = 0;
     i = i + 1;
+}
+
+void TcpServer::onAfterShutdown(uv_shutdown_t* req, int status)
+{
+    //uv_close((uv_handle_t*)req->handle, on_close);
+    SocketData * cdata = (SocketData*)req->handle->data;
+    TcpServer *server = (TcpServer *)cdata->socket();
+    server->deleteClient(cdata->clientId());//连接断开，关闭客户端
+    free(req);
 }
 
 bool TcpServer::deleteClient( int clientId )
