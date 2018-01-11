@@ -140,7 +140,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *server, int status)
 
 
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
-    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterServerRecv);//服务器开始接收客户端的数据
+    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterRecv);//服务器开始接收客户端的数据
 
 }
 
@@ -154,7 +154,7 @@ void TcpServer::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf
     *buf = cdata->readbuffer;
 }
 
-void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
+void TcpServer::onAfterRecv(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
 {
     if (!handle->data) {
         return;
@@ -177,6 +177,9 @@ void TcpServer::onAfterServerRecv(uv_stream_t *handle, ssize_t nread, const uv_b
     } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
     } else /*if (client->recvcb_)*/ {//正常读取数据
+        //echo test
+        SocketData::reverse(buf->base,nread);
+        cdata->send(buf->base,nread);
         //uv_as
         //client->recvcb_(client->client_id,buf->base,nread);
     }

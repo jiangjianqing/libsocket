@@ -22,7 +22,7 @@ using namespace std;
 #define INFO(msg)                                        \
   do {                                                    \
     fprintf(stdout,                                       \
-            "msg on line %d: %s : %s \n",         \
+            "INFO on line %d: %s : %s \n",         \
             __LINE__,                                     \
             __FILE__,                                     \
             msg);                                         \
@@ -38,6 +38,11 @@ typedef function<void (int id, const string& ip,int port)> client_close_cb;
 class SocketData
 {
 public:
+    typedef struct {
+      uv_write_t req;
+      uv_buf_t buf;
+    } write_req_t;
+
     friend class AbstractSocket;
     SocketData(int clientid,AbstractSocket* socket);
     virtual ~SocketData();
@@ -55,6 +60,13 @@ public:
     void refreshInfo();
     bool send(const char* data, std::size_t len);
 
+    /**
+     * @brief reverse 反转字符串，用于echo测试
+     * @param s
+     * @param len
+     */
+    static void reverse(char *s, int len);
+
 protected:
     uv_tcp_t* m_socketHandle;//客户端句柄
 private:
@@ -70,6 +82,8 @@ private:
     server_recvcb recvcb_;//接收数据回调给用户的函数
 
     static void onAfterSend(uv_write_t *req, int status);
+
+
 };
 
 #endif // SOCKETDATA_H

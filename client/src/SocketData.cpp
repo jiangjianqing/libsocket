@@ -113,3 +113,21 @@ void SocketData::onAfterSend(uv_write_t *req, int status)
     }
 
 }
+
+//用于echo
+void SocketData::reverse(char *s, int len)
+{
+    char c;
+    char *end;
+    end = s + len - 1;
+    while (*end == '\r' || *end == '\n') {
+        end--;
+    }
+    while (end > s) {
+        c = *end;
+        *end = *s;
+        *s = c;
+        end--;
+        s++;
+    }
+}
