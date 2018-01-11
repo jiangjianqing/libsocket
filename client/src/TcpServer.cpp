@@ -192,7 +192,7 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
 void TcpServer::onAfterClientClose(uv_handle_t *handle)
 {
     SocketData *cdata = (SocketData*)handle->data;
-    TcpServer *server = (TcpServer *)cdata->socket();
+    //TcpServer *server = (TcpServer *)cdata->socket();
     handle->data = nullptr;
     //LOGI("client "<<cdata->client_id<<" had closed.");
     delete cdata;
