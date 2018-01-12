@@ -173,7 +173,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     txtName->SetValue("11223344");//改变文本框的内容
 
     //client.connect("127.0.0.1",11212);
-    server.start("0.0.0.0",11211);
+    //server.start("0.0.0.0",11211);
+    udpClient.connect(8899);
 
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
@@ -185,7 +186,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
-    server.close();
+    udpClient.close();
+    //server.close();
     //client.close();
     wxLogMessage("server stoped!");
 }

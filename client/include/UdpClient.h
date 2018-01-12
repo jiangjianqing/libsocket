@@ -10,15 +10,21 @@ public:
     virtual ~UdpClient();
 
     void close() override;
-    void connect(int port);
+    bool connect(int port);
+    void send(const char* data,size_t len);
 
+    void send(const uv_buf_t bufs[],unsigned int nbufs,const struct sockaddr* addr);
+    void send(const char* data,size_t len,const struct sockaddr* addr);
 
 
 private:
+    uv_udp_t m_sendHandle;
     SocketData* m_socketData;
+    uv_udp_send_t m_reqSend;
     static void closeClientByThread(SocketData* cdata);
     static void closeClient(SocketData* cdata);
-    static void onAfterRead(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags);
+    static void onAfterSend(uv_udp_send_t* req, int status);
+    static void onAfterRead(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags);
     static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
     static void onAfterClientClose(uv_handle_t *handle);
 };

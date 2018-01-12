@@ -14,7 +14,7 @@ public:
     void close() override;
     bool connect(const char* ip, int port);
 
-    bool send(const char* data, std::size_t len);
+    bool send(const char* data, size_t len);
 
     string remoteIp(){return m_remoteIp;}
     int remotePort(){return m_remotePort;}
