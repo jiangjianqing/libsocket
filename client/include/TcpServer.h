@@ -31,12 +31,10 @@ public:
 
     void close() override;
 
-    void setClientEventCb(client_event_cb cb){m_cbClientEvent = cb;}
-
     bool send(int clientid, const char* data, std::size_t len);
 
 private:
-    client_event_cb m_cbClientEvent;
+
     shared_timed_mutex m_mutexClients;//保护clients_list_
     std::map<int,SocketData*> m_clients;//子客户端链接
 
@@ -45,7 +43,6 @@ private:
     int getAvailableClientId() const{static atomic<int> s_id(0); return ++s_id; }//没有考虑频繁连接、断开导致s_id资源耗尽的情况
 
     bool removeClient( int clientId );
-    void callClientEventCb(const client_event_t& event);
 
     static void closeCient(SocketData* cdata,bool removeFromClients);
     static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);

@@ -78,21 +78,20 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 
     Centre();
 
-    auto fn= [this](const client_event_t& event){
+    auto fn= [this](const socket_event_t& event){
         switch(event.type){
-        case client_event_type::ConnectionAccept:
+        case socket_event_type::ConnectionAccept:
             onClientAccepted(event.ip,event.port);
             break;
-        case client_event_type::ConnectionClose:
+        case socket_event_type::ConnectionClose:
             onClientClosed(event.clientId,event.ip,event.port);
             break;
-        case client_event_type::ReadError:
-            break;
-        case client_event_type::WriteError:
+        default:
+            onSimpleSocketEvent(event.type);
             break;
         }
     };
-    server.setClientEventCb(fn);
+    server.setSocketEventCb(fn);
 
     //auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
     //server.setConnectionAcceptedCb(f1);
@@ -194,7 +193,7 @@ void MyFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
-    event.SetId(1);
+    event.SetId((int)socket_event_type::ConnectionAccept);
     event.SetString(ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
     //wxTheApp->QueueEvent(e.Clone());
@@ -203,8 +202,16 @@ void MyFrame::onClientAccepted(const string& ip,int port)
 void MyFrame::onClientClosed(int id,const string& ip,int port)
 {
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
-    event.SetId(2);
+    event.SetId((int)socket_event_type::ConnectionClose);
     event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
+    wxQueueEvent(this,event.Clone());
+}
+
+void MyFrame::onSimpleSocketEvent(socket_event_type type)
+{
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId((int)type);
+    //event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
 }
 
@@ -212,11 +219,23 @@ void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
 {
     wxString msg = event.GetString();
     switch(event.GetId()){
-    case 1:
+    case (int)socket_event_type::ConnectionAccept:
         SetStatusText("client accepted : " + msg);
         break;
-    case 2:
+    case (int)socket_event_type::ConnectionClose:
         SetStatusText("client closed : " + msg);
+        break;
+    case (int)socket_event_type::Listening:
+        SetStatusText("server is listening !");
+        break;
+    case (int)socket_event_type::ListenFault:
+        SetStatusText("establish listen fault !");
+        break;
+    case (int)socket_event_type::Unknow:
+        SetStatusText("occur unknow socket event !");
+        break;
+    case (int)socket_event_type::SocketClose:
+        SetStatusText("socket closed !");
         break;
     }
 

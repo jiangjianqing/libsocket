@@ -3,7 +3,7 @@
 #include <string.h>
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_loop(nullptr),m_isRuning(false)
+    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr)
 {
 
     //
@@ -83,6 +83,9 @@ void AbstractSocket::close()
         m_loop = nullptr;
     }
     m_isInited = false;
+
+    socket_event_t event(socket_event_type::SocketClose);
+    callSocketEventCb(event);
 }
 
 bool AbstractSocket::setNoDelay(bool enable)
@@ -189,4 +192,11 @@ void AbstractSocket::refreshInfo()
 void AbstractSocket::onIdle(uv_idle_t *handle)
 {
 
+}
+
+void AbstractSocket::callSocketEventCb(const socket_event_t& event)
+{
+    if(m_cbSocketEvent){
+        m_cbSocketEvent(event);
+    }
 }

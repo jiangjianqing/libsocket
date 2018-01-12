@@ -7,6 +7,7 @@
 #include <condition_variable>
 
 #include "uv.h"
+#include "SocketData.h"
 
 using namespace std;
 
@@ -26,6 +27,10 @@ public:
     virtual void close();
 
     bool isRuning(){return m_isRuning;}
+
+    void callSocketEventCb(const socket_event_t& event);
+
+    void setSocketEventCb(socket_event_cb cb){m_cbSocketEvent = cb;}
 
 protected:
     string m_ip;
@@ -52,6 +57,7 @@ private:
     mutex m_mutexRun;
     condition_variable m_condVarRun;
     bool m_isRuning;
+    socket_event_cb m_cbSocketEvent;
 };
 
 #endif // ABSTRACTSOCKET_H

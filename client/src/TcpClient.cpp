@@ -194,7 +194,7 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
         TcpClient* client = static_cast<TcpClient*>(req->handle->data);
         SocketData* cdata = client->m_socketData;
 
-        client_event_t clientEvent(client_event_type::WriteError,cdata);
+        socket_event_t event(socket_event_type::WriteError,cdata);
 
         //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
         closeClientByThread(cdata);

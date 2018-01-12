@@ -1,7 +1,6 @@
 #include "TcpServer.h"
 
 TcpServer::TcpServer()
-    : m_cbClientEvent(nullptr)
 {
     //deprecated 不使用libuv提供的mutex，改用c++ 标准库中的mutex
     //int iret = uv_mutex_init(&m_mutexClients);
@@ -86,18 +85,27 @@ bool TcpServer::bind(const string& ip, int port)
 
 bool TcpServer::listen(int backlog)
 {
+    socket_event_t event;
+    bool ret = false;
     int iret = uv_listen((uv_stream_t*) &m_socket, backlog, onAcceptConnection);
     if (iret) {
-
+        ret = false;
         m_errmsg = getUVError(iret);
         deinit();//注意：调用deinit虽然功能与close相同，但表示初始化过程中失败了
         INFO("TcpServer 创建Listen 失败！");
         //LOGE(errmsg_);
-        return false;
+        event.type = socket_event_type::ListenFault;
+
+    }else{
+        ret = true;
+        refreshInfo();//刷新一下自己的ip和端口
+        event.type = socket_event_type::Listening;
     }
-    refreshInfo();//刷新一下自己的ip和端口
-    //LOGI("server listen");
-    return true;
+
+    callSocketEventCb(event);
+
+    return ret;
+
 }
 
 void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
@@ -130,10 +138,10 @@ void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
     unique_lock<shared_timed_mutex> lock1(server->m_mutexClients);//开启互锁
     server->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
 
-    client_event_t clientEvent(client_event_type::ConnectionAccept,cdata);
+    socket_event_t event(socket_event_type::ConnectionAccept,cdata);
     lock1.unlock();
 
-    server->callClientEventCb(clientEvent);
+    server->callSocketEventCb(event);
 
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
     iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterRead);//服务器开始接收客户端的数据
@@ -159,10 +167,10 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
     if (nread < 0) {/*客户端断开连接时 */
         //先保存下错误信息
 
-        client_event_t clientEvent(client_event_type::ReadError,cdata);
+        socket_event_t event(socket_event_type::ReadError,cdata);
 
         if (nread == UV_EOF) {
-            clientEvent.type = client_event_type::ConnectionClose;
+            event.type = socket_event_type::ConnectionClose;
             //fprintf(clientError.msg,"客户端(%d)连接断开，关闭此客户端\n",clientError.clientId);
             //fprintf(stdout,"客户端(%d)连接断开，关闭此客户端\n",client->client_id);
             //LOGW("客户端("<<client->client_id<<")主动断开");
@@ -178,7 +186,7 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
 
         //-----shutdown之后再去触发callback，callback中不要从clients获取任何信息，因为此时不可靠
         TcpServer *server = (TcpServer *)cdata->socket();
-        server->callClientEventCb(clientEvent);
+        server->callSocketEventCb(event);
 
 
         return;
@@ -226,23 +234,16 @@ void TcpServer::onAfterWrite(uv_write_t *req, int status)
     if (status < 0) {//连接断开，关闭客户端
         SocketData * cdata = (SocketData*)req->handle->data;
         TcpServer *server = (TcpServer *)cdata->socket();
-        client_event_t clientEvent(client_event_type::WriteError,cdata);
+        socket_event_t event(socket_event_type::WriteError,cdata);
         closeCient(cdata,true);//先关闭连接，再移除clients
 
-        server->callClientEventCb(clientEvent);
+        server->callSocketEventCb(event);
         //m_errmsg = "发送数据有误:"<<getUVError(status);
             //LOGE("发送数据有误:"<<GetUVError(status));
 
             //fprintf(stderr, "Write error %s\n", GetUVError(status));
     }
 
-}
-
-void TcpServer::callClientEventCb(const client_event_t& event)
-{
-    if(m_cbClientEvent){
-        m_cbClientEvent(event);
-    }
 }
 
 void TcpServer::closeCient(SocketData* cdata,bool removeFromClients)

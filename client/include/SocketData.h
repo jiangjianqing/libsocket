@@ -2,10 +2,10 @@
 #define SOCKETDATA_H
 
 #include "uv.h"
-#include "AbstractSocket.h"
 #include <functional>
 
 using namespace std;
+class AbstractSocket;
 
 //注意：这是非常有用的调试函数
 #define FATAL(msg)                                        \
@@ -89,28 +89,31 @@ private:
 };
 
 
-enum class client_event_type{
-    ReadError,WriteError,ConnectionAccept,ConnectionClose
+enum class socket_event_type{
+    Unknow,ReadError,WriteError,ConnectionAccept,ConnectionClose,Listening,ListenFault,SocketClose
 };
 
-struct client_event_s{
-    client_event_type type;
+struct socket_event_s{
+    socket_event_type type;
     int clientId;
     string ip;
     int port;
     string msg;
 
-    client_event_s(client_event_type eventType,SocketData* cdata){
+    socket_event_s(socket_event_type eventType,SocketData* cdata){
         clientId = cdata->clientId();
         ip = cdata->ip();
         port = cdata->port();
         type = eventType;
     }
+    socket_event_s(socket_event_type eventType = socket_event_type::Unknow){
+        type = eventType;
+    }
 };
-typedef client_event_s client_event_t;
+typedef socket_event_s socket_event_t;
 
 typedef function<void (const string& ip,int port)> connection_accepted_cb;
 typedef function<void (int id, const string& ip,int port)> client_close_cb;
-typedef function<void (const client_event_t& event)> client_event_cb;
+typedef function<void (const socket_event_t& event)> socket_event_cb;
 
 #endif // SOCKETDATA_H

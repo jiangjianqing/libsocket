@@ -44,6 +44,7 @@ private:
 
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
+    void onSimpleSocketEvent(socket_event_type type);
 
     wxTextCtrl* txtName;
     MyTray* m_tray;
