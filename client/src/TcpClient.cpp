@@ -3,9 +3,9 @@
 
 TcpClient::TcpClient()
 {
-    m_socketData = new SocketData(-1,this);
+    m_socketData = new SocketData(-1,this,(uv_handle_t*)malloc(sizeof(uv_tcp_t)));
     //2018.01.11 重要： 为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
-    m_socketData->setExternalHandle(&m_socket);
+    m_socketData->setExternalHandle(handle());
 }
 
 TcpClient::~TcpClient()
@@ -87,7 +87,7 @@ void TcpClient::ConnectThread(const char* ip, int port)
         return;
     }*/
     uv_connect_t* connectReq = (uv_connect_t*)malloc(sizeof(uv_connect_t));//连接时请求
-    iret = uv_tcp_connect(connectReq, &m_socket, (const sockaddr*)&bind_addr, onAfterConnect);
+    iret = uv_tcp_connect(connectReq, (uv_tcp_t*)handle(), (const sockaddr*)&bind_addr, onAfterConnect);
     if (iret) {
         //pclient->errmsg_ = GetUVError(iret);
         //LOGE(pclient->errmsg_);
@@ -236,7 +236,7 @@ void TcpClient::refreshInfo()
     //获得对方 的IP和端口，当没有连接时，peername是无意义的
     int namelen = sizeof peername;
 
-    uv_tcp_getpeername(&m_socket, &peername, &namelen);
+    uv_tcp_getpeername((uv_tcp_t*)handle(), &peername, &namelen);
     m_remoteIp = string(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
     m_remotePort = ntohs(((sockaddr_in *)&peername)->sin_port);
 

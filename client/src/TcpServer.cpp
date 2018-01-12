@@ -47,7 +47,7 @@ void TcpServer::close()
         return;
     }
 
-    uv_close((uv_handle_t*) &m_socket, onAfterServerClose);
+    uv_close(handle(), onAfterServerClose);
 
     for (auto it = m_clients.begin(); it!=m_clients.end(); ++it) {
         SocketData* cdata = it->second;
@@ -73,7 +73,7 @@ bool TcpServer::bind(const string& ip, int port)
         //LOGE(errmsg_);
         return false;
     }
-    iret = uv_tcp_bind(&m_socket, (const struct sockaddr*)&bind_addr,0);
+    iret = uv_tcp_bind((uv_tcp_t*)handle(), (const struct sockaddr*)&bind_addr,0);
     if (iret) {
         m_errmsg = getUVError(iret);
         //LOGE(errmsg_);
@@ -87,7 +87,7 @@ bool TcpServer::listen(int backlog)
 {
     socket_event_t event;
     bool ret = false;
-    int iret = uv_listen((uv_stream_t*) &m_socket, backlog, onAcceptConnection);
+    int iret = uv_listen((uv_stream_t*)handle(), backlog, onAcceptConnection);
     if (iret) {
         ret = false;
         m_errmsg = getUVError(iret);
@@ -115,9 +115,9 @@ void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
     }
     TcpServer *server = (TcpServer *)stream->data;
     int clientId = server->getAvailableClientId();
-    SocketData* cdata = new SocketData(clientId , server);//uv_close回调函数中释放
+    SocketData* cdata = new SocketData(clientId , server,(uv_handle_t*)malloc(sizeof(uv_tcp_t)));//uv_close回调函数中释放
     //cdata->tcp_server = tcpsock;//保存服务器的信息
-    int iret = uv_tcp_init(server->m_loop , cdata->handle());//由析构函数释放
+    int iret = uv_tcp_init(server->m_loop , (uv_tcp_t*)cdata->handle());//由析构函数释放
     if (iret) {
         INFO("创建client connect 失败");
         delete cdata;

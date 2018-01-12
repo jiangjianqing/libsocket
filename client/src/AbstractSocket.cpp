@@ -3,7 +3,15 @@
 #include <string.h>
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr)
+    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr),m_socketType(SocketType::TCP)
+{
+
+    //
+    //uv_loop_t* loop = uv_default_loop()
+}
+
+AbstractSocket::AbstractSocket(SocketType type)
+    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr),m_socketType(type)
 {
 
     //
@@ -24,6 +32,20 @@ void AbstractSocket::setErrMsg(int uvErrId)
 {
     m_errmsg = getUVError(uvErrId);
     //LOGE(tcpsock->errmsg_);
+}
+
+uv_handle_t* AbstractSocket::handle()
+{
+    switch (m_socketType) {
+    case SocketType::TCP:
+        return (uv_handle_t*)&m_tcpHandle;
+        break;
+    case SocketType::UDP:
+        return (uv_handle_t*)&m_udpHandle;
+        break;
+    default:
+        break;
+    }
 }
 
 string AbstractSocket::getUVError(int retcode)
@@ -90,7 +112,7 @@ void AbstractSocket::close()
 
 bool AbstractSocket::setNoDelay(bool enable)
 {
-    int iret = uv_tcp_nodelay(&m_socket, enable ? 1 : 0);
+    int iret = uv_tcp_nodelay(&m_tcpHandle, enable ? 1 : 0);
     if (iret) {
         m_errmsg = getUVError(iret);
         //LOGE(errmsg_);
@@ -101,7 +123,7 @@ bool AbstractSocket::setNoDelay(bool enable)
 
 bool AbstractSocket::setKeepAlive(int enable, unsigned int delay)
 {
-    int iret = uv_tcp_keepalive(&m_socket, enable , delay);
+    int iret = uv_tcp_keepalive(&m_tcpHandle, enable , delay);
     if (iret) {
         m_errmsg = getUVError(iret);
         //LOGE(errmsg_);
@@ -129,7 +151,19 @@ bool AbstractSocket::init()
         return false;
     }
 
-    iret = uv_tcp_init(m_loop,&m_socket);
+    switch (m_socketType) {
+    case SocketType::TCP:
+        iret = uv_tcp_init(m_loop,&m_tcpHandle);
+        m_tcpHandle.data = this;
+
+        break;
+    case SocketType::UDP:
+        m_udpHandle.data = this;
+        break;
+    default:
+        break;
+    }
+
     if (iret) {
         m_errmsg = getUVError(iret);
         //LOGE(errmsg_);
@@ -146,7 +180,9 @@ bool AbstractSocket::init()
     uv_idle_start(&m_idler, onIdle);  //设置监视器的回调函数
 
     m_isInited = true;
-    m_socket.data = this;
+
+
+
     //iret = uv_tcp_keepalive(&server_, 1, 60);//调用此函数后后续函数会调用出错
     //if (iret) {
     //  errmsg_ = GetUVError(iret);
@@ -172,7 +208,7 @@ void AbstractSocket::refreshInfo()
     //获得自己监听的ip和端口
     memset(&sockname, -1, sizeof sockname);
     namelen = sizeof sockname;
-    r = uv_tcp_getsockname(&m_socket, &sockname, &namelen);
+    r = uv_tcp_getsockname(&m_tcpHandle, &sockname, &namelen);
 
     m_ip = string(inet_ntoa(((sockaddr_in *)&sockname)->sin_addr));
     m_port = ntohs(((sockaddr_in *)&sockname)->sin_port);

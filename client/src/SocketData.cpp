@@ -4,11 +4,22 @@
 
 #define BUFFERSIZE (1024*1024)
 
-SocketData::SocketData(int clientId,AbstractSocket* socket)
+SocketData::SocketData(int clientId,AbstractSocket* socket,uv_handle_t* handle)
     : m_clientId(clientId),m_socket(socket)
 {
-    //client_handle = (uv_tcp_t*)malloc(sizeof(*client_handle));
-    m_socketHandle = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+    //client_handle = (uv_tcp_t*)malloc(sizeof(*client_handle))
+    //特别注意：本类需要负责释放从构造函数输入的handle
+    m_socketHandle = handle;
+/*
+    switch (socket->socketType()) {
+    case SocketType::TCP:
+        m_socketHandle = (uv_handle_t*)malloc(sizeof(uv_tcp_t));
+        break;
+    case SocketType::UDP:
+        m_socketHandle = (uv_handle_t*)malloc(sizeof(uv_udp_t));
+        break;
+    }*/
+
     m_socketHandle->data = this;
     readbuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
     writebuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
@@ -34,7 +45,7 @@ SocketData::~SocketData()
 
 }
 
-void SocketData::setExternalHandle(uv_tcp_t* handle)
+void SocketData::setExternalHandle(uv_handle_t* handle)
 {
     if(m_socketHandle){
         free(m_socketHandle);
@@ -52,7 +63,7 @@ void SocketData::refreshInfo()
     int r;
     namelen = sizeof(peername);
     memset(&peername, -1, namelen);
-    r = uv_tcp_getpeername(handle(), &peername, &namelen);
+    r = uv_tcp_getpeername((uv_tcp_t*)handle(), &peername, &namelen);
 
     m_ip = string(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
     m_port = ntohs(((sockaddr_in *)&peername)->sin_port);

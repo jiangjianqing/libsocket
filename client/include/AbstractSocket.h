@@ -9,11 +9,13 @@
 #include "uv.h"
 #include "SocketData.h"
 
+
 using namespace std;
 
 class AbstractSocket
 {
 public:
+    AbstractSocket(SocketType type);
     explicit AbstractSocket();
     virtual ~AbstractSocket();
     //virtual bool connect(const string& ip,int port) = 0;
@@ -31,12 +33,17 @@ public:
     void callSocketEventCb(const socket_event_t& event);
 
     void setSocketEventCb(socket_event_cb cb){m_cbSocketEvent = cb;}
+    uv_handle_t* handle();
+    SocketType socketType(){return m_socketType;}
 
 protected:
+
+
     string m_ip;
     int m_port;
     uv_loop_t *m_loop;
-    uv_tcp_t m_socket;
+    uv_tcp_t m_tcpHandle;
+    uv_udp_t m_udpHandle;
     string m_errmsg;
     bool m_isInited;
     uv_idle_t m_idler;
@@ -54,6 +61,8 @@ protected:
 
 private:
     static void onIdle(uv_idle_t *handle);
+
+    SocketType m_socketType;
     mutex m_mutexRun;
     condition_variable m_condVarRun;
     bool m_isRuning;

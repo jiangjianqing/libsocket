@@ -4,8 +4,9 @@
 #include "uv.h"
 #include <functional>
 
-using namespace std;
 class AbstractSocket;
+
+using namespace std;
 
 //注意：这是非常有用的调试函数
 #define FATAL(msg)                                        \
@@ -43,18 +44,24 @@ public:
     } write_req_t;
 
     friend class AbstractSocket;
-    explicit SocketData(int clientid,AbstractSocket* socket);
+    /**
+     * @brief SocketData
+     * @param clientid
+     * @param socket
+     * @param handle 特别注意：本类需要负责释放从构造函数输入的handle
+     */
+    explicit SocketData(int clientid,AbstractSocket* socket,uv_handle_t* handle);
     virtual ~SocketData();
 
     AbstractSocket* socket(){return m_socket;}
 
-    uv_tcp_t* handle(){return m_socketHandle;}
+    uv_handle_t* handle(){return m_socketHandle;}
 
     /**
      * @brief setExternalHandle //2018.01.11 重要： TcpClient为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
-     * @param handle
+     * @param handle  ExternalHandle由外部释放
      */
-    void setExternalHandle(uv_tcp_t* handle);
+    void setExternalHandle(uv_handle_t* handle);
 
     int clientId(){return m_clientId;}
     const string& ip(){return m_ip;}
@@ -73,7 +80,7 @@ public:
     static void reverse(char *s, int len);
 
 protected:
-    uv_tcp_t* m_socketHandle;//客户端句柄
+    uv_handle_t* m_socketHandle;//客户端句柄
 private:
     int m_clientId;//客户端id,惟一
 
@@ -110,6 +117,12 @@ struct socket_event_s{
         type = eventType;
     }
 };
+
+enum class socket_type_e{
+    TCP,UDP,PIPE
+};
+typedef socket_type_e SocketType;
+
 typedef socket_event_s socket_event_t;
 
 typedef function<void (const string& ip,int port)> connection_accepted_cb;
