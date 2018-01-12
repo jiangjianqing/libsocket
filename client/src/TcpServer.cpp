@@ -111,6 +111,7 @@ void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
     //cdata->tcp_server = tcpsock;//保存服务器的信息
     int iret = uv_tcp_init(server->m_loop , cdata->handle());//由析构函数释放
     if (iret) {
+        INFO("创建client connect 失败");
         delete cdata;
         server->setErrMsg(iret);
         return;
