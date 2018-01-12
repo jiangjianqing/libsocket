@@ -16,8 +16,13 @@ public:
 
     bool send(const char* data, std::size_t len);
 
+    string remoteIp(){return m_remoteIp;}
+    int remotePort(){return m_remotePort;}
+
 
 protected:
+
+    void refreshInfo() override;
 
     void ConnectThread(const char* ip, int port);
 
@@ -29,7 +34,7 @@ protected:
      * @param client
      * @param cdata
      */
-    static void closeClientByThread(TcpClient* client,SocketData* cdata);
+    static void closeClientByThread(SocketData* cdata);
 
     static void onAfterConnect(uv_connect_t* req, int status);
 
@@ -42,6 +47,9 @@ protected:
 private:
 
      SocketData* m_socketData;
+
+     string m_remoteIp;
+     int m_remotePort;
 
      //handle需要使用m_socketData的，从AbstractSocket继承来的m_socket忽略
      //uv_tcp_t* handle(){return m_socket;}

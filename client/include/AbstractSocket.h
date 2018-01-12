@@ -25,7 +25,8 @@ public:
 
     virtual void close();
 
-    virtual bool init();
+    bool isInited(){return m_isInited;}
+
 protected:
     string m_ip;
     int m_port;
@@ -38,7 +39,9 @@ protected:
     void setErrMsg(int uvErrId);
     void run(int mode = UV_RUN_DEFAULT);
 
-    void refreshInfo();
+    virtual bool init();
+
+    virtual void refreshInfo();
 
 private:
     static void onIdle(uv_idle_t *handle);

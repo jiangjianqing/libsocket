@@ -105,11 +105,13 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
     //fprintf(stdout,"start after connect\n");
     TcpClient *client = (TcpClient*)req->handle->data;
     if (status) {
-        client->close();
-            //pclient->connectstatus_ = CONNECT_ERROR;
-            //fprintf(stdout,"connect error:%s\n",GetUVError(status));
+        SocketData* cdata = client->m_socketData;
+        closeClientByThread(cdata);
+        //pclient->connectstatus_ = CONNECT_ERROR;
+        //fprintf(stdout,"connect error:%s\n",GetUVError(status));
 
     }else{
+        client->refreshInfo();
         int iret = uv_read_start(req->handle, onAllocBuffer, onAfterRead);//客户端开始接收服务器的数据
         if (iret) {
             //fprintf(stdout,"uv_read_start error:%s\n",GetUVError(iret));
@@ -155,7 +157,7 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
         }
 
         //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
-        closeClientByThread(client,cdata);
+        closeClientByThread(cdata);
 
         return;
 
@@ -195,7 +197,7 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
         client_event_t clientEvent(client_event_type::WriteError,cdata);
 
         //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
-        closeClientByThread(client,cdata);
+        closeClientByThread(cdata);
 
         //client->callClientEventCb(clientEvent);
         //m_errmsg = "发送数据有误:"<<getUVError(status);
@@ -205,11 +207,9 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
     }
 }
 
-void TcpClient::closeClientByThread(TcpClient* client,SocketData* cdata)
+void TcpClient::closeClientByThread(SocketData* cdata)
 {
-    thread t1{[&client,&cdata](){
-        client->closeCient(cdata);
-    }};
+    thread t1(&TcpClient::closeCient,cdata);
     t1.detach();
 }
 
@@ -224,5 +224,20 @@ void TcpClient::closeCient(SocketData* cdata)
 
     //关闭连 = 关闭整个socket
     client->AbstractSocket::close();
+
+}
+
+void TcpClient::refreshInfo()
+{
+    AbstractSocket::refreshInfo();
+
+    struct sockaddr sockname,peername;
+
+    //获得对方 的IP和端口，当没有连接时，peername是无意义的
+    int namelen = sizeof peername;
+
+    uv_tcp_getpeername(&m_socket, &peername, &namelen);
+    m_remoteIp = string(inet_ntoa(((sockaddr_in *)&peername)->sin_addr));
+    m_remotePort = ntohs(((sockaddr_in *)&peername)->sin_port);
 
 }
