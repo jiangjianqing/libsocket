@@ -51,7 +51,7 @@ void TcpServer::close()
 
     for (auto it = m_clients.begin(); it!=m_clients.end(); ++it) {
         SocketData* cdata = it->second;
-        closeCient(cdata,false);
+        closeClient(cdata,false);
     }
     m_clients.clear();
 
@@ -221,7 +221,7 @@ void TcpServer::onAfterShutdown(uv_shutdown_t* req, int status)
 {
     //uv_close((uv_handle_t*)req->handle, on_close);
     SocketData * cdata = (SocketData*)req->handle->data;
-    closeCient(cdata,true);//先关闭连接，再移除clients
+    closeClient(cdata,true);//先关闭连接，再移除clients
     free(req);
 }
 
@@ -235,7 +235,7 @@ void TcpServer::onAfterWrite(uv_write_t *req, int status)
         SocketData * cdata = (SocketData*)req->handle->data;
         TcpServer *server = (TcpServer *)cdata->socket();
         socket_event_t event(socket_event_type::WriteError,cdata);
-        closeCient(cdata,true);//先关闭连接，再移除clients
+        closeClient(cdata,true);//先关闭连接，再移除clients
 
         server->callSocketEventCb(event);
         //m_errmsg = "发送数据有误:"<<getUVError(status);
@@ -246,7 +246,7 @@ void TcpServer::onAfterWrite(uv_write_t *req, int status)
 
 }
 
-void TcpServer::closeCient(SocketData* cdata,bool removeFromClients)
+void TcpServer::closeClient(SocketData* cdata,bool removeFromClients)
 {
     TcpServer *server = (TcpServer *)cdata->socket();
     if (uv_is_active((uv_handle_t*)cdata->handle())) {

@@ -164,6 +164,7 @@ bool AbstractSocket::init()
 
         break;
     case SocketType::UDP:
+        iret = uv_udp_init(m_loop,&m_udpHandle);
         m_udpHandle.data = this;
         break;
     default:

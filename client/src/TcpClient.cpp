@@ -28,7 +28,7 @@ void TcpClient::close()
         return;
     }
 
-    closeCient(m_socketData);//closeClient中负责调用AbstractSocket::close();，关闭连接 = 关闭socket
+    closeClient(m_socketData);//closeClient中负责调用AbstractSocket::close();，关闭连接 = 关闭socket
     //----最后调用parent的close
 }
 
@@ -213,11 +213,11 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
 
 void TcpClient::closeClientByThread(SocketData* cdata)
 {
-    thread t1(&TcpClient::closeCient,cdata);
+    thread t1(&TcpClient::closeClient,cdata);
     t1.detach();
 }
 
-void TcpClient::closeCient(SocketData* cdata)
+void TcpClient::closeClient(SocketData* cdata)
 {
     TcpClient *client = (TcpClient *)cdata->socket();
     if (uv_is_active((uv_handle_t*)cdata->handle())) {

@@ -6,7 +6,21 @@
 class UdpClient : public AbstractSocket
 {
 public:
-    UdpClient();
+    explicit UdpClient();
+    virtual ~UdpClient();
+
+    void close() override;
+    void connect(int port);
+
+
+
+private:
+    SocketData* m_socketData;
+    static void closeClientByThread(SocketData* cdata);
+    static void closeClient(SocketData* cdata);
+    static void onAfterRead(uv_udp_t *req, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags);
+    static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
+    static void onAfterClientClose(uv_handle_t *handle);
 };
 
 #endif // UDPCLIENT_H
