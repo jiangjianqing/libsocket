@@ -88,7 +88,10 @@ bool TcpServer::listen(int backlog)
 {
     int iret = uv_listen((uv_stream_t*) &m_socket, backlog, onAcceptConnection);
     if (iret) {
+
         m_errmsg = getUVError(iret);
+        deinit();//注意：调用deinit虽然功能与close相同，但表示初始化过程中失败了
+        INFO("TcpServer 创建Listen 失败！");
         //LOGE(errmsg_);
         return false;
     }

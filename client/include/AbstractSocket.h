@@ -25,7 +25,7 @@ public:
 
     virtual void close();
 
-    bool isInited(){return m_isInited;}
+    bool isRuning(){return m_isRuning;}
 
 protected:
     string m_ip;
@@ -40,6 +40,10 @@ protected:
     void run(int mode = UV_RUN_DEFAULT);
 
     virtual bool init();
+    /**
+     * @brief deinit 直接调用close，但含义不同，deinit表示完成了init，但后续的run并没有成功运行
+     */
+    virtual void deinit();
 
     virtual void refreshInfo();
 
@@ -47,6 +51,7 @@ private:
     static void onIdle(uv_idle_t *handle);
     mutex m_mutexRun;
     condition_variable m_condVarRun;
+    bool m_isRuning;
 };
 
 #endif // ABSTRACTSOCKET_H

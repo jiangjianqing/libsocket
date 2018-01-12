@@ -3,10 +3,8 @@
 #include <string.h>
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_loop(nullptr)
+    :m_isInited(false),m_loop(nullptr),m_isRuning(false)
 {
-
-
 
     //
     //uv_loop_t* loop = uv_default_loop()
@@ -40,6 +38,7 @@ string AbstractSocket::getUVError(int retcode)
 void AbstractSocket::run(int mode)
 {
     //LOGI("server runing.");
+    unique_lock<mutex> lock1(m_mutexRun);
     int iret;
     thread t1([this,mode](){
         int iret = uv_run(m_loop,(uv_run_mode)mode);
@@ -47,12 +46,13 @@ void AbstractSocket::run(int mode)
             m_errmsg = getUVError(iret);
         }
         m_condVarRun.notify_all();
+        m_isRuning = false;
         int i = 0;
         i = i + 1;
     });
     t1.detach();//脱离主线程的绑定，主线程挂了，子线程不报错，子线程执行完自动退出。
     //detach以后，子线程会成为孤儿线程，线程之间将无法通信。
-
+    m_isRuning = true;
     //return true;
 }
 
@@ -66,10 +66,11 @@ void AbstractSocket::close()
     if(m_loop != nullptr){
         uv_idle_stop(&m_idler);
         //stop以后不能马上执行uv_loop_close()，等条件变量触发后再free掉loop指针
-        uv_stop(m_loop);
-        //std::this_thread::sleep_for(chrono::milliseconds(200));
-
-        m_condVarRun.wait(lock1);
+        if(m_isRuning){
+            uv_stop(m_loop);
+            //std::this_thread::sleep_for(chrono::milliseconds(200));
+            m_condVarRun.wait(lock1);
+        }
         int activeCounat = uv_loop_alive(m_loop);
         int iret = uv_loop_close(m_loop);
         if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
@@ -77,7 +78,8 @@ void AbstractSocket::close()
             i = i + 1;
         }
 
-        free(m_loop);
+        free(m_loop);//调用uv_loop_delete会用assert检查内部变量 err == 0,但实际使用时即使存在err也要释放
+        //uv_loop_delete(m_loop);
         m_loop = nullptr;
     }
     m_isInited = false;
@@ -113,7 +115,8 @@ bool AbstractSocket::init()
     }
 
     close();
-    m_loop = (uv_loop_t*)malloc(sizeof(uv_loop_t));
+    m_loop = uv_loop_new();
+    //m_loop = (uv_loop_t*)malloc(sizeof(uv_loop_t));
     //m_ptrList.push_back(m_loop);
 
     int iret = uv_loop_init(m_loop);
@@ -148,6 +151,14 @@ bool AbstractSocket::init()
     //}
     return true;
 }
+
+
+void AbstractSocket::deinit()
+{
+    //防止调用sub类的close （deinit表示init执行成功，但后续操作失败，例如TcpServerListen创建监听失败）
+    AbstractSocket::close();
+}
+
 
 void AbstractSocket::refreshInfo()
 {
