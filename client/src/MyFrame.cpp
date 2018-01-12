@@ -92,6 +92,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
         }
     };
     server.setSocketEventCb(fn);
+    client.setSocketEventCb(fn);
 
     //auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
     //server.setConnectionAcceptedCb(f1);
@@ -171,8 +172,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     txtName->SetValue("11223344");//改变文本框的内容
 
-    //client.connect("127.0.0.1",11212);
-    server.start("0.0.0.0",11211);
+    client.connect("127.0.0.1",11212);
+    //server.start("0.0.0.0",11211);
 
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
@@ -184,8 +185,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
-    server.close();
-    //client.close();
+    //server.close();
+    client.close();
     wxLogMessage("server stoped!");
 }
 
@@ -221,6 +222,9 @@ void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
     switch(event.GetId()){
     case (int)socket_event_type::ConnectionAccept:
         SetStatusText("client accepted : " + msg);
+        break;
+    case (int)socket_event_type::ConnectFault:
+        SetStatusText("client connect fault : ");
         break;
     case (int)socket_event_type::ConnectionClose:
         SetStatusText("client closed : " + msg);

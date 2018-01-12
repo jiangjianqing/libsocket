@@ -97,7 +97,7 @@ private:
 
 
 enum class socket_event_type{
-    Unknow,ReadError,WriteError,ConnectionAccept,ConnectionClose,Listening,ListenFault,SocketClose
+    Unknow,ReadError,WriteError,ConnectionAccept,ConnectFault,ConnectionClose,Listening,ListenFault,SocketClose
 };
 
 struct socket_event_s{

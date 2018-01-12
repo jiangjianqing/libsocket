@@ -103,15 +103,18 @@ void TcpClient::ConnectThread(const char* ip, int port)
 void TcpClient::onAfterConnect(uv_connect_t* req, int status)
 {
     //fprintf(stdout,"start after connect\n");
+    socket_event_t event;
     TcpClient *client = (TcpClient*)req->handle->data;
     if (status) {
         SocketData* cdata = client->m_socketData;
         closeClientByThread(cdata);
+        event.type = socket_event_type::ConnectFault;
         //pclient->connectstatus_ = CONNECT_ERROR;
         //fprintf(stdout,"connect error:%s\n",GetUVError(status));
 
     }else{
         client->refreshInfo();
+        event.type = socket_event_type::ConnectionAccept;
         int iret = uv_read_start(req->handle, onAllocBuffer, onAfterRead);//客户端开始接收服务器的数据
         if (iret) {
             //fprintf(stdout,"uv_read_start error:%s\n",GetUVError(iret));
@@ -123,8 +126,9 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
          //LOGI("客户端("<<pclient<<")run");
          //fprintf(stdout,"end after connect\n");
     }
-
     free(req);
+    client->callSocketEventCb(event);
+
 }
 
 void TcpClient::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
