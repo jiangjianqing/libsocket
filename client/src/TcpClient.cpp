@@ -1,4 +1,5 @@
 #include "TcpClient.h"
+#include <thread>
 
 TcpClient::TcpClient()
 {
@@ -152,7 +153,9 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
             //fprintf(stdout,"服务器(%p)异常断开:%s\n",handle,GetUVError(nread));
             //LOGW("服务器异常断开"<<GetUVError(nread));
         }
-        client->closeCient(cdata);
+
+        //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
+        closeClientByThread(client,cdata);
 
         return;
 
@@ -190,7 +193,9 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
         SocketData* cdata = client->m_socketData;
 
         client_event_t clientEvent(client_event_type::WriteError,cdata);
-        closeCient(cdata);//先关闭连接，再移除clients
+
+        //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
+        closeClientByThread(client,cdata);
 
         //client->callClientEventCb(clientEvent);
         //m_errmsg = "发送数据有误:"<<getUVError(status);
@@ -198,6 +203,14 @@ void TcpClient::onAfterWrite(uv_write_t *req, int status)
 
             //fprintf(stderr, "Write error %s\n", GetUVError(status));
     }
+}
+
+void TcpClient::closeClientByThread(TcpClient* client,SocketData* cdata)
+{
+    thread t1{[&client,&cdata](){
+        client->closeCient(cdata);
+    }};
+    t1.detach();
 }
 
 void TcpClient::closeCient(SocketData* cdata)

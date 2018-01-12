@@ -23,6 +23,13 @@ protected:
 
     //静态回调函数
     static void closeCient(SocketData* cdata);
+    /**
+     * @brief closeClientByThread 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
+     * 如果是ui中调用close关闭socket，可以直接调用close-》closeClient，如果实在loop中，则必须调用closeClientByThread
+     * @param client
+     * @param cdata
+     */
+    static void closeClientByThread(TcpClient* client,SocketData* cdata);
 
     static void onAfterConnect(uv_connect_t* req, int status);
 

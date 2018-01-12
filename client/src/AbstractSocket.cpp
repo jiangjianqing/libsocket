@@ -58,6 +58,9 @@ void AbstractSocket::run(int mode)
 
 void AbstractSocket::close()
 {
+    if(!m_isInited){
+        return;
+    }
     unique_lock<mutex> lock1(m_mutexRun);
 
     if(m_loop != nullptr){
