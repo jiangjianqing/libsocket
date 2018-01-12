@@ -67,7 +67,7 @@ void AbstractSocket::run(int mode)
         if (iret) {
             m_errmsg = getUVError(iret);
         }
-        m_condVarRun.notify_all();
+        //m_condVarRun.notify_all();
         m_isRuning = false;
         int i = 0;
         i = i + 1;
@@ -91,7 +91,7 @@ void AbstractSocket::close()
         if(m_isRuning){
             uv_stop(m_loop);
             //std::this_thread::sleep_for(chrono::milliseconds(200));
-            m_condVarRun.wait(lock1);
+            //m_condVarRun.wait(lock1);
         }
         int activeCounat = uv_loop_alive(m_loop);
         int iret = uv_loop_close(m_loop);
@@ -105,7 +105,7 @@ void AbstractSocket::close()
         m_loop = nullptr;
     }
     m_isInited = false;
-
+    m_errmsg = "";
     socket_event_t event(socket_event_type::SocketClose);
     callSocketEventCb(event);
 }
