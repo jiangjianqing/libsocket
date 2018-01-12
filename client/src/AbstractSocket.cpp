@@ -67,7 +67,7 @@ void AbstractSocket::run(int mode)
         if (iret) {
             m_errmsg = getUVError(iret);
         }
-        //m_condVarRun.notify_all();
+        m_condVarRun.notify_all();
         m_isRuning = false;
         int i = 0;
         i = i + 1;
@@ -91,13 +91,17 @@ void AbstractSocket::close()
         if(m_isRuning){
             uv_stop(m_loop);
             //std::this_thread::sleep_for(chrono::milliseconds(200));
-            //m_condVarRun.wait(lock1);
+            bool isStopped = m_condVarRun.wait_for(lock1,chrono::milliseconds(100),[this](){
+                return m_isRuning == false;
+            });
+            if(!isStopped){
+                INFO("close socket occur some errors");
+            }
         }
         int activeCounat = uv_loop_alive(m_loop);
         int iret = uv_loop_close(m_loop);
         if (UV_EBUSY == iret){//2018.01.10 为什么总是返回UV_EBUSY错误
-            int i = 0;
-            i = i + 1;
+            INFO("uv_loop_close 's result = UV_EBUSY");
         }
 
         free(m_loop);//调用uv_loop_delete会用assert检查内部变量 err == 0,但实际使用时即使存在err也要释放
