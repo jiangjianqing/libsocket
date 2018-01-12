@@ -28,7 +28,7 @@ public:
 
     virtual void close();
 
-    bool isRuning(){return m_isRuning;}
+    bool isRunning(){return m_isRunning;}
 
     void callSocketEventCb(const socket_event_t& event);
 
@@ -65,7 +65,7 @@ private:
     SocketType m_socketType;
     mutex m_mutexRun;
     condition_variable m_condVarRun;
-    bool m_isRuning;
+    bool m_isRunning;
     socket_event_cb m_cbSocketEvent;
 };
 

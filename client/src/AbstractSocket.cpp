@@ -3,7 +3,7 @@
 #include <string.h>
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr),m_socketType(SocketType::TCP)
+    :m_isInited(false),m_loop(nullptr),m_isRunning(false),m_cbSocketEvent(nullptr),m_socketType(SocketType::TCP)
 {
 
     //
@@ -11,7 +11,7 @@ AbstractSocket::AbstractSocket()
 }
 
 AbstractSocket::AbstractSocket(SocketType type)
-    :m_isInited(false),m_loop(nullptr),m_isRuning(false),m_cbSocketEvent(nullptr),m_socketType(type)
+    :m_isInited(false),m_loop(nullptr),m_isRunning(false),m_cbSocketEvent(nullptr),m_socketType(type)
 {
 
     //
@@ -64,17 +64,19 @@ void AbstractSocket::run(int mode)
     int iret;
     thread t1([this,mode](){
         int iret = uv_run(m_loop,(uv_run_mode)mode);
+        //修改m_isRunning变量需要占用锁
+        unique_lock<mutex> lock1(m_mutexRun);
+        m_isRunning = false;
+        lock1.unlock();
         if (iret) {
             m_errmsg = getUVError(iret);
         }
         m_condVarRun.notify_all();
-        m_isRuning = false;
-        int i = 0;
-        i = i + 1;
+
     });
     t1.detach();//脱离主线程的绑定，主线程挂了，子线程不报错，子线程执行完自动退出。
     //detach以后，子线程会成为孤儿线程，线程之间将无法通信。
-    m_isRuning = true;
+    m_isRunning = true;
     //return true;
 }
 
@@ -83,16 +85,16 @@ void AbstractSocket::close()
     if(!m_isInited){
         return;
     }
-    unique_lock<mutex> lock1(m_mutexRun);
 
     if(m_loop != nullptr){
-        uv_idle_stop(&m_idler);
-        //stop以后不能马上执行uv_loop_close()，等条件变量触发后再free掉loop指针
-        if(m_isRuning){
+        if(m_isRunning){
+            uv_idle_stop(&m_idler);
+            //stop以后不能马上执行uv_loop_close()，等条件变量触发后再free掉loop指针
             uv_stop(m_loop);
+            unique_lock<mutex> lock1(m_mutexRun);
             //std::this_thread::sleep_for(chrono::milliseconds(200));
             bool isStopped = m_condVarRun.wait_for(lock1,chrono::milliseconds(100),[this](){
-                return m_isRuning == false;
+                return m_isRunning == false;
             });
             if(!isStopped){
                 INFO("close socket occur some errors");
