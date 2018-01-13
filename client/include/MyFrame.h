@@ -32,7 +32,8 @@ private:
     {
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName,
-        ID_STOP
+        ID_STOP,
+        ID_BROADCAST
     };
     void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
@@ -40,6 +41,7 @@ private:
     void OnAbout(wxCommandEvent& event);
     void OnButtonClick(wxCommandEvent& event);
     void OnStopButtonClick(wxCommandEvent& event);
+    void OnBroadcastButtonClick(wxCommandEvent& event);
 
     //线程处理函数
     void OnMyThreadEvent(wxThreadEvent& event);
@@ -53,6 +55,7 @@ private:
 
     wxButton* btnTest;
     wxButton* btnClose;
+    wxButton* btnBroadcast;
 
     wxStaticText* stText;
     wxTextCtrl* txtPassword;

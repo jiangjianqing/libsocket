@@ -34,7 +34,7 @@ bool UdpServer::start(int port)
     struct sockaddr_in recv_addr;
     int iret = uv_ip4_addr("0.0.0.0", port, &recv_addr);
     iret = uv_udp_bind((uv_udp_t*)handle(), (const struct sockaddr *)&recv_addr, UV_UDP_REUSEADDR);
-    iret = uv_udp_recv_start((uv_udp_t*)handle(), onAllocBuffer, onAfterRead);
+    //iret = uv_udp_recv_start((uv_udp_t*)handle(), onAllocBuffer, onAfterRead);
 
     //The IP address 0.0.0.0 is used to bind to all interfaces.
     //The IP address 255.255.255.255 is a broadcast address meaning that packets will be sent to all interfaces on the subnet.
@@ -42,7 +42,7 @@ bool UdpServer::start(int port)
 
     iret = uv_udp_init(m_loop, &m_sendHandle);
     struct sockaddr_in broadcast_addr;
-    iret = uv_ip4_addr("0.0.0.0", port, &broadcast_addr);
+    iret = uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
     iret = uv_udp_bind(&m_sendHandle, (const struct sockaddr *)&broadcast_addr, 0);
     iret = uv_udp_set_broadcast(&m_sendHandle, 1);
 
@@ -60,7 +60,7 @@ void UdpServer::broadcast(const char* data,size_t len)
     //The IP address 255.255.255.255 is a broadcast address meaning that packets will be sent to all interfaces on the subnet.
     //port 0 means that the OS randomly assigns a port.
     struct sockaddr_in send_addr;
-    uv_ip4_addr("255.255.255.255", 8888, &send_addr);
+    uv_ip4_addr("255.255.255.255", m_port, &send_addr);
     uv_udp_send_t* req = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
     uv_udp_send(req, &m_sendHandle, &buf, 1, (const struct sockaddr *)&send_addr, onAfterSend);
 }
