@@ -39,37 +39,43 @@ bool UdpClient::connect(int port)
     //The IP address 0.0.0.0 is used to bind to all interfaces.
     //The IP address 255.255.255.255 is a broadcast address meaning that packets will be sent to all interfaces on the subnet.
     //port 0 means that the OS randomly assigns a port.
+
     iret = uv_udp_init(m_loop, &m_sendHandle);
     struct sockaddr_in broadcast_addr;
-    uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
-    uv_udp_bind(&m_sendHandle, (const struct sockaddr *)&broadcast_addr, 0);
-    uv_udp_set_broadcast(&m_sendHandle, 1);
+    iret = uv_ip4_addr("0.0.0.0", 0, &broadcast_addr);
+    iret = uv_udp_bind(&m_sendHandle, (const struct sockaddr *)&broadcast_addr, 0);
+    iret = uv_udp_set_broadcast(&m_sendHandle, 1);
+
+    m_port = port;
 
     run();
     return true;
 }
 
-void UdpClient::send(const char* data,size_t len)
+void UdpClient::broadcast(const char* data,size_t len)
 {
-    uv_buf_t discover_msg = uv_buf_init("PONG", 4);//make_discover_msg();
-
+    //uv_buf_t* buf = (uv_buf_t*)malloc(sizeof(uv_buf_t));//uv_buf_init((char*)data, len);//make_discover_msg();
+    uv_buf_t buf = uv_buf_init((char*)data, len);
     //The IP address 0.0.0.0 is used to bind to all interfaces.
     //The IP address 255.255.255.255 is a broadcast address meaning that packets will be sent to all interfaces on the subnet.
     //port 0 means that the OS randomly assigns a port.
     struct sockaddr_in send_addr;
-    uv_ip4_addr("255.255.255.255", 67, &send_addr);
-    uv_udp_send(&m_reqSend, &m_sendHandle, &discover_msg, 1, (const struct sockaddr *)&send_addr, onAfterSend);
+    uv_ip4_addr("255.255.255.255", 8888, &send_addr);
+    uv_udp_send_t* req = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
+    uv_udp_send(req, &m_sendHandle, &buf, 1, (const struct sockaddr *)&send_addr, onAfterSend);
 }
 
 void UdpClient::send(const uv_buf_t bufs[],unsigned int nbufs,const struct sockaddr* addr)
 {
-    uv_udp_send(&m_reqSend, &m_sendHandle, bufs, nbufs, addr, onAfterSend);
+    uv_udp_send_t* req = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
+    uv_udp_send(req, &m_sendHandle, bufs, nbufs, addr, onAfterSend);
 }
 
 void UdpClient::send(const char* data,size_t len,const struct sockaddr* addr)
 {
     uv_buf_t buf = uv_buf_init((char*)data, len);
-    uv_udp_send(&m_reqSend, &m_sendHandle, &buf, 1, addr, onAfterSend);
+    uv_udp_send_t* req = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
+    uv_udp_send(req, (uv_udp_t*)handle(), &buf, 1, addr, onAfterSend);
 }
 
 void UdpClient::closeClientByThread(SocketData* cdata)
@@ -103,8 +109,10 @@ void UdpClient::onAfterClientClose(uv_handle_t *handle)
 
 void UdpClient::onAfterSend(uv_udp_send_t* req, int status)
 {
+    string err = getUVError(status);
     int i = 0;
     i = i + 1;
+    free(req);
 }
 
 void UdpClient::onAfterRead(uv_udp_t* handle
@@ -122,7 +130,9 @@ void UdpClient::onAfterRead(uv_udp_t* handle
 
     }else{
         SocketData::reverse(buf->base,nread);
+        //uv_buf_t newBuf = uv_buf_init(buf->base , nread);
         client->send(buf->base,nread,addr);
+        //client->send(buf->base,nread,addr);
     }
     /*
         char sender[17] = { 0 };

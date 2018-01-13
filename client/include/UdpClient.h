@@ -11,16 +11,16 @@ public:
 
     void close() override;
     bool connect(int port);
-    void send(const char* data,size_t len);
+    void broadcast(const char* data,size_t len);
 
     void send(const uv_buf_t bufs[],unsigned int nbufs,const struct sockaddr* addr);
     void send(const char* data,size_t len,const struct sockaddr* addr);
 
 
 private:
+    int m_port;
     uv_udp_t m_sendHandle;
     SocketData* m_socketData;
-    uv_udp_send_t m_reqSend;
     static void closeClientByThread(SocketData* cdata);
     static void closeClient(SocketData* cdata);
     static void onAfterSend(uv_udp_send_t* req, int status);
