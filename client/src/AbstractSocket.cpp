@@ -54,7 +54,8 @@ string AbstractSocket::getUVError(int retcode)
     err = uv_err_name(retcode);
     err +=":";
     err += uv_strerror(retcode);
-    return std::move(err);
+    return err;
+    //return std::move(err);
 }
 
 void AbstractSocket::run(int mode)

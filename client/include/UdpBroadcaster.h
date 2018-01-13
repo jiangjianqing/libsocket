@@ -1,13 +1,13 @@
-#ifndef UDPSERVER_H
-#define UDPSERVER_H
+#ifndef UDPBROADCASTER_H
+#define UDPBROADCASTER_H
 
 #include "AbstractSocket.h"
 
-class UdpServer : public AbstractSocket
+class UdpBroadcaster : public AbstractSocket
 {
 public:
-    explicit UdpServer();
-    virtual ~UdpServer();
+    explicit UdpBroadcaster();
+    virtual ~UdpBroadcaster();
 
     void close() override;
     bool start(int port);
@@ -19,7 +19,6 @@ public:
 
 private:
     int m_port;
-    uv_udp_t m_sendHandle;
     SocketData* m_socketData;
     static void closeClientByThread(SocketData* cdata);
     static void closeClient(SocketData* cdata);
@@ -29,4 +28,4 @@ private:
     static void onAfterClientClose(uv_handle_t *handle);
 };
 
-#endif // UDPSERVER_H
+#endif // UDPBROADCASTER_H
