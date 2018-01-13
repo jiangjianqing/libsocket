@@ -11,6 +11,7 @@
 #include "TcpServer.h"
 #include "TcpClient.h"
 #include "UdpClient.h"
+#include "UdpServer.h"
 
 class MyTray;
 
@@ -67,6 +68,7 @@ private:
     TcpServer server;
     TcpClient client;
     UdpClient udpClient;
+    UdpServer udpServer;
 };
 
 #endif // MYFRAME_H
