@@ -19,8 +19,9 @@ public:
 
 private:
     int m_port;
-    uv_udp_t m_sendHandle;
+    uv_udp_t m_handleBroadcast;
     SocketData* m_socketData;
+    SocketData* m_broadcastSocketData;
     static void closeClientByThread(SocketData* cdata);
     static void closeClient(SocketData* cdata);
     static void onAfterSend(uv_udp_send_t* req, int status);
