@@ -11,6 +11,11 @@ public:
 
     void close() override;
     bool connect(int port);
+    /**
+     * @brief broadcast 独立了一个UdpBroadcaster，这里已经deprecated了
+     * @param data
+     * @param len
+     */
     void broadcast(const char* data,size_t len);
 
     void send(const uv_buf_t bufs[],unsigned int nbufs,const struct sockaddr* addr);
