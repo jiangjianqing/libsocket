@@ -10,6 +10,7 @@
 #include "wx/toolbar.h"
 #include "MyTray.h"
 #include <functional>
+#include "CryptoUtils.h"
 
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
@@ -199,6 +200,13 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 
 void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
 {
+    string srcText = "hello";
+    string encryptText;
+    string encryptHexText;
+    string decryptText;
+
+    CryptoUtils::sha256(srcText, encryptText, encryptHexText);
+
     INFO("send broadcast!");
     static char* msg_discovery = "123456";
     udpBroadcaster.broadcast(msg_discovery,6);

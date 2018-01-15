@@ -188,14 +188,19 @@ gcc:!clang {
     #LIBS += -lgomp
 }
 
+#加入通用lib支持
+LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
+INCLUDEPATH += $$PWD/../CryptoUtils/include
+LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
+
+INCLUDEPATH += $$PWD/../_lib/libuv/include
+
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
 QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 
 
 INCLUDEPATH += $$PWD/include/
-
-INCLUDEPATH += $$PWD/../_lib/libuv/include
 
 
 message("Defines:")
