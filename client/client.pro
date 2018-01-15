@@ -57,6 +57,7 @@ UI_DIR = ../_intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 
 HEADERS     += $$files(*.h,true)
 SOURCES     += $$files(*.cpp,true)
+SOURCES     += $$files(*.cc,true)
 FORMS       += $$files(*.ui,true)
 RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
@@ -194,6 +195,9 @@ INCLUDEPATH += $$PWD/../CryptoUtils/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
 INCLUDEPATH += $$PWD/../_lib/libuv/include
+
+INCLUDEPATH += $$PWD/../_lib/protobuf/include
+LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
