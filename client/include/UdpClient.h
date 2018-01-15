@@ -11,12 +11,6 @@ public:
 
     void close() override;
     bool connect(int port);
-    /**
-     * @brief broadcast 独立了一个UdpBroadcaster，这里已经deprecated了
-     * @param data
-     * @param len
-     */
-    void broadcast(const char* data,size_t len);
 
     void send(const uv_buf_t bufs[],unsigned int nbufs,const struct sockaddr* addr);
     void send(const char* data,size_t len,const struct sockaddr* addr);
@@ -24,9 +18,7 @@ public:
 
 private:
     int m_port;
-    uv_udp_t m_handleBroadcast;
     SocketData* m_socketData;
-    SocketData* m_broadcastSocketData;
     static void closeClientByThread(SocketData* cdata);
     static void closeClient(SocketData* cdata);
     static void onAfterSend(uv_udp_send_t* req, int status);

@@ -179,10 +179,10 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     txtName->SetValue("11223344");//改变文本框的内容
 
-    //client.connect("192.168.1.105",11212);
+    //client.connect("192.168.18.29",11212);
     //server.start("0.0.0.0",11211);
-    //udpClient.connect(8899);
-    udpBroadcaster.start(8899);
+    udpClient.connect(8899);
+    //udpBroadcaster.start(8899);
 
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
@@ -195,9 +195,9 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
     //udpClient.close();
-    udpBroadcaster.close();
+    //udpBroadcaster.close();
     //server.close();
-    //client.close();
+    client.close();
     wxLogMessage("server stoped!");
 }
 
