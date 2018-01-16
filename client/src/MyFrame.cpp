@@ -86,7 +86,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 
     Centre();
 
-    auto fn= [this](const socket_event_t& event){
+    auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
         switch(event.type){
         case socket_event_type::ConnectionAccept:
             onClientAccepted(event.ip,event.port);
@@ -94,13 +94,34 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
         case socket_event_type::ConnectionClose:
             onClientClosed(event.clientId,event.ip,event.port);
             break;
+        case socket_event_type::ReadData:
+            break;
         default:
             onSimpleSocketEvent(event.type);
             break;
         }
     };
-    server.setSocketEventCb(fn);
-    client.setSocketEventCb(fn);
+
+    auto udpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
+        switch(event.type){
+        case socket_event_type::ConnectionAccept:
+            onClientAccepted(event.ip,event.port);
+            break;
+        case socket_event_type::ConnectionClose:
+            onClientClosed(event.clientId,event.ip,event.port);
+            break;
+        case socket_event_type::ReadData:
+            reply(buf,nread);
+            break;
+        default:
+            onSimpleSocketEvent(event.type);
+            break;
+        }
+    };
+    server.setSocketEventCb(tcpCb);
+    client.setSocketEventCb(tcpCb);
+
+    udpClient.setSocketEventCb(udpCb);
 
     //auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
     //server.setConnectionAcceptedCb(f1);
@@ -182,8 +203,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 
     //client.connect("192.168.18.29",11212);
     //server.start("0.0.0.0",11211);
-    //udpClient.connect(8899);
-    udpBroadcaster.start(8899);
+    udpClient.connect(8899);
+    //udpBroadcaster.start(8899);
 
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
@@ -196,7 +217,7 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
     //udpClient.close();
-    udpBroadcaster.close();
+    //udpBroadcaster.close();
     //server.close();
     //client.close();
     wxLogMessage("server stoped!");

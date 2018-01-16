@@ -31,7 +31,7 @@ public:
 
     bool isRunning(){return m_isRunning;}
 
-    void callSocketEventCb(const socket_event_t& event);
+    void callSocketEventCb(const socket_event_t& event,const char* buf = nullptr,int nread = 0,socket_reply_cb cb = nullptr);
 
     void setSocketEventCb(socket_event_cb cb){m_cbSocketEvent = cb;}
     uv_handle_t* handle();

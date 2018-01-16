@@ -2,6 +2,7 @@
 #include <thread>
 #include <string.h>
 #include "SimpleBufferPool.h"
+#include <sstream>
 
 AbstractSocket::AbstractSocket()
     :AbstractSocket(SocketType::TCP)
@@ -244,10 +245,10 @@ void AbstractSocket::onIdle(uv_idle_t *handle)
 
 }
 
-void AbstractSocket::callSocketEventCb(const socket_event_t& event)
+void AbstractSocket::callSocketEventCb(const socket_event_t& event,const char* buf,int nread,socket_reply_cb cb)
 {
     if(m_cbSocketEvent){
-        m_cbSocketEvent(event);
+        m_cbSocketEvent(this,event,buf,nread,cb);
     }
 }
 
@@ -264,6 +265,10 @@ void AbstractSocket::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, u
     if (!handle->data) {
         return;
     }
+/*
+    ostringstream ostr;
+    ostr<<"alloc buf , suggested_size" << std::to_string(suggested_size);
+    INFO(ostr.str().c_str());*/
 
     handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
 

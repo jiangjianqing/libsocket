@@ -118,10 +118,21 @@ void UdpClient::onAfterRead(uv_udp_t* handle
     }else if(nread == 0){
 
     }else{
+
+        socket_event_t event(socket_event_type::ReadData,handleData->socketData);
+        auto reply = [&client,&addr](const char* buf,int len){
+            client->send(buf,len,addr);
+        };
+
+        client->callSocketEventCb(event,buf->base,nread,reply);
+
+        //echo code
+        /*
         SocketData::reverse(buf->base,nread);
         //uv_buf_t newBuf = uv_buf_init(buf->base , nread);
         client->send(buf->base,nread,addr);
         //client->send(buf->base,nread,addr);
+        */
     }
 
     //释放read缓存

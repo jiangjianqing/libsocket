@@ -97,7 +97,10 @@ private:
 
 
 enum class socket_event_type{
-    Unknow,ReadError,WriteError,ConnectionAccept,ConnectFault,ConnectionClose,Listening,ListenFault,SocketClose
+    Unknow,ReadError,WriteError,ReadData,
+    ConnectionAccept,ConnectFault,ConnectionClose,
+    Listening,ListenFault,
+    SocketClose
 };
 
 struct socket_event_s{
@@ -146,7 +149,14 @@ typedef socket_event_s socket_event_t;
 
 typedef function<void (const string& ip,int port)> connection_accepted_cb;
 typedef function<void (int id, const string& ip,int port)> client_close_cb;
-typedef function<void (const socket_event_t& event)> socket_event_cb;
+//唯一的应用场景：在ReadData event中快速向对方发送响应数据
+typedef function<void (const char* buf,int len)> socket_reply_cb;
+
+/**
+ * @brief socket_event_cb
+ * buf 和 nread参数只有在socket_event_type == ReadData 时才有效
+ */
+typedef function<void (AbstractSocket* socket,const socket_event_t& event,const char* buf,int nread,socket_reply_cb reply_cb)> socket_event_cb;
 
 
 #endif // SOCKETDATA_H
