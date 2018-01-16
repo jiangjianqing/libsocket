@@ -14,7 +14,7 @@
 #include <sstream>
 #include "CmdFactory.h"
 
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
+MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
 {
     m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
@@ -80,6 +80,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
     Bind(wxEVT_CLOSE_WINDOW,&MyFrame::OnClose,this);
 
     Bind(wxEVT_THREAD,&MyFrame::OnMyThreadEvent,this);
+    Bind(wxEVT_THREAD,&MyFrame::onCmdProcesserThreadEvent,this);
 
     Centre();
 
@@ -115,8 +116,9 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
             break;
         }
     };
+
     server.setSocketEventCb(tcpCb);
-    client.setSocketEventCb(tcpCb);
+    tcpClient.setSocketEventCb(tcpCb);
 
     udpClient.setSocketEventCb(udpCb);
 
@@ -303,4 +305,13 @@ void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
   */
 
 
+}
+
+void MyFrame::onCmdProcesserThreadEvent(wxThreadEvent& event)
+{
+    switch(event.GetId()){
+    case (int)CmdEventType::UdpDiscover:
+        tcpClient.connect(cmdProcesser.serverIp().c_str(),cmdProcesser.serverPort());
+        break;
+    }
 }

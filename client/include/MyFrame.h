@@ -46,6 +46,7 @@ private:
 
     //线程处理函数
     void OnMyThreadEvent(wxThreadEvent& event);
+    void onCmdProcesserThreadEvent(wxThreadEvent& event);
 
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
@@ -70,7 +71,7 @@ private:
     wxStatusBar* statusbar;
 
     TcpServer server;
-    TcpClient client;
+    TcpClient tcpClient;
     UdpClient udpClient;
     UdpBroadcaster udpBroadcaster;
 
