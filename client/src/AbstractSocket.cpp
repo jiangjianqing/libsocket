@@ -1,9 +1,10 @@
 #include "AbstractSocket.h"
 #include <thread>
 #include <string.h>
+#include "SimpleBufferPool.h"
 
 AbstractSocket::AbstractSocket()
-    :m_isInited(false),m_loop(nullptr),m_isRunning(false),m_cbSocketEvent(nullptr),m_socketType(SocketType::TCP)
+    :AbstractSocket(SocketType::TCP)
 {
 
     //
@@ -13,7 +14,7 @@ AbstractSocket::AbstractSocket()
 AbstractSocket::AbstractSocket(SocketType type)
     :m_isInited(false),m_loop(nullptr),m_isRunning(false),m_cbSocketEvent(nullptr),m_socketType(type)
 {
-
+    m_bufPool = new SimpleBufferPool();
     //
     //uv_loop_t* loop = uv_default_loop()
 }
@@ -26,6 +27,10 @@ AbstractSocket::~AbstractSocket()
         void* p = *itor;
         free(p);
     }*/
+
+    if(m_bufPool){
+        delete m_bufPool;
+    }
 }
 
 void AbstractSocket::setErrMsg(int uvErrId)
@@ -243,4 +248,29 @@ void AbstractSocket::callSocketEventCb(const socket_event_t& event)
     if(m_cbSocketEvent){
         m_cbSocketEvent(event);
     }
+}
+
+void AbstractSocket::setBufPool(AbstractBufferPool* pool)
+{
+    if(m_bufPool){
+        delete m_bufPool;
+    }
+    m_bufPool = pool;
+}
+
+void AbstractSocket::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
+{
+    if (!handle->data) {
+        return;
+    }
+
+    AbstractSocket* self = static_cast<AbstractSocket*>(handle->data);
+    void* ptr = self->m_bufPool->alloc(suggested_size);
+    uv_buf_t newBuf = uv_buf_init((char*)ptr,suggested_size);
+    *buf = std::move(newBuf);
+}
+
+void AbstractSocket::freeBuf(const uv_buf_t* buf)
+{
+    m_bufPool->dealloc(buf->base);
 }

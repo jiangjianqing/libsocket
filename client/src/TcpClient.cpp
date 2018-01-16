@@ -1,5 +1,6 @@
 #include "TcpClient.h"
 #include <thread>
+#include <functional>
 
 TcpClient::TcpClient()
 {
@@ -108,14 +109,18 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
     if (status) {
         SocketData* cdata = client->m_socketData;
         closeClientByThread(cdata);
+        event.port = client->remotePort();
+
         event.type = socket_event_type::ConnectFault;
         //pclient->connectstatus_ = CONNECT_ERROR;
         //fprintf(stdout,"connect error:%s\n",GetUVError(status));
 
     }else{
         client->refreshInfo();
+        event.port = client->remotePort();
+        event.ip = client->remoteIp();
         event.type = socket_event_type::ConnectionAccept;
-        int iret = uv_read_start(req->handle, onAllocBuffer, onAfterRead);//客户端开始接收服务器的数据
+        int iret = uv_read_start(req->handle, &AbstractSocket::onAllocBuffer, onAfterRead);//客户端开始接收服务器的数据
         if (iret) {
             //fprintf(stdout,"uv_read_start error:%s\n",GetUVError(iret));
             //client->connectstatus_ = CONNECT_ERROR;
@@ -129,16 +134,6 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
     free(req);
     client->callSocketEventCb(event);
 
-}
-
-void TcpClient::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
-{
-    if (!handle->data) {
-        return;
-    }
-    TcpClient* client = static_cast<TcpClient*>(handle->data);
-    SocketData *cdata = client->m_socketData;
-    *buf = cdata->readbuffer;
 }
 
 void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
@@ -163,8 +158,6 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
         //2018.1.12 重要:，在client中，关闭socket意味着需要把libuv的loop也关闭，测试后确认需要开一个独立线程去关闭
         closeClientByThread(cdata);
 
-        return;
-
     } else if (0 == nread)  {/* Everything OK, but nothing read. */
 
     } else /*if (client->recvcb_)*/ {//正常读取数据
@@ -173,6 +166,7 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
         client->send(buf->base,nread);
     }
 
+    client->freeBuf(buf);
 }
 
 void TcpClient::onAfterClientClose(uv_handle_t *handle)

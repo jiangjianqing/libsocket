@@ -45,7 +45,6 @@ private:
     bool removeClient( int clientId );
 
     static void closeClient(SocketData* cdata,bool removeFromClients);
-    static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
     static void onAcceptConnection(uv_stream_t *server, int status);
     static void onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
     static void onAfterShutdown(uv_shutdown_t* req, int status);

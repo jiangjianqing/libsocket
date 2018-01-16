@@ -136,7 +136,7 @@ void UdpClient::onAfterRead(uv_udp_t* handle
 
 
 }
-
+/*
 void UdpClient::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
     if (!handle->data) {
@@ -146,3 +146,4 @@ void UdpClient::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf
     SocketData *cdata = client->m_socketData;
     *buf = cdata->readbuffer;
 }
+*/

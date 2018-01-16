@@ -14,6 +14,7 @@
 
 #include "lm.helloworld.pb.h"
 #include <fstream>
+#include <sstream>
 
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
@@ -179,9 +180,9 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     txtName->SetValue("11223344");//改变文本框的内容
 
-    //client.connect("192.168.18.29",11212);
+    client.connect("192.168.18.29",11212);
     //server.start("0.0.0.0",11211);
-    udpClient.connect(8899);
+    //udpClient.connect(8899);
     //udpBroadcaster.start(8899);
 
   /*
@@ -244,7 +245,10 @@ void MyFrame::onClientAccepted(const string& ip,int port)
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
     event.SetId((int)socket_event_type::ConnectionAccept);
-    event.SetString(ip + ":" + std::to_string(port));
+    ostringstream ostr;
+    ostr<<ip<<":"<<port;
+    //string info = std::to_string(port);
+    event.SetString(ostr.str());
     wxQueueEvent(this,event.Clone());
     //wxTheApp->QueueEvent(e.Clone());
 }

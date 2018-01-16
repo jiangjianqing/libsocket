@@ -148,16 +148,6 @@ void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
 
 }
 
-//服务器分析空间函数
-void TcpServer::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
-{
-    if (!handle->data) {
-        return;
-    }
-    SocketData *cdata = (SocketData*)handle->data;
-    *buf = cdata->readbuffer;
-}
-
 void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf)
 {
     if (!handle->data) {

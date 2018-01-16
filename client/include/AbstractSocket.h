@@ -8,6 +8,7 @@
 
 #include "uv.h"
 #include "SocketData.h"
+#include "AbstractBufferPool.h"
 
 
 using namespace std;
@@ -36,6 +37,9 @@ public:
     uv_handle_t* handle();
     SocketType socketType(){return m_socketType;}
 
+    void setBufPool(AbstractBufferPool* pool);
+
+
 protected:
 
 
@@ -51,6 +55,8 @@ protected:
     void setErrMsg(int uvErrId);
     void run(int mode = UV_RUN_DEFAULT);
 
+
+
     virtual bool init();
     /**
      * @brief deinit 直接调用close，但含义不同，deinit表示完成了init，但后续的run并没有成功运行
@@ -59,9 +65,13 @@ protected:
 
     virtual void refreshInfo();
 
+    static void onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf);
+    void freeBuf(const uv_buf_t* buf);
+
 private:
     static void onIdle(uv_idle_t *handle);
 
+    AbstractBufferPool* m_bufPool;
     SocketType m_socketType;
     mutex m_mutexRun;
     condition_variable m_condVarRun;

@@ -137,13 +137,3 @@ void UdpBroadcaster::onAfterRead(uv_udp_t* handle
 
 
 }
-
-void UdpBroadcaster::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
-{
-    if (!handle->data) {
-        return;
-    }
-    UdpBroadcaster* client = static_cast<UdpBroadcaster*>(handle->data);
-    SocketData *cdata = client->m_socketData;
-    *buf = cdata->readbuffer;
-}

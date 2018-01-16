@@ -8,8 +8,8 @@ class SimpleBufferPool : public AbstractBufferPool
 public:
     SimpleBufferPool();
 
-    char* alloc(size_t suggested_size) override;
-    void dealloc(const char* buf) override;
+    void* alloc(int suggested_size) override;
+    void dealloc(void* buf) override;
 };
 
 #endif // SIMPLEBUFFERPOOL_H

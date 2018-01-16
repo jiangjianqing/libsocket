@@ -6,12 +6,12 @@ SimpleBufferPool::SimpleBufferPool()
 
 }
 
-char* SimpleBufferPool::alloc(size_t suggested_size) override
+void* SimpleBufferPool::alloc(int suggested_size)
 {
-    return (char*)malloc(suggested_size);
+    return malloc(suggested_size);
 }
 
-void SimpleBufferPool::dealloc(const char* buf) override
+void SimpleBufferPool::dealloc(void* buf)
 {
     free(buf);
 }
