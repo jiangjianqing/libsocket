@@ -36,7 +36,7 @@ public:
 private:
 
     shared_timed_mutex m_mutexClients;//保护clients_list_
-    std::map<int,SocketData*> m_clients;//子客户端链接
+    std::map<int,handle_data_t*> m_clients;//子客户端链接
 
     bool bind(const string& ip, int port);
     bool listen(int backlog = DEFAULT_BACKLOG);
@@ -44,7 +44,7 @@ private:
 
     bool removeClient( int clientId );
 
-    static void closeClient(SocketData* cdata,bool removeFromClients);
+    static void closeClient(handle_data_t* cdata,bool removeFromClients);
     static void onAcceptConnection(uv_stream_t *server, int status);
     static void onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* buf);
     static void onAfterShutdown(uv_shutdown_t* req, int status);

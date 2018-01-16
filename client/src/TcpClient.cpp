@@ -7,13 +7,16 @@ TcpClient::TcpClient()
     m_socketData = new SocketData(-1,this,(uv_handle_t*)malloc(sizeof(uv_tcp_t)));
     //2018.01.11 重要： 为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
     m_socketData->setExternalHandle(handle());
+    m_handleData.socketData = m_socketData;
+
 }
 
 TcpClient::~TcpClient()
 {
     close();
 
-    delete m_socketData;
+    //注：m_socketData将由m_handleData负责释放
+    //delete m_socketData;
 }
 
 /*
@@ -105,7 +108,8 @@ void TcpClient::onAfterConnect(uv_connect_t* req, int status)
 {
     //fprintf(stdout,"start after connect\n");
     socket_event_t event;
-    TcpClient *client = (TcpClient*)req->handle->data;
+    handle_data_t* handleData = static_cast<handle_data_t*>(req->handle->data);
+    TcpClient* client = dynamic_cast<TcpClient*>(handleData->socket);
     if (status) {
         SocketData* cdata = client->m_socketData;
         closeClientByThread(cdata);
@@ -141,7 +145,8 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
     if (!handle->data) {
         return;
     }
-    TcpClient* client = static_cast<TcpClient*>(handle->data);
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
+    TcpClient* client = dynamic_cast<TcpClient*>(handleData->socket);
     SocketData* cdata = client->m_socketData;
     if (nread < 0) {
         if (nread == UV_EOF) {

@@ -20,7 +20,6 @@ SocketData::SocketData(int clientId,AbstractSocket* socket,uv_handle_t* handle)
         break;
     }*/
 
-    m_socketHandle->data = this;
     readbuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
     writebuffer = uv_buf_init((char*)malloc(BUFFERSIZE), BUFFERSIZE);
 

@@ -118,6 +118,25 @@ struct socket_event_s{
     }
 };
 
+typedef struct handle_data_s{
+    AbstractSocket* socket;
+    SocketData* socketData;
+    handle_data_s(AbstractSocket* _socket,SocketData* cdata,uv_handle_t* handle)
+    {
+        if(handle){
+            handle->data = this;
+        }
+        this->socket = _socket;
+        this->socketData = cdata;
+    }
+    ~handle_data_s()
+    {
+        if(socketData){
+            delete socketData;
+        }
+    }
+}handle_data_t;
+
 enum class socket_type_e{
     TCP,UDP,PIPE
 };
@@ -128,5 +147,6 @@ typedef socket_event_s socket_event_t;
 typedef function<void (const string& ip,int port)> connection_accepted_cb;
 typedef function<void (int id, const string& ip,int port)> client_close_cb;
 typedef function<void (const socket_event_t& event)> socket_event_cb;
+
 
 #endif // SOCKETDATA_H

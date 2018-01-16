@@ -50,8 +50,8 @@ void TcpServer::close()
     uv_close(handle(), onAfterServerClose);
 
     for (auto it = m_clients.begin(); it!=m_clients.end(); ++it) {
-        SocketData* cdata = it->second;
-        closeClient(cdata,false);
+        handle_data_t* handleData = it->second;
+        closeClient(handleData,false);
     }
     m_clients.clear();
 
@@ -113,38 +113,42 @@ void TcpServer::onAcceptConnection(uv_stream_t *stream, int status)
     if (!stream->data) {
         return;
     }
-    TcpServer *server = (TcpServer *)stream->data;
+    handle_data_t* connHandleData = (handle_data_t *)stream->data;
+    TcpServer *server = dynamic_cast<TcpServer*>(connHandleData->socket);
     int clientId = server->getAvailableClientId();
-    SocketData* cdata = new SocketData(clientId , server,(uv_handle_t*)malloc(sizeof(uv_tcp_t)));//uv_close回调函数中释放
+    uv_tcp_t* tcpHandle = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+    SocketData* socketData = new SocketData(clientId,server,(uv_handle_t*)tcpHandle);
+    handle_data_t* handleData = new handle_data_t{server,socketData,(uv_handle_t*)tcpHandle};
+    tcpHandle->data = handleData;
     //cdata->tcp_server = tcpsock;//保存服务器的信息
-    int iret = uv_tcp_init(server->m_loop , (uv_tcp_t*)cdata->handle());//由析构函数释放
+    int iret = uv_tcp_init(server->m_loop , (uv_tcp_t*)socketData->handle());//由析构函数释放
     if (iret) {
         INFO("创建client connect 失败");
-        delete cdata;
+        delete handleData;
         server->setErrMsg(iret);
         return;
     }
-    iret = uv_accept(stream, (uv_stream_t*) cdata->handle());
+    iret = uv_accept(stream, (uv_stream_t*)tcpHandle);
     //如果不允许接受连接, 可以在这里(uv_listen 的回调函数中)关闭套接字.
     if ( iret) {
         server->setErrMsg(iret);
-        uv_close((uv_handle_t*) cdata->handle(), NULL);
-        delete cdata;
+        uv_close((uv_handle_t*) tcpHandle, NULL);
+        delete handleData;
         return;
     }
 
-    cdata->refreshInfo();//刷新一下信息，可以得到客户端的IP和端口
+    handleData->socketData->refreshInfo();//刷新一下信息，可以得到客户端的IP和端口
 
     unique_lock<shared_timed_mutex> lock1(server->m_mutexClients);//开启互锁
-    server->m_clients.insert(make_pair(clientId,cdata));//加入到链接队列
+    server->m_clients.insert(make_pair(clientId,handleData));//加入到链接队列
 
-    socket_event_t event(socket_event_type::ConnectionAccept,cdata);
+    socket_event_t event(socket_event_type::ConnectionAccept,handleData->socketData);
     lock1.unlock();
 
     server->callSocketEventCb(event);
 
     //LOGI("new client("<<cdata->client_handle<<") id="<< clientid);
-    iret = uv_read_start((uv_stream_t*)cdata->handle(), onAllocBuffer, onAfterRead);//服务器开始接收客户端的数据
+    iret = uv_read_start((uv_stream_t*)handleData->socketData->handle(), onAllocBuffer, onAfterRead);//服务器开始接收客户端的数据
 
 }
 
@@ -153,7 +157,9 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
     if (!handle->data) {
         return;
     }
-    SocketData * cdata = (SocketData*)handle->data;//服务器的recv带的是clientdata
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
+    SocketData * cdata = handleData->socketData;//服务器的recv带的是clientdata
+    TcpServer *server = (TcpServer *)cdata->socket();
     if (nread < 0) {/*客户端断开连接时 */
         //先保存下错误信息
 
@@ -175,7 +181,7 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
         uv_shutdown(req, handle, onAfterShutdown);
 
         //-----shutdown之后再去触发callback，callback中不要从clients获取任何信息，因为此时不可靠
-        TcpServer *server = (TcpServer *)cdata->socket();
+
         server->callSocketEventCb(event);
 
 
@@ -189,15 +195,18 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
         //uv_as
         //client->recvcb_(client->client_id,buf->base,nread);
     }
+
+    //释放内存
+    server->freeBuf(buf);
 }
 
 void TcpServer::onAfterClientClose(uv_handle_t *handle)
 {
-    SocketData *cdata = (SocketData*)handle->data;
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
     //TcpServer *server = (TcpServer *)cdata->socket();
-    handle->data = nullptr;
+    //handle->data = nullptr;
     //LOGI("client "<<cdata->client_id<<" had closed.");
-    delete cdata;
+    delete handleData;
 }
 
 void TcpServer::onAfterServerClose(uv_handle_t *handle)
@@ -210,8 +219,8 @@ void TcpServer::onAfterServerClose(uv_handle_t *handle)
 void TcpServer::onAfterShutdown(uv_shutdown_t* req, int status)
 {
     //uv_close((uv_handle_t*)req->handle, on_close);
-    SocketData * cdata = (SocketData*)req->handle->data;
-    closeClient(cdata,true);//先关闭连接，再移除clients
+    handle_data_t * data = (handle_data_t*)req->handle->data;
+    closeClient(data,true);//先关闭连接，再移除clients
     free(req);
 }
 
@@ -222,10 +231,10 @@ void TcpServer::onAfterWrite(uv_write_t *req, int status)
         return;
 
     if (status < 0) {//连接断开，关闭客户端
-        SocketData * cdata = (SocketData*)req->handle->data;
-        TcpServer *server = (TcpServer *)cdata->socket();
-        socket_event_t event(socket_event_type::WriteError,cdata);
-        closeClient(cdata,true);//先关闭连接，再移除clients
+        handle_data_t * handleData = (handle_data_t*)req->handle->data;
+        TcpServer *server = (TcpServer *)handleData->socket;
+        socket_event_t event(socket_event_type::WriteError,handleData->socketData);
+        closeClient(handleData,true);//先关闭连接，再移除clients
 
         server->callSocketEventCb(event);
         //m_errmsg = "发送数据有误:"<<getUVError(status);
@@ -236,9 +245,10 @@ void TcpServer::onAfterWrite(uv_write_t *req, int status)
 
 }
 
-void TcpServer::closeClient(SocketData* cdata,bool removeFromClients)
+void TcpServer::closeClient(handle_data_t* handleData,bool removeFromClients)
 {
-    TcpServer *server = (TcpServer *)cdata->socket();
+    TcpServer *server = (TcpServer *)handleData->socket;
+    SocketData* cdata = handleData->socketData;
     if (uv_is_active((uv_handle_t*)cdata->handle())) {
         uv_read_stop((uv_stream_t*)cdata->handle());
     }
@@ -286,8 +296,8 @@ bool TcpServer::send(int clientid, const char* data, std::size_t len)
            return -1;
     }
     //自己控制data的生命周期直到write结束
-    SocketData* cdata = itfind->second;
-    return cdata->send(data,len,&TcpServer::onAfterWrite);
+    handle_data_t* handleData = itfind->second;
+    return handleData->socketData->send(data,len,&TcpServer::onAfterWrite);
     //return send(cdata,data,len);
 }
 

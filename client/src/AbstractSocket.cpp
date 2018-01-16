@@ -13,6 +13,7 @@ AbstractSocket::AbstractSocket()
 
 AbstractSocket::AbstractSocket(SocketType type)
     :m_isInited(false),m_loop(nullptr),m_isRunning(false),m_cbSocketEvent(nullptr),m_socketType(type)
+    ,m_handleData(this,nullptr,nullptr)
 {
     m_bufPool = new SimpleBufferPool();
     //
@@ -166,12 +167,12 @@ bool AbstractSocket::init()
     switch (m_socketType) {
     case SocketType::TCP:
         iret = uv_tcp_init(m_loop,&m_tcpHandle);
-        m_tcpHandle.data = this;
+        m_tcpHandle.data = &m_handleData;
 
         break;
     case SocketType::UDP:
         iret = uv_udp_init(m_loop,&m_udpHandle);
-        m_udpHandle.data = this;
+        m_udpHandle.data = &m_handleData;
         break;
     default:
         break;
@@ -264,7 +265,9 @@ void AbstractSocket::onAllocBuffer(uv_handle_t *handle, size_t suggested_size, u
         return;
     }
 
-    AbstractSocket* self = static_cast<AbstractSocket*>(handle->data);
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
+
+    AbstractSocket* self = handleData->socket;
     void* ptr = self->m_bufPool->alloc(suggested_size);
     uv_buf_t newBuf = uv_buf_init((char*)ptr,suggested_size);
     *buf = std::move(newBuf);

@@ -42,6 +42,7 @@ public:
 
 protected:
 
+    handle_data_t m_handleData;
 
     string m_ip;
     int m_port;
