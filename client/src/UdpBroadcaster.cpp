@@ -6,13 +6,13 @@ UdpBroadcaster::UdpBroadcaster():AbstractSocket(SocketType::UDP)
     m_socketData = new SocketData(-1,this,(uv_handle_t*)malloc(sizeof(uv_udp_t)));
     //2018.01.11 重要： 为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
     m_socketData->setExternalHandle(handle());
+    m_handleData.socketData = m_socketData;
 }
 
 UdpBroadcaster::~UdpBroadcaster()
 {
     close();
 
-    delete m_socketData;
 }
 
 void UdpBroadcaster::close()
@@ -106,7 +106,8 @@ void UdpBroadcaster::onAfterRead(uv_udp_t* handle
                             const struct sockaddr* addr,
                             unsigned flags)
 {
-    UdpBroadcaster* client = static_cast<UdpBroadcaster*>(handle->data);
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
+    UdpBroadcaster* client = dynamic_cast<UdpBroadcaster*>(handleData->socket);
     if (nread < 0) {
         //fprintf(stderr, "Read error %s\n", uv_err_name(nread));
         closeClientByThread(client->m_socketData);
@@ -119,6 +120,8 @@ void UdpBroadcaster::onAfterRead(uv_udp_t* handle
         client->send(buf->base,nread,addr);
         //client->send(buf->base,nread,addr);
     }
+
+    client->freeBuf(buf);
     /*
         char sender[17] = { 0 };
         uv_ip4_name((const struct sockaddr_in*) addr, sender, 16);

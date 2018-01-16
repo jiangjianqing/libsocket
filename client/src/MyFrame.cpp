@@ -182,8 +182,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 
     //client.connect("192.168.18.29",11212);
     //server.start("0.0.0.0",11211);
-    udpClient.connect(8899);
-    //udpBroadcaster.start(8899);
+    //udpClient.connect(8899);
+    udpBroadcaster.start(8899);
 
   /*
  if (choice->GetCurrentSelection() < (int)choice->GetCount() - 1)
@@ -195,8 +195,8 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
 void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
-    udpClient.close();
-    //udpBroadcaster.close();
+    //udpClient.close();
+    udpBroadcaster.close();
     //server.close();
     //client.close();
     wxLogMessage("server stoped!");
