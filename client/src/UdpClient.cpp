@@ -93,7 +93,7 @@ void UdpClient::onAfterClientClose(uv_handle_t *handle)
 
 void UdpClient::onAfterSend(uv_udp_send_t* req, int status)
 {
-    if(status){
+    if(status){//重要：如果没有错误却调用getUVError，在valgrind中会出现内存泄露提示
         string err = getUVError(status);
         int i = 0;
         i = i + 1;

@@ -96,7 +96,9 @@ void UdpBroadcaster::onAfterClientClose(uv_handle_t *handle)
 
 void UdpBroadcaster::onAfterSend(uv_udp_send_t* req, int status)
 {
-    string err = getUVError(status);
+    if(status){//重要：如果没有错误却调用getUVError，在valgrind中会出现内存泄露提示
+        string err = getUVError(status);
+    }
     free(req);
 }
 
