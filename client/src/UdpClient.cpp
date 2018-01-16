@@ -6,6 +6,7 @@ UdpClient::UdpClient():AbstractSocket(SocketType::UDP)
     m_socketData = new SocketData(-1,this,(uv_handle_t*)malloc(sizeof(uv_udp_t)));
     //2018.01.11 重要： 为了沿用AbstractSocket中对loop的多线程处理，必须将忽略m_socketData中对于自身handle的处理
     m_socketData->setExternalHandle(handle());
+    m_handleData.socketData = m_socketData;
 
     //m_broadcastSocketData = new SocketData(-1,this,(uv_handle_t*)malloc(sizeof(uv_udp_t)));
     //m_broadcastSocketData->setExternalHandle((uv_handle_t*)&m_handleBroadcast);
@@ -16,7 +17,8 @@ UdpClient::~UdpClient()
 {
     close();
 
-    delete m_socketData;
+    //注：m_socketData将由m_handleData负责释放
+    //delete m_socketData;
     //delete m_broadcastSocketData;
 }
 
@@ -91,9 +93,11 @@ void UdpClient::onAfterClientClose(uv_handle_t *handle)
 
 void UdpClient::onAfterSend(uv_udp_send_t* req, int status)
 {
-    string err = getUVError(status);
-    int i = 0;
-    i = i + 1;
+    if(status){
+        string err = getUVError(status);
+        int i = 0;
+        i = i + 1;
+    }
     free(req);
 }
 
@@ -103,7 +107,8 @@ void UdpClient::onAfterRead(uv_udp_t* handle
                             const struct sockaddr* addr,
                             unsigned flags)
 {
-    UdpClient* client = static_cast<UdpClient*>(handle->data);
+    handle_data_t* handleData = static_cast<handle_data_t*>(handle->data);
+    UdpClient* client = dynamic_cast<UdpClient*>(handleData->socket);
     if (nread < 0) {
         string err = getUVError(nread);
         FATAL(err);
@@ -118,6 +123,9 @@ void UdpClient::onAfterRead(uv_udp_t* handle
         client->send(buf->base,nread,addr);
         //client->send(buf->base,nread,addr);
     }
+
+    //释放read缓存
+    client->freeBuf(buf);
     /*
         char sender[17] = { 0 };
         uv_ip4_name((const struct sockaddr_in*) addr, sender, 16);
