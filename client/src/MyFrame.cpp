@@ -10,12 +10,9 @@
 #include "wx/toolbar.h"
 #include "MyTray.h"
 #include <functional>
-#include "CryptoUtils.h"
-
-#include "lm.helloworld.pb.h"
 #include <fstream>
 #include <sstream>
-
+#include "CmdFactory.h"
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
 {
@@ -111,7 +108,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World")
             onClientClosed(event.clientId,event.ip,event.port);
             break;
         case socket_event_type::ReadData:
-            reply(buf,nread);
+            cmdProcesser.recvUdpData(buf,nread,reply);
             break;
         default:
             onSimpleSocketEvent(event.type);
@@ -191,6 +188,7 @@ void MyFrame::OnAbout(wxCommandEvent& event)
 }
 void MyFrame::OnHello(wxCommandEvent& event)
 {
+
     wxLogMessage("Hello world from wxWidgets!");
 }
 
@@ -225,37 +223,16 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
 
 void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
 {
-    string srcText = "hello";
-    string encryptText;
-    string encryptHexText;
-    string decryptText;
+    char* buf = nullptr;
+    int len = 0;
+    if(CmdFactory::makeDiscoverMsg("192.168.18.29",11212,buf,len)){
+        string str = CmdFactory::buf2Str(buf,len);
+        fstream output("./cmd_log", ios::out | ios::trunc | ios::binary);
 
-    CryptoUtils::sha256(srcText, encryptText, encryptHexText);
-
-    lm::helloworld msg1;
-    msg1.set_id(101);
-    msg1.set_str("hello");
-
-      // Write the new address book back to disk.
-    fstream output("./log", ios::out | ios::trunc | ios::binary);
-
-    if (!msg1.SerializeToOstream(&output)) {
-          cerr << "Failed to write msg." << endl;
-          //return -1;
+        output<<str;
+        output.flush();
+        output.close();
     }
-    output.flush();
-    output.close();
-
-    lm::helloworld msg2;
-
-    {
-        fstream input("./log", ios::in | ios::binary);
-        if (!msg2.ParseFromIstream(&input)) {
-          cerr << "Failed to parse address book." << endl;
-          //return -1;
-        }
-    }
-
     INFO("send broadcast!");
     static char* msg_discovery = "123456";
     udpBroadcaster.broadcast(msg_discovery,6);

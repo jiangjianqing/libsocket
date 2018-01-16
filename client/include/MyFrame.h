@@ -12,6 +12,7 @@
 #include "TcpClient.h"
 #include "UdpClient.h"
 #include "UdpBroadcaster.h"
+#include "CmdProcesser.h"
 
 class MyTray;
 
@@ -72,6 +73,8 @@ private:
     TcpClient client;
     UdpClient udpClient;
     UdpBroadcaster udpBroadcaster;
+
+    CmdProcesser cmdProcesser;
 };
 
 #endif // MYFRAME_H
