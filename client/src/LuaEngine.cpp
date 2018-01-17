@@ -24,15 +24,15 @@ lua_State* LuaEngine::L()
 
 void LuaEngine::exec(function<void (lua_State* L)> fn)
 {
-    lua_State* L = luaL_newstate();
+    lua_State* L = luaL_newstate();//1 创建一个state
     if(m_luaState == nullptr){
         return;
     }
-    luaL_openlibs(L);
+    luaL_openlibs(L);/*2 载入Lua基本库 */
 
-    fn(L);
+    fn(L);//3 执行callback
 
-    lua_close(L);
+    lua_close(L);//4.关闭state,/* 清除Lua */
 }
 
 LuaEngine* LuaEngine::getInstance()
