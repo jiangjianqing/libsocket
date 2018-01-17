@@ -202,7 +202,8 @@ INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 INCLUDEPATH += $$PWD/../_lib/lua/include
-LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
+#LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
+LIBS += -llua
 LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 
 #使Release版本可调试

@@ -1,0 +1,7 @@
+all : mylib.so
+      
+mylib.so : lua_extend_test.cpp
+	g++ lua_extend_test.cpp -fPIC -shared -llua -o mylib.so
+
+      
+

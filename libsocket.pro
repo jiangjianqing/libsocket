@@ -3,4 +3,5 @@ TEMPLATE = subdirs
 SUBDIRS += \
     client \
     #server
-    CryptoUtils
+    CryptoUtils \
+    lua_extend_dll_test
