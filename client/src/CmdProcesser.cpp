@@ -5,7 +5,7 @@
 
 CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
-
+    m_luaEngine.testLua();
 }
 
 void CmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb)

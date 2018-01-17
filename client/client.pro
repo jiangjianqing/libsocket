@@ -163,7 +163,9 @@ linux: {
     DEFINES +=  __WXGTK__
     LIBS += $$wxLinkOptions
     QMAKE_CXXFLAGS_RELEASE += $$wxCXXFLAGS
-    #QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media/process_icons/ $$DESTDIR && \
+
+    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media/lua $$DESTDIR & \
+                        $${QMAKE_COPY_DIR} res/icons $$DESTDIR/icons & \
                         #$${QMAKE_COPY_DIR} media/examples/ ../_bin/$$CONFIGURATION/$$PLATFORM/ &&\
                         #$${QMAKE_MKDIR} ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development && \
                         #rm -rf ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_lib ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_template && \
@@ -198,6 +200,10 @@ INCLUDEPATH += $$PWD/../_lib/libuv/include
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
+
+INCLUDEPATH += $$PWD/../_lib/lua/include
+LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
+LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO

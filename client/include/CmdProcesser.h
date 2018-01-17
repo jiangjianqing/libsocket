@@ -5,6 +5,7 @@
 #include <functional>
 #include "SocketData.h"
 #include "wx/event.h"
+#include "LuaEngine.h"
 
 using namespace std;
 
@@ -33,6 +34,8 @@ private:
     wxEvtHandler* m_wxEvtHandler;
     string m_serverIp;
     int m_serverPort;
+
+    LuaEngine m_luaEngine;
 };
 
 #endif // CMDPROCESSER_H
