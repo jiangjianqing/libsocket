@@ -142,9 +142,6 @@ win32: {
 
 linux: {
 
-    #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
-    LIBS += -L$$PWD/../_lib/libuv/lib/linux -luv
-
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/include
     #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/lib/linux/wx/include/gtk2-unicode-3.1
@@ -192,11 +189,18 @@ gcc:!clang {
 }
 
 #加入通用lib支持
+
+INCLUDEPATH += $$PWD/../_lib/libuv/include
+#特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
+LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
+
 LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
-INCLUDEPATH += $$PWD/../_lib/libuv/include
+LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
+INCLUDEPATH += $$PWD/../Socket/include
+
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
