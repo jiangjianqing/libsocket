@@ -1,7 +1,7 @@
 #include "CmdProcesser.h"
 #include "SocketData.h"
 #include "CmdFactory.h"
-#include "protos/udp_msg.discover.pb.h"
+#include "udp_msg.discover.pb.h"
 
 CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {

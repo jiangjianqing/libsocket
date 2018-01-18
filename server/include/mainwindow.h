@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "UdpBroadcaster.h"
-#include "TcpServer.h"
+//#include "UdpBroadcaster.h"
+//#include "TcpServer.h"
 #include <string>
 
 using namespace std;
@@ -28,12 +28,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    UdpBroadcaster m_udpBroadcaster;
-    TcpServer m_tcpServer;
+    //UdpBroadcaster m_udpBroadcaster;
+    //TcpServer m_tcpServer;
 
-    void onClientAccepted(const socket_event_t& event);
-    void onClientClosed(const socket_event_t& event);
-    void onSimpleSocketEvent(socket_event_type type);
+    //void onClientAccepted(const socket_event_t& event);
+    //void onClientClosed(const socket_event_t& event);
+    //void onSimpleSocketEvent(socket_event_type type);
 };
 
 #endif // MAINWINDOW_H

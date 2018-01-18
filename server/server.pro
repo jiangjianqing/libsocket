@@ -9,23 +9,15 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Server
 TEMPLATE = app
+
+#设置console就会从shell启动
+#CONFIG += console c++11
 CONFIG += c++14
-CONFIG -= app_bundle
+
 
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
 QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
-
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -44,6 +36,7 @@ UI_DIR = ../_intermediate/$$TARGET/$$CONFIGURATION/$$PLATFORM
 
 HEADERS     += $$files(*.h,true)
 SOURCES     += $$files(*.cpp,true)
+SOURCES     += $$files(*.cc,true)
 FORMS       += $$files(*.ui,true)
 RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
@@ -71,29 +64,23 @@ win32: {
     #CONFIG(release, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
 
-    LIBS += -L$$PWD/../_lib/libxml2 -llibxml2
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/include
+    #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswu
+    INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll/mswud
 
-    LIBS += -L$$PWD/../_lib/jsoncpp/lib/$$CONFIGURATION/$$PLATFORM -ljsoncpp
+    LIBS += -L$$PWD/../_lib/wxwidgets/windows/lib/vc140_x64_dll -lwxmsw31ud_xrc -lwxmsw31ud_html -lwxmsw31ud_adv -lwxmsw31ud_core -lwxbase31ud_xml -lwxbase31ud_net -lwxbase31ud -lwxtiff -lwxjpeg -lwxpng -lwxzlib -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lwxregexu -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32 -lShlwapi -lversion
+    #官方在编译时使用了动态库配置
+    DEFINES += WXUSINGDLL
+    #DEFINES += __WXMSW__ __WXDEBUG__
 
-    LIBS += -L$$PWD/../_lib/iconv -liconv
+    #重要：目的就是让别的头文件别包含了”winsock.h”内容，否则加入libuv会导致编译错误： 'sockaddr': 'struct' type redefinition
+    DEFINES += _WINSOCKAPI_
+    LIBS += -L$$PWD/../_lib/libuv/lib/windows/$$CONFIGURATION/$$PLATFORM -llibuv
+    LIBS += wsock32.lib Ws2_32.lib Advapi32.lib User32.lib Iphlpapi.lib Psapi.lib Userenv.lib
 
-    CONFIG(release, debug|release): LIBS += -L$$PWD/../_lib/curl/lib/windows/$$CONFIGURATION/$$PLATFORM -llibcurl
-    else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_lib/curl/lib/windows/$$CONFIGURATION/$$PLATFORM -llibcurl_debug
+    #LIBS += core.lib
 
-
-    #dump解析的话，我利用的是在release中加入调试信息，然后生成pdb配合传上来的dump进行代码的定位解析。
-    #debug {#调试模式下才使用DumpHelper
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lexception_handler
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcrash_generation_client
-        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcommon
-
-        LIBS += -L$$PWD/../DumpHelper/_lib/$$CONFIGURATION/$$PLATFORM -lDumpHelper
-    #}
-
-    LIBS += -L$$PWD/../CommonUtils/_lib/$$CONFIGURATION/$$PLATFORM -lCommonUtils
-    LIBS += -L$$PWD/../Lighting/_lib/$$CONFIGURATION/$$PLATFORM -lLighting
-
-    LIBS += -L$$PWD/../AlgRepoLib/_lib/$$CONFIGURATION/$$PLATFORM -lAlgRepoLib
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -134,10 +121,18 @@ win32: {
 
 linux: {
 
-    #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
-    LIBS += -L$$PWD/../_lib/libuv/lib/linux -luv
+
+    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media/lua $$DESTDIR & \
+                        $${QMAKE_COPY_DIR} res/icons $$DESTDIR/icons & \
+                        #$${QMAKE_COPY_DIR} media/examples/ ../_bin/$$CONFIGURATION/$$PLATFORM/ &&\
+                        #$${QMAKE_MKDIR} ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development && \
+                        #rm -rf ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_lib ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_template && \
+                        #$${QMAKE_COPY_DIR} media/plugin_development/_template ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development && \
+                        #$${QMAKE_MKDIR} ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_lib && \
+                        #$${QMAKE_COPY_DIR} ../IPL/include ../_bin/$$CONFIGURATION/$$PLATFORM/plugin_development/_lib/include \
 
 }
+
 
 msvc {
     #QMAKE_CXXFLAGS_RELEASE -= -O1
@@ -156,27 +151,28 @@ gcc:!clang {
 
 #加入通用lib支持
 
-INCLUDEPATH += $$PWD/../_lib/libuv/include
+#INCLUDEPATH += $$PWD/../_lib/libuv/include
 #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
-LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
+#LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
 
-LIBS += -L$$PWD/../_bin/CmdRepo/$$CONFIGURATION/$$PLATFORM -lCmdRepo
-INCLUDEPATH += $$PWD/../CmdRepo/include
-INCLUDEPATH += $$PWD/../CmdRepo/protos
+#LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
+#INCLUDEPATH += $$PWD/../CryptoUtils/include
+#LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
+#LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
+#INCLUDEPATH += $$PWD/../Socket/include
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
+#INCLUDEPATH += $$PWD/../_lib/lua/include
+
 INCLUDEPATH += $$PWD/include/
-
-LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
-INCLUDEPATH += $$PWD/../Socket/include
-
 
 
 message("Defines:")
 message($$DEFINES)
+
 
 # Visual Leak Detector
 #win32: LIBS += -L"C:/Program Files (x86)/Visual Leak Detector/lib/Win32/" -lvld

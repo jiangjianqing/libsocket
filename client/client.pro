@@ -1,44 +1,14 @@
+CONFIG -= app_bundle
+CONFIG -= qt
 TEMPLATE = app
 #设置console就会从shell启动
 #CONFIG += console c++11
 CONFIG += c++14
-CONFIG -= app_bundle
-CONFIG -= qt
 
 
-
-
-VERSION = "1.0.0.snapshot"
-QMAKE_TARGET_COMPANY = "FS"
-QMAKE_TARGET_PRODUCT = "Algorithm Integration Helper"
-QMAKE_TARGET_DESCRIPTION = ""
-QMAKE_TARGET_COPYRIGHT = ""
-
-equals(TEMPLATE, app) {
-    #message("Template value equals app")
-    DEFINES += \
-    APP_VERSION=\"\\\"$$VERSION\\\"\" \
-    APP_COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\" \
-    APP_PRODUCT=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\" \
-    APP_DESCRIPTION=\"\\\"$$QMAKE_TARGET_DESCRIPTION\\\"\" \
-    APP_COPYRIGHT=\"\\\"$$QMAKE_TARGET_COPYRIGHT\\\"\" \
-    APP_NAME=\\\"$$TARGET\\\" \
-
-} else {
-    #message("Template value equals vcapp")
-    DEFINES += \
-    APP_VERSION=\\\"$$VERSION\\\" \
-    APP_COMPANY=\\\"$$QMAKE_TARGET_COMPANY\\\" \
-    APP_PRODUCT=\\\"$$QMAKE_TARGET_PRODUCT\\\" \
-    APP_DESCRIPTION=\\\"$$QMAKE_TARGET_DESCRIPTION\\\" \
-    APP_COPYRIGHT=\\\"$$QMAKE_TARGET_COPYRIGHT\\\" \
-    APP_NAME=\\\"$$TARGET\\\" \
-}
-
-# enable or disable update checker
-USE_FERVOR_UPDATER = false
-DEFINES += IMAGEPLAY_URL=\\\"http://imageplay.io\\\"
-DEFINES += IMAGEPLAY_APPCAST_URL=\\\"http://imageplay.io/Appcast.xml\\\"
+#使Release版本可调试
+QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -141,6 +111,8 @@ win32: {
 }
 
 linux: {
+    LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua #下面的 -ldl必须在本行之后
+    LIBS +=-ldl  #lua显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/include
     #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
@@ -210,16 +182,8 @@ INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 INCLUDEPATH += $$PWD/../_lib/lua/include
-LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
-LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
-
-#使Release版本可调试
-QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
-
 
 INCLUDEPATH += $$PWD/include/
-INCLUDEPATH += $$PWD/protos/
 
 
 message("Defines:")

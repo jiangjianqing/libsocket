@@ -1,0 +1,6 @@
+syntax = "proto2";
+package udp_msg; 
+message discover 
+{ 
+   required string     cmd_type = 1; 
+}

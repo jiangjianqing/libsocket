@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#include "CmdFactory.h"
-#include "udp_msg.discover.pb.h"
+//#include "CmdFactory.h"
+#include "protos/udp_msg.discover.pb.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    /*
     m_udpBroadcaster.start(8899);
 
     auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
@@ -29,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     };
 
     m_tcpServer.setSocketEventCb(tcpCb);
+    */
 }
 
 MainWindow::~MainWindow()
@@ -36,6 +38,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+/*
 void MainWindow::onClientAccepted(const socket_event_t& event)
 {
     string label = event.ip + ":" + std::to_string(event.port);
@@ -52,20 +55,12 @@ void MainWindow::onSimpleSocketEvent(socket_event_type type)
 {
 
 }
+*/
 
 void MainWindow::on_pushButton_clicked()
 {
     char* buf = nullptr;
     int len = 0;
-
-    udp_msg::discover msg;
-    msg.set_cmd_type("discover");
-    msg.set_server_ip("127.0.0.1");
-    msg.set_server_port(8899);
-
-    len = msg.ByteSize();
-
-    buf = (char*)malloc(len);
 
     //return msg.SerializeToArray(buf,len);
     //if(CmdFactory::makeDiscoverMsg("192.168.18.3",11211,buf,len)){
@@ -81,5 +76,5 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_btnStart_clicked()
 {
-    m_tcpServer.start("0.0.0.0",11211);
+    //m_tcpServer.start("0.0.0.0",11211);
 }
