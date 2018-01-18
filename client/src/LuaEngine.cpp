@@ -114,7 +114,7 @@ int pcall_callback_err_fun(lua_State* L)
     return 1;
 }
 
-void LuaEngine::addLuaPackagePath(lua_State *ls, char *name, char *value)
+void LuaEngine::addLuaPackagePath(lua_State *ls, const char *name, const char *value)
 {
     string v;
 

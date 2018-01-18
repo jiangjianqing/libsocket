@@ -1,8 +1,8 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    server  \
-    #client \
+    #server  \
+    client \
     CryptoUtils \
     lua_extend_dll_test \
     Socket  \

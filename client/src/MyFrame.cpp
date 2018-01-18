@@ -236,7 +236,7 @@ void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
         output.close();
     }
     INFO("send broadcast!");
-    static char* msg_discovery = "123456";
+    char msg_discovery[] = "123456";
     udpBroadcaster.broadcast(msg_discovery,6);
 }
 

@@ -54,6 +54,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 win32: {
     #CONFIG(release, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
+    DESTDIR = ..\\_bin\\$$TARGET\\$$CONFIGURATION\\$$PLATFORM
 
     INCLUDEPATH += $$PWD/../_lib/wxwidgets/windows/include
     #DEPENDPATH += $$PWD/../_lib/wxwidgets/include
@@ -72,6 +73,13 @@ win32: {
 
     #LIBS += core.lib
 
+
+    CONFIG(release, debug|release):{
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobuf
+    }
+    else:CONFIG(debug, debug|release): {
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobufd
+    }
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -96,7 +104,8 @@ win32: {
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations ../_bin/$$CONFIGURATION/$$PLATFORM/$$TARGET.exe & \
 
-    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} ..\\_lib\\windows $$DESTDIR & \
+    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media\\lua $$DESTDIR\\lua & \
+                        $${QMAKE_COPY_DIR} ..\\_lib\\windows $$DESTDIR & \
                         $${QMAKE_COPY_DIR} ..\\_lib\\windows\\$$CONFIGURATION $$DESTDIR & \
                         $${QMAKE_COPY_DIR} media\\config $$DESTDIR\\config\\ & \
 #                        $${QMAKE_COPY_DIR} media\\process_icons ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\process_icons\\ & \
@@ -111,6 +120,9 @@ win32: {
 }
 
 linux: {
+    LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
+
+
     LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua #下面的 -ldl必须在本行之后
     LIBS +=-ldl  #lua显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 
@@ -179,9 +191,12 @@ INCLUDEPATH += $$PWD/../CmdRepo/protos
 
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
-LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 INCLUDEPATH += $$PWD/../_lib/lua/include
+LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
+linux: {
+    LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
+}
 
 INCLUDEPATH += $$PWD/include/
 

@@ -47,6 +47,12 @@ OTHER_FILES += $$files(*,true)
 win32: {
     #LIBS += core.lib
 
+    CONFIG(release, debug|release):{
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobuf
+    }
+    else:CONFIG(debug, debug|release): {
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobufd
+    }
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -86,7 +92,7 @@ win32: {
 }
 
 linux: {
-
+    LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 }
 #加入通用lib支持
@@ -97,7 +103,7 @@ LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
-LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
+
 
 INCLUDEPATH += $$PWD/../_lib/lua/include
 LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
