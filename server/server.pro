@@ -162,8 +162,9 @@ gcc:!clang {
 #LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
 #INCLUDEPATH += $$PWD/../Socket/include
 
-INCLUDEPATH += $$PWD/../_lib/protobuf/include
-LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
+#INCLUDEPATH += $$PWD/../_lib/protobuf/include
+#LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
+#LIBS += -lprotobuf
 
 #INCLUDEPATH += $$PWD/../_lib/lua/include
 

@@ -5,6 +5,8 @@
 //#include "UdpBroadcaster.h"
 //#include "TcpServer.h"
 #include <string>
+#include "MsgEventThread.h"
+#include "Msg.h"
 
 using namespace std;
 
@@ -25,8 +27,15 @@ private slots:
 
     void on_btnStart_clicked();
 
+protected:
+    bool event(QEvent *event);//用QEvent方式完成线程通信
+
 private:
     Ui::MainWindow *ui;
+
+    MsgEventThread *t;
+
+    void DisplayMsg(Msg);
 
     //UdpBroadcaster m_udpBroadcaster;
     //TcpServer m_tcpServer;
