@@ -5,8 +5,8 @@
 #include <thread>
 #include <chrono>
 
-//#include "CmdFactory.h"
-//#include "protos/udp_msg.discover.pb.h"
+#include "CmdFactory.h"
+#include "udp_msg.discover.pb.h"
 
 //总结：
 //1、sendEvent只能用在同一个线程中；
@@ -165,16 +165,15 @@ void MainWindow::on_pushButton_clicked()
     char* buf = nullptr;
     int len = 0;
 
-    //return msg.SerializeToArray(buf,len);
-    //if(CmdFactory::makeDiscoverMsg("192.168.18.3",11211,buf,len)){
+
+    if(CmdFactory::makeDiscoverMsg("192.168.18.3",11211,buf,len)){
         //m_udpBroadcaster.broadcast(buf,len);//注意内存泄露
         //string str = CmdFactory::buf2Str(buf,len);
         /*
         fstream output("./cmd_log", ios::out | ios::trunc | ios::binary);
         output<<str;
         output.flush();*/
-    //}
-
+    }
 }
 
 void MainWindow::on_btnStart_clicked()

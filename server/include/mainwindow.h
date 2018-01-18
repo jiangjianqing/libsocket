@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-//#include "UdpBroadcaster.h"
-//#include "TcpServer.h"
+#include "UdpBroadcaster.h"
+#include "TcpServer.h"
 #include <string>
 #include "MsgEventThread.h"
 #include "Msg.h"

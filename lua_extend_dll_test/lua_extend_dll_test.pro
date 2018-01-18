@@ -44,23 +44,67 @@ FORMS       += $$files(*.ui,true)
 RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
+win32: {
+    #LIBS += core.lib
+
+
+    #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
+    #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
+    #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lProcessFactory
+    #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lProcessDiagram
+
+    #copy stuff after compiling
+    #resources.path = ../_bin/$$CONFIGURATION/$$PLATFORM
+    #resources.files += media/process_icons
+    #INSTALLS += resources
+
+    #run windeployqt
+    #copy dlls
+    #copy media
+
+    #清理目标目录
+    QMAKE_POST_LINK +=  rmdir /s/q  .\\$$DESTDIR\\config & \
+
+    #在release时才会执行windeployqt
+    CONFIG(release, debug|release): QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations $$DESTDIR\\$$TARGET.exe & \
+    #else:CONFIG(debug, debug|release):{
+    #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
+    #QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations ../_bin/$$CONFIGURATION/$$PLATFORM/$$TARGET.exe & \
+
+    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} ..\\_lib\\windows $$DESTDIR & \
+                        $${QMAKE_COPY_DIR} ..\\_lib\\windows\\$$CONFIGURATION $$DESTDIR & \
+                        $${QMAKE_COPY_DIR} media\\config $$DESTDIR\\config\\ & \
+#                        $${QMAKE_COPY_DIR} media\\process_icons ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\process_icons\\ & \
+#                        $${QMAKE_COPY_DIR} media\\examples ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\examples\\ & \
+#                        $${QMAKE_COPY_DIR} media\\examples\images ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\examples\\images\\ & \
+#                        $${QMAKE_COPY_DIR} media\\plugin_development ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\plugin_development & \
+#                        $${QMAKE_COPY_DIR} ..\\IPL\\include ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\plugin_development\\_lib\\include & \
+#                        del ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\IPL.exp & \
+#                        del ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\IPL.lib & \
+
+    USE_FERVOR_UPDATER = true
 }
 
+linux: {
+
+
+}
 #加入通用lib支持
-LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
-INCLUDEPATH += $$PWD/../CryptoUtils/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
+
+LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
+INCLUDEPATH += $$PWD/../CryptoUtils/include
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
 LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 INCLUDEPATH += $$PWD/../_lib/lua/include
-LIBS += -llua
-LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
+LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
+linux: {
+    LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
+}
+
 
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO

@@ -81,6 +81,13 @@ win32: {
 
     #LIBS += core.lib
 
+    CONFIG(release, debug|release):{
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobuf
+    }
+    else:CONFIG(debug, debug|release): {
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobufd
+    }
+
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -120,7 +127,7 @@ win32: {
 }
 
 linux: {
-
+    LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
     QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media/lua $$DESTDIR & \
                         $${QMAKE_COPY_DIR} res/icons $$DESTDIR/icons & \
@@ -151,20 +158,22 @@ gcc:!clang {
 
 #加入通用lib支持
 
-#INCLUDEPATH += $$PWD/../_lib/libuv/include
+INCLUDEPATH += $$PWD/../_lib/libuv/include
 #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
-#LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
+LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
 
-#LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
-#INCLUDEPATH += $$PWD/../CryptoUtils/include
-#LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
+LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
+INCLUDEPATH += $$PWD/../CryptoUtils/include
+LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
-#LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
-#INCLUDEPATH += $$PWD/../Socket/include
+LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
+INCLUDEPATH += $$PWD/../Socket/include
 
-#INCLUDEPATH += $$PWD/../_lib/protobuf/include
-#LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
-#LIBS += -lprotobuf
+LIBS += -L$$PWD/../_bin/CmdRepo/$$CONFIGURATION/$$PLATFORM -lCmdRepo
+INCLUDEPATH += $$PWD/../CmdRepo/include
+INCLUDEPATH += $$PWD/../CmdRepo/protos
+
+INCLUDEPATH += $$PWD/../_lib/protobuf/include
 
 #INCLUDEPATH += $$PWD/../_lib/lua/include
 

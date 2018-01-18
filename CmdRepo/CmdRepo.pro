@@ -9,6 +9,8 @@ QT       -= core gui
 TARGET = CmdRepo
 TEMPLATE = lib
 
+CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
+
 CONFIG += c++14
 #CONFIG -= app_bundle
 CONFIG -= qt
@@ -73,6 +75,12 @@ win32: {
 
     #LIBS += core.lib
 
+    CONFIG(release, debug|release):{
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobuf
+    }
+    else:CONFIG(debug, debug|release): {
+        LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobufd
+    }
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
@@ -113,7 +121,7 @@ win32: {
 
 linux: {
 
-
+    LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 }
 
 
@@ -139,7 +147,6 @@ INCLUDEPATH += $$PWD/../_lib/openssl/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
 INCLUDEPATH += $$PWD/../_lib/protobuf/include
-LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include

@@ -8,7 +8,7 @@ QT       -= qt core gui
 
 TARGET = Socket
 TEMPLATE = lib
-#CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
+CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
 CONFIG += c++14
 
 # The following define makes your compiler emit warnings if you use
@@ -45,7 +45,12 @@ RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
 
 win32: {
+    #重要：目的就是让别的头文件别包含了”winsock.h”内容，否则加入libuv会导致编译错误： 'sockaddr': 'struct' type redefinition
+    DEFINES += _WINSOCKAPI_
+    LIBS += -L$$PWD/../_lib/libuv/lib/windows/$$CONFIGURATION/$$PLATFORM -llibuv
+    LIBS += wsock32.lib Ws2_32.lib Advapi32.lib User32.lib Iphlpapi.lib Psapi.lib Userenv.lib
 
+    #LIBS += core.lib
 }
 
 linux: {
