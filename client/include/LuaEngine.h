@@ -25,6 +25,7 @@ private:
     lua_State* L();
 
     void exec(function<void (lua_State* L)> fn);
+
 };
 
 #endif // LUAENGINE_H

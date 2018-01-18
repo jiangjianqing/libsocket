@@ -1,6 +1,7 @@
 #include "LuaEngine.h"
 #include <iostream>
 #include <string>
+#include <sstream>
 
 static LuaEngine* LuaEngine_instance = nullptr;
 
@@ -89,6 +90,27 @@ static int average(lua_State *L)
     return 2;
 }
 
+int pcall_callback_err_fun(lua_State* L)
+{
+    lua_Debug debug= {};
+    int ret = lua_getstack(L, 2, &debug); // 0是pcall_callback_err_fun自己, 1是error函数, 2是真正出错的函数
+    lua_getinfo(L, "Sln", &debug);
+
+    std::string err = lua_tostring(L, -1);
+    lua_pop(L, 1);
+    std::stringstream msg;
+    msg << debug.short_src << ":line " << debug.currentline;
+    if (debug.name != 0) {
+        msg << "(" << debug.namewhat << " " << debug.name << ")";
+    }
+
+    msg << " [" << err << "]";
+    err = msg.str();
+    lua_pushstring(L, err.c_str());
+    return 1;
+}
+
+
 void LuaEngine::testLua()
 {
     auto fn = [](lua_State* L){
@@ -96,6 +118,9 @@ void LuaEngine::testLua()
         if(L == nullptr){
             return;
         }
+
+        lua_pushcfunction(L, pcall_callback_err_fun);
+        int pos_err_fun = lua_gettop(L);
 
         /* 注册函数 */
         lua_register(L, "average", average);
@@ -111,9 +136,14 @@ void LuaEngine::testLua()
         }
 
         //3、运行lua文件
-        iret = lua_pcall(L,0,0,0);
+        iret = lua_pcall(L,0,0,pos_err_fun);
         if(iret){
-            cout<<"pcall error"<<endl;
+
+            int t = lua_type(L, -1);
+            const char* err = lua_tostring(L,-1);
+            cout<<"pcall error :"<<err<<endl;
+            //printf("Error: %s\n", err);
+            lua_pop(L, 1);
             return;
         }
 
