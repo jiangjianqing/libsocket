@@ -31,6 +31,10 @@ void LuaEngine::exec(function<void (lua_State* L)> fn)
     }
     luaL_openlibs(L);/*2 载入Lua基本库 */
 
+    addLuaPackagePath(L, "path", "./lua/?.lua");
+    addLuaPackagePath(L, "cpath", "./lua/?.dll");
+    addLuaPackagePath(L, "cpath", "./lua/?.so");
+
     fn(L);//3 执行callback
 
     lua_close(L);//4.关闭state,/* 清除Lua */
@@ -108,6 +112,20 @@ int pcall_callback_err_fun(lua_State* L)
     err = msg.str();
     lua_pushstring(L, err.c_str());
     return 1;
+}
+
+void LuaEngine::addLuaPackagePath(lua_State *ls, char *name, char *value)
+{
+    string v;
+
+    lua_getglobal(ls, "package");
+    lua_getfield(ls, -1, name);
+    v.append(lua_tostring(ls, -1));
+    v.append(";");
+    v.append(value);
+    lua_pushstring(ls, v.c_str());
+    lua_setfield(ls, -3, name);
+    lua_pop(ls, 2);
 }
 
 

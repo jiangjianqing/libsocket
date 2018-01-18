@@ -25,6 +25,7 @@ private:
     lua_State* L();
 
     void exec(function<void (lua_State* L)> fn);
+    void addLuaPackagePath(lua_State *ls, char *name, char *value);
 
 };
 
