@@ -99,14 +99,14 @@ win32: {
     QMAKE_POST_LINK +=  rmdir /s/q  .\\$$DESTDIR\\config & \
 
     #在release时才会执行windeployqt
-    CONFIG(release, debug|release): QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations $$DESTDIR\\$$TARGET.exe & \
+    #CONFIG(release, debug|release): QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations $$DESTDIR\\$$TARGET.exe & \
     #else:CONFIG(debug, debug|release):{
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
-    #QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations ../_bin/$$CONFIGURATION/$$PLATFORM/$$TARGET.exe & \
+    #QMAKE_POST_LINK +=  windeployqt.exe --no-angle --no-svg --no-system-d3d-compiler --no-quick-import --no-translations $$DESTDIR\\$$TARGET.exe & \
 
-    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} media\\lua $$DESTDIR\\lua & \
-                        $${QMAKE_COPY_DIR} ..\\_lib\\windows $$DESTDIR & \
-                        $${QMAKE_COPY_DIR} ..\\_lib\\windows\\$$CONFIGURATION $$DESTDIR & \
+    QMAKE_POST_LINK +=  $${QMAKE_COPY_DIR} ..\\_lib\\windows\\$$TARGET\\$$CONFIGURATION $$DESTDIR & \
+                        #$${QMAKE_COPY_DIR} ..\\_lib\\windows\\wxwidget\\$$CONFIGURATION $$DESTDIR & \
+                        $${QMAKE_COPY_DIR} media\\lua $$DESTDIR\\lua & \
                         $${QMAKE_COPY_DIR} media\\config $$DESTDIR\\config\\ & \
 #                        $${QMAKE_COPY_DIR} media\\process_icons ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\process_icons\\ & \
 #                        $${QMAKE_COPY_DIR} media\\examples ..\\_bin\\$$CONFIGURATION\\$$PLATFORM\\examples\\ & \
