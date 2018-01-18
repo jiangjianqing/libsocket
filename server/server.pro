@@ -5,11 +5,16 @@
 #-------------------------------------------------
 
 QT       += core gui
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Server
 TEMPLATE = app
+CONFIG += c++14
+CONFIG -= app_bundle
+
+#使Release版本可调试
+QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
+QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -21,39 +26,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-
-
-VERSION = "1.0.0.snapshot"
-QMAKE_TARGET_COMPANY = "FS"
-QMAKE_TARGET_PRODUCT = "Algorithm Integration Helper"
-QMAKE_TARGET_DESCRIPTION = ""
-QMAKE_TARGET_COPYRIGHT = ""
-
-equals(TEMPLATE, app) {
-    #message("Template value equals app")
-    DEFINES += \
-    APP_VERSION=\"\\\"$$VERSION\\\"\" \
-    APP_COMPANY=\"\\\"$$QMAKE_TARGET_COMPANY\\\"\" \
-    APP_PRODUCT=\"\\\"$$QMAKE_TARGET_PRODUCT\\\"\" \
-    APP_DESCRIPTION=\"\\\"$$QMAKE_TARGET_DESCRIPTION\\\"\" \
-    APP_COPYRIGHT=\"\\\"$$QMAKE_TARGET_COPYRIGHT\\\"\" \
-    APP_NAME=\\\"$$TARGET\\\" \
-
-} else {
-    #message("Template value equals vcapp")
-    DEFINES += \
-    APP_VERSION=\\\"$$VERSION\\\" \
-    APP_COMPANY=\\\"$$QMAKE_TARGET_COMPANY\\\" \
-    APP_PRODUCT=\\\"$$QMAKE_TARGET_PRODUCT\\\" \
-    APP_DESCRIPTION=\\\"$$QMAKE_TARGET_DESCRIPTION\\\" \
-    APP_COPYRIGHT=\\\"$$QMAKE_TARGET_COPYRIGHT\\\" \
-    APP_NAME=\\\"$$TARGET\\\" \
-}
-
-# enable or disable update checker
-USE_FERVOR_UPDATER = false
-DEFINES += IMAGEPLAY_URL=\\\"http://imageplay.io\\\"
-DEFINES += IMAGEPLAY_APPCAST_URL=\\\"http://imageplay.io/Appcast.xml\\\"
 
 #define platform variable for folder name
 win32 {contains(QMAKE_TARGET.arch, x86_64) {PLATFORM = x64} else {PLATFORM = Win32}}
@@ -174,20 +146,32 @@ msvc {
 }
 
 clang {
-    CONFIG +=c++14
+    #CONFIG +=c++14
 }
 
 gcc:!clang {
-    CONFIG +=c++14
-    LIBS += -lgomp
+    #CONFIG +=c++14
+    #LIBS += -lgomp
 }
 
-#使Release版本可调试
-QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
-QMAKE_LFLAGS_RELEASE = $$QMAKE_LFLAGS_RELEASE_WITH_DEBUGINFO
+#加入通用lib支持
 
+INCLUDEPATH += $$PWD/../_lib/libuv/include
+#特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
+LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
+
+LIBS += -L$$PWD/../_bin/CmdRepo/$$CONFIGURATION/$$PLATFORM -lCmdRepo
+INCLUDEPATH += $$PWD/../CmdRepo/include
+INCLUDEPATH += $$PWD/../CmdRepo/protos
+
+
+INCLUDEPATH += $$PWD/../_lib/protobuf/include
+LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 INCLUDEPATH += $$PWD/include/
+
+LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
+INCLUDEPATH += $$PWD/../Socket/include
 
 
 
