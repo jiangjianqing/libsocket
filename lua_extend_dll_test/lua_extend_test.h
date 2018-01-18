@@ -20,6 +20,7 @@
 extern "C" { //2018.01.18 c++ compiler 必须用extern "C" 指定导出
 #endif//-----------------------------
 
+//重要：必须在编译参数中加入LUA_BUILD_AS_DLL，否则 LUALIB_API 定义不正确
 
 //extern "C" int luaopen_mylib(lua_State *L);
 LUALIB_API int luaopen_mylib(lua_State *L);

@@ -47,6 +47,9 @@ OTHER_FILES += $$files(*,true)
 win32: {
     #LIBS += core.lib
 
+    #为编译生成lua可以调用的 dll，window下必须加入该定义
+    DEFINES += LUA_BUILD_AS_DLL
+
     CONFIG(release, debug|release):{
         LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobuf
     }
