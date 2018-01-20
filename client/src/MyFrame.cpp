@@ -13,6 +13,10 @@
 #include <fstream>
 #include <sstream>
 #include "CmdFactory.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/message.h"
+
+using namespace google::protobuf;
 
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
 {
@@ -224,6 +228,21 @@ void MyFrame::OnStopButtonClick(wxCommandEvent& event)
     wxLogMessage("server stoped!");
 }
 
+Message* createMessage(const std::string& typeName)
+{
+  Message* message = nullptr;
+  const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
+  if (descriptor)
+  {
+    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
+    if (prototype)
+    {
+      message = prototype->New();
+    }
+  }
+  return message;
+}
+
 void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
 {
     char* buf = nullptr;
@@ -236,6 +255,23 @@ void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
         output.flush();
         output.close();
     }
+
+    string type_name = "udp_msg.discover";
+    const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(type_name);
+    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
+    Message* msg = prototype->New();
+    if(msg->ParseFromArray(buf,len)){
+        int i = 0;
+        i = i + 1;
+    }
+    //assert(prototype == &T::default_instance());
+    cout << "GetPrototype()        = " << prototype << endl;
+    //cout << "T::default_instance() = " << &T::default_instance() << endl;
+    cout << endl;
+    //assert(descriptor == T::descriptor());
+    cout << "FindMessageTypeByName() = " << descriptor << endl;
+    //cout << "T::descriptor()         = " << T::descriptor() << endl;
+    cout << endl;
     INFO("send broadcast!");
     char msg_discovery[] = "123456";
     udpBroadcaster.broadcast(msg_discovery,6);

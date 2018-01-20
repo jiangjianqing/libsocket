@@ -35,6 +35,8 @@ void CmdProcesser::test()
         bt = buf->payload[i];
     }
 
+    //check_buf_is_cmd((const unsigned char*)buf,len);
+
     free(buf);
 }
 

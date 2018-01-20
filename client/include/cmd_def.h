@@ -7,11 +7,14 @@
 main 	F9BEB4D9
 testnet 	FABFB5DA
 */
-#define NET_MAGIC_MAIN 0xF9BEB4D9;
+#define NET_MAGIC_MAIN      0xF9BEB4D9
+#define NET_MAGIC_TESTNET 	0xFABFB5DA
 
 enum class cmd_types{
     VERSION,VERACK,MESSAGE
 };
+
+static const unsigned magic_type_list[] = {NET_MAGIC_MAIN , NET_MAGIC_TESTNET};
 
 typedef struct common_header_s{
     unsigned magic;     //用于识别消息的来源网络，当流状态位置时，它还用于寻找下一条消息
@@ -82,6 +85,17 @@ int make_cmd(cmd_types type,unsigned char** dest,unsigned* dlen,const unsigned c
     *dest = (unsigned char*)header;
 
     return 0;
+}
+
+bool find_cmd_header(const unsigned char* buf,const unsigned len)
+{
+    int count = sizeof(magic_type_list) / sizeof(unsigned);//获得magic数量
+    //memcmp()
+    for(int i = 0; i < count;i++){
+
+    }
+
+    return true;
 }
 
 #endif // CMDDEF_H
