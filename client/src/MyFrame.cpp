@@ -127,6 +127,7 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
     //auto f2 = bind(&MyFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
     //server.setClientClosedCb(f2);
 
+    cmdProcesser.test();
 }
 
 MyFrame::~MyFrame()

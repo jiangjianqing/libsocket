@@ -29,6 +29,8 @@ public:
     string serverIp(){return m_serverIp;}
     int serverPort(){return m_serverPort;}
 
+    void test();
+
 
 private:
     wxEvtHandler* m_wxEvtHandler;

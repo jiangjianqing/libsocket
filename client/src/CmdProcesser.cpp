@@ -2,6 +2,7 @@
 #include "SocketData.h"
 #include "CmdFactory.h"
 #include "udp_msg.discover.pb.h"
+#include "cmd_def.h"
 
 CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
@@ -19,6 +20,22 @@ void CmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb
 
         callCmdEventCb(CmdEventType::UdpDiscover);
     }
+}
+
+void CmdProcesser::test()
+{
+    cmd_message_t* buf = nullptr;
+    unsigned int len;
+    make_cmd(cmd_types::MESSAGE,(unsigned char**)&buf,&len,(const unsigned char*)"1234567",8);
+
+    char line[100] = {0};
+    memcpy(line,buf->payload,buf->header.length);
+    short bt = 0;
+    for(int i = 0; i < buf->header.length;i++){
+        bt = buf->payload[i];
+    }
+
+    free(buf);
 }
 
 void CmdProcesser::callCmdEventCb(const CmdEventType& eventType)

@@ -181,6 +181,7 @@ LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
 LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
+INCLUDEPATH += $$PWD/../_lib/openssl/include
 
 LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
 INCLUDEPATH += $$PWD/../Socket/include
