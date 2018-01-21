@@ -177,7 +177,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 
 void MainFrame::appendInfo(const string& info)
 {
-    m_txtInfo->AppendText(info);
+    m_txtInfo->AppendText(info+ "\r\n");
     SetStatusText(info);
 }
 

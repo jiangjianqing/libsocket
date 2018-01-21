@@ -1,4 +1,4 @@
-#include "MyFrame.h"
+#include "MainFrame.h"
 #include "wx/menu.h"
 #include "wx/msgdlg.h"
 #include "wx/log.h"
@@ -18,7 +18,7 @@
 
 using namespace google::protobuf;
 
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
 {
     m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
@@ -56,11 +56,11 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
     */
     statusbar = CreateStatusBar();
     SetStatusText("Welcome to wxWidgets!");
-    Bind(wxEVT_MENU, &MyFrame::OnHello, this, ID_Hello);
-    Bind(wxEVT_MENU, &MyFrame::OnAbout, this, wxID_ABOUT);
+    Bind(wxEVT_MENU, &MainFrame::OnHello, this, ID_Hello);
+    Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
 
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
-    Bind(wxEVT_MENU, &MyFrame::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
 
     pMainToolBar = CreateToolBar( wxTB_DOCKABLE|wxTB_HORIZONTAL, 6000 );
     //pMainToolBar->AddTool( 6001, wxT("tool"), wxNullBitmap, wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT("") );
@@ -72,19 +72,19 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
     txtName->SetInsertionPoint(0);
 
     btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
-    Bind(wxEVT_BUTTON,&MyFrame::OnButtonClick,this,ID_GetName);
+    Bind(wxEVT_BUTTON,&MainFrame::OnButtonClick,this,ID_GetName);
 
     btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
-    Bind(wxEVT_BUTTON,&MyFrame::OnStopButtonClick,this,ID_STOP);
+    Bind(wxEVT_BUTTON,&MainFrame::OnStopButtonClick,this,ID_STOP);
 
     btnBroadcast = new wxButton(bottomPanel,ID_BROADCAST,"broadcast",wxPoint(80,0));
-    Bind(wxEVT_BUTTON,&MyFrame::OnBroadcastButtonClick,this,ID_BROADCAST);
+    Bind(wxEVT_BUTTON,&MainFrame::OnBroadcastButtonClick,this,ID_BROADCAST);
 
-    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
-    Bind(wxEVT_CLOSE_WINDOW,&MyFrame::OnClose,this);
+    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
+    Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
 
-    Bind(wxEVT_THREAD,&MyFrame::OnMyThreadEvent,this);
-    Bind(wxEVT_THREAD,&MyFrame::onCmdProcesserThreadEvent,this);
+    Bind(wxEVT_THREAD,&MainFrame::OnMyThreadEvent,this);
+    Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
 
     Centre();
 
@@ -121,20 +121,19 @@ MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
         }
     };
 
-    server.setSocketEventCb(tcpCb);
     tcpClient.setSocketEventCb(tcpCb);
 
     udpClient.setSocketEventCb(udpCb);
 
-    //auto f1 = bind(&MyFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
+    //auto f1 = bind(&MainFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
     //server.setConnectionAcceptedCb(f1);
-    //auto f2 = bind(&MyFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
+    //auto f2 = bind(&MainFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
     //server.setClientClosedCb(f2);
 
     cmdProcesser.test();
 }
 
-MyFrame::~MyFrame()
+MainFrame::~MainFrame()
 {
     if(m_tray){
         delete m_tray;
@@ -159,7 +158,7 @@ MyFrame::~MyFrame()
     */
 }
 
-void MyFrame::OnClose(wxCloseEvent & event)
+void MainFrame::OnClose(wxCloseEvent & event)
 {
     /*
     if(wxMessageBox(wxT("用wxT支持中文，Are you sure to Quit?"),"Question",wxYES_NO | wxICON_QUESTION) != wxYES){
@@ -182,24 +181,24 @@ void MyFrame::OnClose(wxCloseEvent & event)
     }
 }
 
-void MyFrame::OnExit(wxCommandEvent& event)
+void MainFrame::OnExit(wxCommandEvent& event)
 {
     //The parameter true indicates that other windows have no veto power such as after asking "Do you really want to close?".
     //If there is no other main window left, the application will quit
     Close();
 }
-void MyFrame::OnAbout(wxCommandEvent& event)
+void MainFrame::OnAbout(wxCommandEvent& event)
 {
     wxMessageBox("This is a wxWidgets Hello World example",
                  "About Hello World", wxOK | wxICON_INFORMATION);
 }
-void MyFrame::OnHello(wxCommandEvent& event)
+void MainFrame::OnHello(wxCommandEvent& event)
 {
 
     wxLogMessage("Hello world from wxWidgets!");
 }
 
-void MyFrame::OnButtonClick(wxCommandEvent& event)
+void MainFrame::OnButtonClick(wxCommandEvent& event)
 {
 
     wxString str =  txtName->GetLineText(0);
@@ -218,7 +217,7 @@ void MyFrame::OnButtonClick(wxCommandEvent& event)
   choice->Select(-1);*/
 }
 
-void MyFrame::OnStopButtonClick(wxCommandEvent& event)
+void MainFrame::OnStopButtonClick(wxCommandEvent& event)
 {
     INFO("test123456");
     //udpClient.close();
@@ -243,7 +242,7 @@ Message* createMessage(const std::string& typeName)
   return message;
 }
 
-void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
+void MainFrame::OnBroadcastButtonClick(wxCommandEvent& event)
 {
     char* buf = nullptr;
     int len = 0;
@@ -273,11 +272,9 @@ void MyFrame::OnBroadcastButtonClick(wxCommandEvent& event)
     //cout << "T::descriptor()         = " << T::descriptor() << endl;
     cout << endl;
     INFO("send broadcast!");
-    char msg_discovery[] = "123456";
-    udpBroadcaster.broadcast(msg_discovery,6);
 }
 
-void MyFrame::onClientAccepted(const string& ip,int port)
+void MainFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
@@ -290,7 +287,7 @@ void MyFrame::onClientAccepted(const string& ip,int port)
     //wxTheApp->QueueEvent(e.Clone());
 }
 
-void MyFrame::onClientClosed(int id,const string& ip,int port)
+void MainFrame::onClientClosed(int id,const string& ip,int port)
 {
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
     event.SetId((int)socket_event_type::ConnectionClose);
@@ -298,7 +295,7 @@ void MyFrame::onClientClosed(int id,const string& ip,int port)
     wxQueueEvent(this,event.Clone());
 }
 
-void MyFrame::onSimpleSocketEvent(socket_event_type type)
+void MainFrame::onSimpleSocketEvent(socket_event_type type)
 {
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
     event.SetId((int)type);
@@ -306,7 +303,7 @@ void MyFrame::onSimpleSocketEvent(socket_event_type type)
     wxQueueEvent(this,event.Clone());
 }
 
-void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
+void MainFrame::OnMyThreadEvent(wxThreadEvent& event)
 {
     wxString msg = event.GetString();
     switch(event.GetId()){
@@ -344,7 +341,7 @@ void MyFrame::OnMyThreadEvent(wxThreadEvent& event)
 
 }
 
-void MyFrame::onCmdProcesserThreadEvent(wxThreadEvent& event)
+void MainFrame::onCmdProcesserThreadEvent(wxThreadEvent& event)
 {
     switch(event.GetId()){
     case (int)CmdEventType::UdpDiscover:

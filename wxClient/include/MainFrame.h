@@ -1,5 +1,5 @@
-#ifndef MYFRAME_H
-#define MYFRAME_H
+#ifndef MainFrame_H
+#define MainFrame_H
 
 #include "wx/frame.h"
 #include "wx/textctrl.h" //文本框
@@ -8,10 +8,8 @@
 #include "wx/panel.h"
 #include "wx/stattext.h"
 
-#include "TcpServer.h"
 #include "TcpClient.h"
 #include "UdpClient.h"
-#include "UdpBroadcaster.h"
 #include "CmdProcesser.h"
 
 class MyTray;
@@ -19,14 +17,14 @@ class MyTray;
 //这种方式定义ID更好
 #define OKBTNID   wxID_HIGHEST+21
 
-class MyFrame : public wxFrame
+class MainFrame : public wxFrame
 {
     friend class MyTray;
 public:
 
 
-    explicit MyFrame();
-    virtual ~MyFrame();
+    explicit MainFrame();
+    virtual ~MainFrame();
 
 private:
     enum
@@ -70,12 +68,10 @@ private:
     wxBoxSizer *topSizer;
     wxStatusBar* statusbar;
 
-    TcpServer server;
     TcpClient tcpClient;
     UdpClient udpClient;
-    UdpBroadcaster udpBroadcaster;
 
     CmdProcesser cmdProcesser;
 };
 
-#endif // MYFRAME_H
+#endif // MainFrame_H

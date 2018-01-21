@@ -5,7 +5,7 @@
     #include <wx/wx.h>
 #endif
 
-#include "MyFrame.h"
+#include "MainFrame.h"
 #include "TcpServer.h"
 
 #include <iostream>
@@ -41,7 +41,7 @@ class MyApp: public wxApp
                */
 
         //parent是NULL, 没有父窗体（因为它是顶级窗体），wxID_ANY（其实就是-1）表示让wx安排一个ID（wx中的各控件用ID来识别）
-        MyFrame *frame = new MyFrame();
+        MainFrame *frame = new MainFrame();
         //wxFrame* frame = new wxFrame(NULL, wxID_ANY, "Our First App");
         frame->Show();
         return true;

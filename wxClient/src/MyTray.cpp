@@ -1,7 +1,7 @@
 #include "MyTray.h"
 
 
-MyTray::MyTray(MyFrame* mainFrame) : wxTaskBarIcon(),m_mainFrame(mainFrame)
+MyTray::MyTray(MainFrame* mainFrame) : wxTaskBarIcon(),m_mainFrame(mainFrame)
 {
 
 }
