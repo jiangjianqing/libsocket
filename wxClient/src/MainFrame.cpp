@@ -13,13 +13,15 @@
 #include <fstream>
 #include <sstream>
 #include "CmdFactory.h"
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/message.h"
-
-using namespace google::protobuf;
+#include "ProtobufUtils.h"
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
 {
+    //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
+    Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
+    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
+    Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
+
     m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
 
@@ -59,12 +61,8 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(thi
     Bind(wxEVT_MENU, &MainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
 
-    //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
-    Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
-
     pMainToolBar = CreateToolBar( wxTB_DOCKABLE|wxTB_HORIZONTAL, 6000 );
     //pMainToolBar->AddTool( 6001, wxT("tool"), wxNullBitmap, wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT("") );
-
 
     stText = new wxStaticText(upPanel,-1,"test label");
     txtName = new wxTextCtrl(this,-1,"name");//style=wx.TE_MULTILINE  多行样式
@@ -79,9 +77,6 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(thi
 
     btnBroadcast = new wxButton(bottomPanel,ID_BROADCAST,"broadcast",wxPoint(80,0));
     Bind(wxEVT_BUTTON,&MainFrame::OnBroadcastButtonClick,this,ID_BROADCAST);
-
-    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
-    Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
 
     Bind(wxEVT_THREAD,&MainFrame::OnMyThreadEvent,this);
     Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
@@ -227,21 +222,6 @@ void MainFrame::OnStopButtonClick(wxCommandEvent& event)
     wxLogMessage("server stoped!");
 }
 
-Message* createMessage(const std::string& typeName)
-{
-  Message* message = nullptr;
-  const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(typeName);
-  if (descriptor)
-  {
-    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
-    if (prototype)
-    {
-      message = prototype->New();
-    }
-  }
-  return message;
-}
-
 void MainFrame::OnBroadcastButtonClick(wxCommandEvent& event)
 {
     char* buf = nullptr;
@@ -253,24 +233,12 @@ void MainFrame::OnBroadcastButtonClick(wxCommandEvent& event)
         output<<str;
         output.flush();
         output.close();
+        cmdProcesser.protobuf_test("udp_msg.discover",buf,len);
+
+        free(buf);
     }
 
-    string type_name = "udp_msg.discover";
-    const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(type_name);
-    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
-    Message* msg = prototype->New();
-    if(msg->ParseFromArray(buf,len)){
-        int i = 0;
-        i = i + 1;
-    }
-    //assert(prototype == &T::default_instance());
-    cout << "GetPrototype()        = " << prototype << endl;
-    //cout << "T::default_instance() = " << &T::default_instance() << endl;
-    cout << endl;
-    //assert(descriptor == T::descriptor());
-    cout << "FindMessageTypeByName() = " << descriptor << endl;
-    //cout << "T::descriptor()         = " << T::descriptor() << endl;
-    cout << endl;
+
     INFO("send broadcast!");
 }
 

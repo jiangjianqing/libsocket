@@ -3,14 +3,11 @@
 # Project created by QtCreator 2018-01-18T11:05:02
 #
 #-------------------------------------------------
+TARGET = CmdRepo
 
 QT       -= core gui
-
-TARGET = CmdRepo
 TEMPLATE = lib
-
 CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
-
 CONFIG += c++14
 #CONFIG -= app_bundle
 CONFIG -= qt

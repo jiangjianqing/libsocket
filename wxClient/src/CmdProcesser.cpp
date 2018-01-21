@@ -3,6 +3,7 @@
 #include "CmdFactory.h"
 #include "udp_msg.discover.pb.h"
 #include "cmd_def.h"
+#include "ProtobufUtils.h"
 
 CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
@@ -20,6 +21,28 @@ void CmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb
 
         callCmdEventCb(CmdEventType::UdpDiscover);
     }
+}
+
+void CmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)
+{
+    //string msg_type_name = "udp_msg.discover";//以package的命名方式
+    const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(msg_type_name);
+    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
+    Message* msg = prototype->New();
+    if(msg->ParseFromArray(buf,len)){
+        int i = 0;
+        i = i + 1;
+    }
+    //assert(prototype == &T::default_instance());
+    cout << "GetPrototype()        = " << prototype << endl;
+    //cout << "T::default_instance() = " << &T::default_instance() << endl;
+    cout << endl;
+    //assert(descriptor == T::descriptor());
+    cout << "FindMessageTypeByName() = " << descriptor << endl;
+    //cout << "T::descriptor()         = " << T::descriptor() << endl;
+    cout << endl;
+
+    delete msg;
 }
 
 void CmdProcesser::test()

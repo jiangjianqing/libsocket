@@ -30,6 +30,7 @@ public:
     int serverPort(){return m_serverPort;}
 
     void test();
+    void protobuf_test(const char* msg_type_name,const char* buf,size_t len);
 
 
 private:
