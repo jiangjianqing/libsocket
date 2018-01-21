@@ -3,8 +3,8 @@
 #include <string>
 #include "wx/filedlg.h"
 #include "CmdFactory.h"
-
-using namespace std;
+#include "wx/msgdlg.h"
+#include <sstream>
 
 #ifndef BUILD_DATE
 #define BUILD_DATE __DATE__
@@ -16,8 +16,16 @@ using namespace std;
 
 const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
+const unsigned short kTcpServerPort = 11212;
+
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle)
 {
+    //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
+    Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
+    //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MyFrame::OnClose));//Connect is deprecated!!!!!
+    Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
+
+    CreateStatusBar();
     //创建最低层面板,垂直布局
     //wxPanel *topPanel=new wxPanel(this);
     m_mainSizer=new wxBoxSizer(wxVERTICAL);//垂直布局，可用wxHORIZONTAL水平布局替换。
@@ -70,9 +78,107 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle)
     Bind(wxEVT_BUTTON,&MainFrame::onBtnSelectFileClick,this,ID_BTN_SELECTFILE);
     Bind(wxEVT_BUTTON,&MainFrame::onBtnStartClick,this,ID_BTN_START);
 
-    m_udpBroadcaster.start(8899);
-    m_tcpServer.start("0.0.0.0",11212);
+    initSocket();
+}
 
+void MainFrame::initSocket()
+{
+    Bind(wxEVT_THREAD,&MainFrame::onSocketThreadEvent,this);
+
+    auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
+        switch(event.type){
+        case socket_event_type::ConnectionAccept:
+            onClientAccepted(event.ip,event.port);
+            break;
+        case socket_event_type::ConnectionClose:
+            onClientClosed(event.clientId,event.ip,event.port);
+            break;
+        case socket_event_type::ReadData:
+            break;
+        default:
+            onSimpleTcpSocketEvent(event.type);
+            break;
+        }
+    };
+
+    m_udpBroadcaster.start(8899);
+    m_tcpServer.setSocketEventCb(tcpCb);
+    m_tcpServer.start("0.0.0.0",kTcpServerPort);
+}
+
+void MainFrame::onClientAccepted(const string& ip,int port)
+{
+    //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId((int)socket_event_type::ConnectionAccept);
+    ostringstream ostr;
+    ostr<<ip<<":"<<port;
+    //string info = std::to_string(port);
+    event.SetString(ostr.str());
+    wxQueueEvent(this,event.Clone());
+    //wxTheApp->QueueEvent(e.Clone());
+}
+
+void MainFrame::onClientClosed(int id,const string& ip,int port)
+{
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId((int)socket_event_type::ConnectionClose);
+    event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
+    wxQueueEvent(this,event.Clone());
+}
+
+
+void MainFrame::onSimpleTcpSocketEvent(socket_event_type type)
+{
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    event.SetId((int)type);
+    //event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
+    wxQueueEvent(this,event.Clone());
+}
+
+void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
+{
+    wxString msg = event.GetString();
+    string info = "uninitialized info!";
+    switch(event.GetId()){
+    case (int)socket_event_type::ConnectionAccept:
+        info = "client accepted : " + msg;
+        break;
+    case (int)socket_event_type::ConnectFault:
+        info = "client connect fault : ";
+        break;
+    case (int)socket_event_type::ConnectionClose:
+        info = "client closed : " + msg;
+        break;
+    case (int)socket_event_type::Listening:
+        info = "server is listening !";
+        break;
+    case (int)socket_event_type::ListenFault:
+        info = "establish listen fault !";
+        break;
+    case (int)socket_event_type::Unknow:
+        info = "occur unknow socket event !";
+        break;
+    case (int)socket_event_type::SocketClose:
+        info = "socket closed !";
+        break;
+    }
+    appendInfo(info);
+/*
+ *
+ * //另一个thread中发送消息
+    wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
+    e.SetString(_T("Some string"));
+    wxTheApp->QueueEvent(e.Clone());
+  */
+
+
+}
+
+void MainFrame::appendInfo(const string& info)
+{
+    m_txtInfo->AppendText(info);
+    SetStatusText(info);
 }
 
 void MainFrame::onBtnSelectFileClick(wxCommandEvent& event)
@@ -90,7 +196,37 @@ void MainFrame::onBtnStartClick(wxCommandEvent& event)
 {
     char* buf = nullptr;
     int len = 0;
-    CmdFactory::makeDiscoverMsg("127.0.0.1",8899,buf,len);
+    CmdFactory::makeDiscoverMsg("127.0.0.1",kTcpServerPort,buf,len);
     m_udpBroadcaster.broadcast(buf,len);
     free(buf);
+}
+
+void MainFrame::OnClose(wxCloseEvent & event)
+{
+    /*
+    if(wxMessageBox(wxT("用wxT支持中文，Are you sure to Quit?"),"Question",wxYES_NO | wxICON_QUESTION) != wxYES){
+        //event.Skip();//event.Skip()方法是将此事件向MainFrame的父级传递，使用上要注意
+        //此时MainApp中的事 件处理也会被触发，如果我们不使用event.Skip()，则事件在MainFrame中被处理后就停止发送了。当然这里调用Skip，只是为了加深理 解wxWidgets的事件处理机制，在实际应用中，视具体需求而定
+        event.Veto();
+        return;
+    }
+    */
+
+    wxMessageDialog * dial = new wxMessageDialog(NULL, _T("Are you sure to quit?"),
+                                                     _T("Question"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+    int ret = dial->ShowModal();
+    dial->Destroy();
+    //注意:要销毁一个窗口，必须要调用它的Destroy()方法。
+    if(ret == wxID_YES){
+        Destroy();
+    }else{
+        event.Veto();
+    }
+}
+
+void MainFrame::OnExit(wxCommandEvent& event)
+{
+    //The parameter true indicates that other windows have no veto power such as after asking "Do you really want to close?".
+    //If there is no other main window left, the application will quit
+    Close();
 }

@@ -9,6 +9,8 @@
 #include "TcpServer.h"
 #include "UdpBroadcaster.h"
 
+using namespace std;
+
 class MainFrame : public wxFrame
 {
 public:
@@ -23,9 +25,22 @@ public:
     explicit MainFrame();
 
 protected:
+//--------wxwidget event---
+    void OnExit(wxCommandEvent& event);
+
+
+//--------------自定义event-----------
+    void OnClose(wxCloseEvent & event);
     void onBtnSelectFileClick(wxCommandEvent& event);
     void onBtnStartClick(wxCommandEvent& event);
+
+    void onClientAccepted(const string& ip,int port);
+    void onClientClosed(int id,const string& ip,int port);
+    void onSimpleTcpSocketEvent(socket_event_type type);
+    //线程事件处理函数
+    void onSocketThreadEvent(wxThreadEvent& event);
 private:
+    void initSocket();
     wxButton* m_btnStart;
     wxButton* m_btnSelectFile;
     wxButton* m_btnTest;
@@ -41,6 +56,8 @@ private:
 
     TcpServer m_tcpServer;
     UdpBroadcaster m_udpBroadcaster;
+
+    void appendInfo(const string& info);
 };
 
 #endif // MAINFRAME_H
