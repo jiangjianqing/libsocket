@@ -7,7 +7,7 @@
 QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Server
+TARGET = qtServer
 TEMPLATE = app
 
 #设置console就会从shell启动

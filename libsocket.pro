@@ -1,7 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    #server  \
+    qtServer  \
     client \
     CryptoUtils \
     lua_extend_dll_test \
