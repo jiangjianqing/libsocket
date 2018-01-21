@@ -22,7 +22,7 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
     Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
 
-    Bind(wxEVT_THREAD,&MainFrame::OnMyThreadEvent,this);
+
     Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
 
     m_tray = new MyTray(this);
@@ -115,7 +115,10 @@ MainFrame::~MainFrame()
 
 void MainFrame::initSocket()
 {
+    Bind(wxEVT_THREAD,&MainFrame::onSocketThreadEvent,this,ID_THREAD_TCPCLIENT);
+
     auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
+        INFO(std::to_string((int)event.type));
         switch(event.type){
         case socket_event_type::ConnectionAccept:
             onClientAccepted(event.ip,event.port);
@@ -156,6 +159,7 @@ void MainFrame::initSocket()
     //server.setConnectionAcceptedCb(f1);
     //auto f2 = bind(&MainFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
     //server.setClientClosedCb(f2);
+    udpClient.connect(8899);
 }
 
 void MainFrame::OnClose(wxCloseEvent & event)
@@ -205,9 +209,9 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     m_txtInfo->SetValue("11223344");//改变文本框的内容
 
-    //client.connect("192.168.18.29",11212);
+    tcpClient.connect("127.0.0.1",11212);
     //server.start("0.0.0.0",11211);
-    udpClient.connect(8899);
+    //udpClient.connect(8899);
     //udpBroadcaster.start(8899);
 
   /*
@@ -223,14 +227,14 @@ void MainFrame::OnStopButtonClick(wxCommandEvent& event)
     //udpClient.close();
     //udpBroadcaster.close();
     //server.close();
-    //client.close();
+    tcpClient.close();
     wxLogMessage("server stoped!");
 }
 
 void MainFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
     event.SetId((int)socket_event_type::ConnectionAccept);
     ostringstream ostr;
     ostr<<ip<<":"<<port;
@@ -242,7 +246,7 @@ void MainFrame::onClientAccepted(const string& ip,int port)
 
 void MainFrame::onClientClosed(int id,const string& ip,int port)
 {
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
     event.SetId((int)socket_event_type::ConnectionClose);
     event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
@@ -250,13 +254,13 @@ void MainFrame::onClientClosed(int id,const string& ip,int port)
 
 void MainFrame::onSimpleTcpSocketEvent(socket_event_type type)
 {
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
+    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
     event.SetId((int)type);
     //event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
 }
 
-void MainFrame::OnMyThreadEvent(wxThreadEvent& event)
+void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 {
     wxString msg = event.GetString();
     switch(event.GetId()){

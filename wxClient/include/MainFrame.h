@@ -31,7 +31,8 @@ private:
     {
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName,
-        ID_STOP
+        ID_STOP,
+        ID_THREAD_TCPCLIENT
     };
     void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
@@ -40,8 +41,8 @@ private:
     void OnButtonClick(wxCommandEvent& event);
     void OnStopButtonClick(wxCommandEvent& event);
 
-    //线程处理函数
-    void OnMyThreadEvent(wxThreadEvent& event);
+    //线程事件处理函数
+    void onSocketThreadEvent(wxThreadEvent& event);
     void onCmdProcesserThreadEvent(wxThreadEvent& event);
 
     void onClientAccepted(const string& ip,int port);
