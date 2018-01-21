@@ -1,4 +1,4 @@
-TARGET = wxClient
+TARGET = wxServer
 
 CONFIG -= app_bundle
 CONFIG -= qt

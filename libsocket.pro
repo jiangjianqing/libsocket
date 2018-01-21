@@ -6,4 +6,5 @@ SUBDIRS += \
     CryptoUtils \
     lua_extend_dll_test \
     Socket  \
-    CmdRepo
+    CmdRepo \
+    wxServer
