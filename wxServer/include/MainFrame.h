@@ -18,7 +18,7 @@ public:
     {
         ID_BTN_START = wxID_HIGHEST + 1,
         ID_BTN_SELECTFILE,
-        ID_BTN_TEST,
+        ID_BTN_BROADCAST,
         ID_TEXT_FILENAME,
         ID_TEXT_INFO
     };
@@ -32,6 +32,7 @@ protected:
 //--------------自定义event-----------
     void OnClose(wxCloseEvent & event);
     void onBtnSelectFileClick(wxCommandEvent& event);
+    void onBtnBroadcastClick(wxCommandEvent& event);
     void onBtnStartClick(wxCommandEvent& event);
 
     void onClientAccepted(const string& ip,int port);
@@ -43,7 +44,7 @@ private:
     void initSocket();
     wxButton* m_btnStart;
     wxButton* m_btnSelectFile;
-    wxButton* m_btnTest;
+    wxButton* m_btnBroadcast;
     wxTextCtrl* m_txtInfo;
     wxTextCtrl* m_txtFilename;
 
@@ -57,6 +58,7 @@ private:
     TcpServer m_tcpServer;
     UdpBroadcaster m_udpBroadcaster;
 
+    bool m_isRunning;
     void appendInfo(const string& info);
 };
 
