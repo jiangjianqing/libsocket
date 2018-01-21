@@ -15,32 +15,35 @@
 #include "CmdFactory.h"
 #include "ProtobufUtils.h"
 
-MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(this)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
     Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
 
+    Bind(wxEVT_THREAD,&MainFrame::OnMyThreadEvent,this);
+    Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
+
     m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
 
     //创建最低层面板,垂直布局
     //wxPanel *topPanel=new wxPanel(this);
-    topSizer=new wxBoxSizer(wxVERTICAL);//垂直布局，可用wxHORIZONTAL水平布局替换。
+    wxBoxSizer* m_mainSizer=new wxBoxSizer(wxVERTICAL);//垂直布局，可用wxHORIZONTAL水平布局替换。
     //topPanel->SetSizer(topSizer);
-    this->SetSizer(topSizer);
+    this->SetSizer(m_mainSizer);
     //创建上中下三个面板,上下面板高度固定,宽度自由伸展,中间面板上下左右四个方向自由伸展
     upPanel=new wxPanel(this);
     upPanel->SetBackgroundColour(*wxBLACK);//黑色背景
-    centerPanel=new wxPanel(this);
-    centerPanel->SetBackgroundColour(*wxWHITE);//白色背景
+    m_centerPanel=new wxPanel(this);
+    m_centerPanel->SetBackgroundColour(*wxWHITE);//白色背景
     bottomPanel=new wxPanel(this);
     bottomPanel->SetBackgroundColour(*wxRED);//红色背景
 
-    topSizer->Add(upPanel,0,wxEXPAND);
-    topSizer->Add(centerPanel,1,wxEXPAND|wxALL);
-    topSizer->Add(bottomPanel,0,wxEXPAND);
+    m_mainSizer->Add(upPanel,0,wxEXPAND);
+    m_mainSizer->Add(m_centerPanel,1,wxEXPAND);
+    m_mainSizer->Add(bottomPanel,0,wxEXPAND);
 
 /*
     //2018.1.10  windows下尚未找到使用wxMenu应该加载哪个lib文件
@@ -65,9 +68,13 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(thi
     //pMainToolBar->AddTool( 6001, wxT("tool"), wxNullBitmap, wxNullBitmap, wxITEM_NORMAL, wxT(""), wxT("") );
 
     stText = new wxStaticText(upPanel,-1,"test label");
-    txtName = new wxTextCtrl(this,-1,"name");//style=wx.TE_MULTILINE  多行样式
-    txtPassword = new wxTextCtrl(centerPanel, -1, "password",wxPoint(20,20), wxSize(175, -1),wxTE_PASSWORD);
-    txtName->SetInsertionPoint(0);
+    m_txtInfo = new wxTextCtrl(m_centerPanel,-1,"name",wxDefaultPosition,wxDefaultSize,wxTE_MULTILINE|wxTE_READONLY);//style=wx.TE_MULTILINE  多行样式
+    //txtPassword = new wxTextCtrl(centerPanel, -1, "password",wxPoint(20,20), wxSize(175, -1),wxTE_PASSWORD);
+    m_txtInfo->SetInsertionPoint(0);
+
+    wxBoxSizer* centerSizer = new wxBoxSizer(wxVERTICAL);
+    m_centerPanel->SetSizer(centerSizer);
+    centerSizer->Add(m_txtInfo,1,wxEXPAND|wxALL,10);
 
     btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
     Bind(wxEVT_BUTTON,&MainFrame::OnButtonClick,this,ID_GetName);
@@ -75,56 +82,9 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Hello World"),cmdProcesser(thi
     btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
     Bind(wxEVT_BUTTON,&MainFrame::OnStopButtonClick,this,ID_STOP);
 
-    btnBroadcast = new wxButton(bottomPanel,ID_BROADCAST,"broadcast",wxPoint(80,0));
-    Bind(wxEVT_BUTTON,&MainFrame::OnBroadcastButtonClick,this,ID_BROADCAST);
-
-    Bind(wxEVT_THREAD,&MainFrame::OnMyThreadEvent,this);
-    Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
-
     Centre();
 
-    auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
-        switch(event.type){
-        case socket_event_type::ConnectionAccept:
-            onClientAccepted(event.ip,event.port);
-            break;
-        case socket_event_type::ConnectionClose:
-            onClientClosed(event.clientId,event.ip,event.port);
-            break;
-        case socket_event_type::ReadData:
-            break;
-        default:
-            onSimpleSocketEvent(event.type);
-            break;
-        }
-    };
-
-    auto udpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
-        switch(event.type){
-        case socket_event_type::ConnectionAccept:
-            onClientAccepted(event.ip,event.port);
-            break;
-        case socket_event_type::ConnectionClose:
-            onClientClosed(event.clientId,event.ip,event.port);
-            break;
-        case socket_event_type::ReadData:
-            cmdProcesser.recvUdpData(buf,nread,reply);
-            break;
-        default:
-            onSimpleSocketEvent(event.type);
-            break;
-        }
-    };
-
-    tcpClient.setSocketEventCb(tcpCb);
-
-    udpClient.setSocketEventCb(udpCb);
-
-    //auto f1 = bind(&MainFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
-    //server.setConnectionAcceptedCb(f1);
-    //auto f2 = bind(&MainFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
-    //server.setClientClosedCb(f2);
-
+    initSocket();
     cmdProcesser.test();
 }
 
@@ -151,6 +111,51 @@ MainFrame::~MainFrame()
     //delete statusbar;
 
     */
+}
+
+void MainFrame::initSocket()
+{
+    auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
+        switch(event.type){
+        case socket_event_type::ConnectionAccept:
+            onClientAccepted(event.ip,event.port);
+            break;
+        case socket_event_type::ConnectionClose:
+            onClientClosed(event.clientId,event.ip,event.port);
+            break;
+        case socket_event_type::ReadData:
+            break;
+        default:
+            onSimpleTcpSocketEvent(event.type);
+            break;
+        }
+    };
+
+    auto udpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
+        switch(event.type){
+        case socket_event_type::ConnectionAccept:
+            onClientAccepted(event.ip,event.port);
+            break;
+        case socket_event_type::ConnectionClose:
+            onClientClosed(event.clientId,event.ip,event.port);
+            break;
+        case socket_event_type::ReadData:
+            cmdProcesser.recvUdpData(buf,nread,reply);
+            break;
+        default:
+            onSimpleTcpSocketEvent(event.type);
+            break;
+        }
+    };
+
+    tcpClient.setSocketEventCb(tcpCb);
+
+    udpClient.setSocketEventCb(udpCb);
+
+    //auto f1 = bind(&MainFrame::onClientAccepted,this,placeholders::_1,placeholders::_2);
+    //server.setConnectionAcceptedCb(f1);
+    //auto f2 = bind(&MainFrame::onClientClosed,this,placeholders::_1,placeholders::_2,placeholders::_3);
+    //server.setClientClosedCb(f2);
 }
 
 void MainFrame::OnClose(wxCloseEvent & event)
@@ -196,9 +201,9 @@ void MainFrame::OnHello(wxCommandEvent& event)
 void MainFrame::OnButtonClick(wxCommandEvent& event)
 {
 
-    wxString str =  txtName->GetLineText(0);
+    wxString str =  m_txtInfo->GetLineText(0);
     wxLogMessage("The name is : " + str);
-    txtName->SetValue("11223344");//改变文本框的内容
+    m_txtInfo->SetValue("11223344");//改变文本框的内容
 
     //client.connect("192.168.18.29",11212);
     //server.start("0.0.0.0",11211);
@@ -222,26 +227,6 @@ void MainFrame::OnStopButtonClick(wxCommandEvent& event)
     wxLogMessage("server stoped!");
 }
 
-void MainFrame::OnBroadcastButtonClick(wxCommandEvent& event)
-{
-    char* buf = nullptr;
-    int len = 0;
-    if(CmdFactory::makeDiscoverMsg("192.168.18.29",11212,buf,len)){
-        string str = CmdFactory::buf2Str(buf,len);
-        fstream output("./cmd_log", ios::out | ios::trunc | ios::binary);
-
-        output<<str;
-        output.flush();
-        output.close();
-        cmdProcesser.protobuf_test("udp_msg.discover",buf,len);
-
-        free(buf);
-    }
-
-
-    INFO("send broadcast!");
-}
-
 void MainFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
@@ -263,7 +248,7 @@ void MainFrame::onClientClosed(int id,const string& ip,int port)
     wxQueueEvent(this,event.Clone());
 }
 
-void MainFrame::onSimpleSocketEvent(socket_event_type type)
+void MainFrame::onSimpleTcpSocketEvent(socket_event_type type)
 {
     wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
     event.SetId((int)type);

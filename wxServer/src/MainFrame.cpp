@@ -199,9 +199,20 @@ void MainFrame::onBtnBroadcastClick(wxCommandEvent& event)
     if(m_isRunning){
         char* buf = nullptr;
         int len = 0;
-        CmdFactory::makeDiscoverMsg("127.0.0.1",kTcpServerPort,buf,len);
-        m_udpBroadcaster.broadcast(buf,len);
-        free(buf);
+        if(CmdFactory::makeDiscoverMsg("127.0.0.1",kTcpServerPort,buf,len)){
+            m_udpBroadcaster.broadcast(buf,len);
+
+            free(buf);
+            /*
+            string str = CmdFactory::buf2Str(buf,len);
+            fstream output("./cmd_log", ios::out | ios::trunc | ios::binary);
+
+            output<<str;
+            output.flush();
+            output.close();
+            cmdProcesser.protobuf_test("udp_msg.discover",buf,len);
+            */
+        }
     }else{
         wxMessageDialog dlg(nullptr,wxT("please start server first"));
         dlg.ShowModal();

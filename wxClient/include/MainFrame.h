@@ -31,8 +31,7 @@ private:
     {
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName,
-        ID_STOP,
-        ID_BROADCAST
+        ID_STOP
     };
     void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
@@ -40,7 +39,6 @@ private:
     void OnAbout(wxCommandEvent& event);
     void OnButtonClick(wxCommandEvent& event);
     void OnStopButtonClick(wxCommandEvent& event);
-    void OnBroadcastButtonClick(wxCommandEvent& event);
 
     //线程处理函数
     void OnMyThreadEvent(wxThreadEvent& event);
@@ -48,14 +46,13 @@ private:
 
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
-    void onSimpleSocketEvent(socket_event_type type);
+    void onSimpleTcpSocketEvent(socket_event_type type);
 
-    wxTextCtrl* txtName;
+    wxTextCtrl* m_txtInfo;
     MyTray* m_tray;
 
     wxButton* btnTest;
     wxButton* btnClose;
-    wxButton* btnBroadcast;
 
     wxStaticText* stText;
     wxTextCtrl* txtPassword;
@@ -63,15 +60,16 @@ private:
     //wxMenu *menuFile;
 
     wxPanel *bottomPanel;
-    wxPanel *centerPanel;
+    wxPanel * m_centerPanel;
     wxPanel *upPanel;
-    wxBoxSizer *topSizer;
     wxStatusBar* statusbar;
 
     TcpClient tcpClient;
     UdpClient udpClient;
 
     CmdProcesser cmdProcesser;
+
+    void initSocket();
 };
 
 #endif // MainFrame_H
