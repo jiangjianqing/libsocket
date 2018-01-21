@@ -10,7 +10,7 @@
 
 #include "TcpClient.h"
 #include "UdpClient.h"
-#include "CmdProcesser.h"
+#include "ClientCmdProcesser.h"
 
 class MyTray;
 
@@ -68,7 +68,7 @@ private:
     TcpClient tcpClient;
     UdpClient udpClient;
 
-    CmdProcesser cmdProcesser;
+    ClientCmdProcesser cmdProcesser;
 
     void initSocket();
 };

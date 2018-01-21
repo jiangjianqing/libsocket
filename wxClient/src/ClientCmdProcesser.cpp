@@ -1,4 +1,4 @@
-#include "CmdProcesser.h"
+#include "ClientCmdProcesser.h"
 #include "SocketData.h"
 #include "CmdFactory.h"
 #include "udp_msg.discover.pb.h"
@@ -6,12 +6,12 @@
 #include "ProtobufUtils.h"
 #include "CmdProcesserThreadEvent.h"
 
-CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
+ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
     m_luaEngine.testLua();
 }
 
-void CmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb)
+void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb)
 {
     //只识别一个discover命令,而且为可见字符集
     udp_msg::discover msg;
@@ -24,7 +24,7 @@ void CmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb
     }
 }
 
-void CmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)
+void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)
 {
     //string msg_type_name = "udp_msg.discover";//以package的命名方式
     const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(msg_type_name);
@@ -46,7 +46,7 @@ void CmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_
     delete msg;
 }
 
-void CmdProcesser::test()
+void ClientCmdProcesser::test()
 {
     cmd_message_t* buf = nullptr;
     unsigned int len;
@@ -64,7 +64,7 @@ void CmdProcesser::test()
     free(buf);
 }
 
-void CmdProcesser::callCmdEventCb(const CmdEventType& eventType)
+void ClientCmdProcesser::callCmdEventCb(const CmdEventType& eventType)
 {
 
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);

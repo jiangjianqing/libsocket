@@ -17,10 +17,10 @@ enum class CmdEventType{
 
 typedef function<void (const CmdEventType& event)> CmdEventCb;
 
-class CmdProcesser
+class ClientCmdProcesser
 {
 public:
-    explicit CmdProcesser(wxEvtHandler* evtHandler);
+    explicit ClientCmdProcesser(wxEvtHandler* evtHandler);
 
     void callCmdEventCb(const CmdEventType& event);
 

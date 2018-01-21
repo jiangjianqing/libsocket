@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "CryptoUtils.h"
 #include <sstream>
+#include "protos/tcp_msg.cmd.pb.h"
+#include "cmd_def.h"
 
 bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 {
@@ -16,6 +18,16 @@ bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
     buf = (char*)malloc(len);
 
     return msg.SerializeToArray(buf,len);
+}
+
+bool CmdFactory::makeIdentifyRequestMsg(char*& buf,int& len)
+{
+    tcp_msg::IdentifyRequest msg;
+    int slen = msg.ByteSize();
+    unsigned char* payload = nullptr;
+    //make_cmd(cmd_types::MESSAGE,buf,len,payload,slen);
+    ///todu: continue 2018.01.21
+    return false;
 }
 
 string CmdFactory::buf2Str(const char* buf,int len)
