@@ -14,6 +14,8 @@
 #include <sstream>
 #include "CmdFactory.h"
 #include "ProtobufUtils.h"
+#include "TcpClientThreadEvent.h"
+#include "CmdProcesserThreadEvent.h"
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 {
@@ -21,9 +23,6 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
     //Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MainFrame::OnClose));//Connect is deprecated!!!!!
     Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
-
-
-    Bind(wxEVT_THREAD,&MainFrame::onCmdProcesserThreadEvent,this);
 
     m_tray = new MyTray(this);
     m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
@@ -115,10 +114,12 @@ MainFrame::~MainFrame()
 
 void MainFrame::initSocket()
 {
-    Bind(wxEVT_THREAD,&MainFrame::onSocketThreadEvent,this,ID_THREAD_TCPCLIENT);
+    //2018.01.21 目前将两个ThreadEvent放在一个事件中处理，通过dynamic_cast来区分
+    //原因是通过Bind + ID来区分的方式未生效
+    INFO("为什么 Bind + ID 区分的方式在Thread上没有生效，而普通Button却可以？？？");
+    Bind(wxEVT_THREAD,&MainFrame::onThreadEvent,this);
 
     auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
-        INFO(std::to_string((int)event.type));
         switch(event.type){
         case socket_event_type::ConnectionAccept:
             onClientAccepted(event.ip,event.port);
@@ -234,7 +235,8 @@ void MainFrame::OnStopButtonClick(wxCommandEvent& event)
 void MainFrame::onClientAccepted(const string& ip,int port)
 {
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
+    //wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREADEVENT_TCPCLIENT);
+    TcpClientThreadEvent event;
     event.SetId((int)socket_event_type::ConnectionAccept);
     ostringstream ostr;
     ostr<<ip<<":"<<port;
@@ -246,7 +248,8 @@ void MainFrame::onClientAccepted(const string& ip,int port)
 
 void MainFrame::onClientClosed(int id,const string& ip,int port)
 {
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
+    //wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREADEVENT_TCPCLIENT);
+    TcpClientThreadEvent event;
     event.SetId((int)socket_event_type::ConnectionClose);
     event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
@@ -254,39 +257,53 @@ void MainFrame::onClientClosed(int id,const string& ip,int port)
 
 void MainFrame::onSimpleTcpSocketEvent(socket_event_type type)
 {
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREAD_TCPCLIENT);
+    //wxThreadEvent event(wxEVT_COMMAND_THREAD, ID_THREADEVENT_TCPCLIENT);
+    TcpClientThreadEvent event;
     event.SetId((int)type);
     //event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
     wxQueueEvent(this,event.Clone());
 }
 
-void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
+void MainFrame::onThreadEvent(wxThreadEvent& event)
 {
-    wxString msg = event.GetString();
-    switch(event.GetId()){
-    case (int)socket_event_type::ConnectionAccept:
-        SetStatusText("client accepted : " + msg);
-        break;
-    case (int)socket_event_type::ConnectFault:
-        SetStatusText("client connect fault : ");
-        break;
-    case (int)socket_event_type::ConnectionClose:
-        SetStatusText("client closed : " + msg);
-        break;
-    case (int)socket_event_type::Listening:
-        SetStatusText("server is listening !");
-        break;
-    case (int)socket_event_type::ListenFault:
-        SetStatusText("establish listen fault !");
-        break;
-    case (int)socket_event_type::Unknow:
-        SetStatusText("occur unknow socket event !");
-        break;
-    case (int)socket_event_type::SocketClose:
-        SetStatusText("socket closed !");
-        break;
+    if(dynamic_cast<TcpClientThreadEvent*>(&event) != nullptr){
+        wxString msg = event.GetString();
+        int i = event.GetId();
+        switch(event.GetId()){
+        case (int)socket_event_type::ConnectionAccept:
+            SetStatusText("client accepted : " + msg);
+            break;
+        case (int)socket_event_type::ConnectFault:
+            SetStatusText("client connect fault : ");
+            break;
+        case (int)socket_event_type::ConnectionClose:
+            SetStatusText("client closed : " + msg);
+            break;
+        case (int)socket_event_type::Listening:
+            SetStatusText("server is listening !");
+            break;
+        case (int)socket_event_type::ListenFault:
+            SetStatusText("establish listen fault !");
+            break;
+        case (int)socket_event_type::Unknow:
+            SetStatusText("occur unknow socket event !");
+            break;
+        case (int)socket_event_type::SocketClose:
+            SetStatusText("socket closed !");
+            break;
+        }
+        return;
     }
 
+    if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
+        switch(event.GetId()){
+        case (int)CmdEventType::UdpDiscover:
+            tcpClient.connect(cmdProcesser.serverIp().c_str(),cmdProcesser.serverPort());
+            break;
+        }
+
+        return;
+    }
 /*
  *
  * //另一个thread中发送消息
@@ -294,15 +311,4 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
     e.SetString(_T("Some string"));
     wxTheApp->QueueEvent(e.Clone());
   */
-
-
-}
-
-void MainFrame::onCmdProcesserThreadEvent(wxThreadEvent& event)
-{
-    switch(event.GetId()){
-    case (int)CmdEventType::UdpDiscover:
-        tcpClient.connect(cmdProcesser.serverIp().c_str(),cmdProcesser.serverPort());
-        break;
-    }
 }

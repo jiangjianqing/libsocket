@@ -4,6 +4,7 @@
 #include "udp_msg.discover.pb.h"
 #include "cmd_def.h"
 #include "ProtobufUtils.h"
+#include "CmdProcesserThreadEvent.h"
 
 CmdProcesser::CmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
@@ -68,13 +69,14 @@ void CmdProcesser::callCmdEventCb(const CmdEventType& eventType)
 
     //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
     //wxThreadEvent e;
-    wxThreadEvent e(wxEVT_COMMAND_THREAD, wxID_ANY);
-    e.SetId((int)eventType);
+    //wxThreadEvent e(wxEVT_COMMAND_THREAD, wxID_ANY);
+    CmdProcesserThreadEvent event(wxEVT_COMMAND_THREAD);
+    event.SetId((int)eventType);
     //event.SetId((int)socket_event_type::ConnectionAccept);
     //ostringstream ostr;
     //ostr<<ip<<":"<<port;
     //string info = std::to_string(port);
     //event.SetString(ostr.str());
-    wxQueueEvent(m_wxEvtHandler,e.Clone());
+    wxQueueEvent(m_wxEvtHandler,event.Clone());
     //wxTheApp->QueueEvent(e.Clone());
 }

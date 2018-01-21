@@ -31,8 +31,9 @@ private:
     {
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName,
-        ID_STOP,
-        ID_THREAD_TCPCLIENT
+        ID_STOP/*,
+        ID_THREADEVENT_TCPCLIENT,//为什么无效？？
+        ID_THREADEVENT_CMDPROCESSER//为什么无效*/
     };
     void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
@@ -42,8 +43,7 @@ private:
     void OnStopButtonClick(wxCommandEvent& event);
 
     //线程事件处理函数
-    void onSocketThreadEvent(wxThreadEvent& event);
-    void onCmdProcesserThreadEvent(wxThreadEvent& event);
+    void onThreadEvent(wxThreadEvent& event);
 
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
