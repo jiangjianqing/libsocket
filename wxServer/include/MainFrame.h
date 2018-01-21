@@ -23,7 +23,8 @@ public:
     explicit MainFrame();
 
 protected:
-    void OnBtnSelectFileClick(wxCommandEvent& event);
+    void onBtnSelectFileClick(wxCommandEvent& event);
+    void onBtnStartClick(wxCommandEvent& event);
 private:
     wxButton* m_btnStart;
     wxButton* m_btnSelectFile;
@@ -38,7 +39,7 @@ private:
     wxBoxSizer* m_bottomSizer;
     wxBoxSizer* m_centerSizer;
 
-    TcpServer m_server;
+    TcpServer m_tcpServer;
     UdpBroadcaster m_udpBroadcaster;
 };
 

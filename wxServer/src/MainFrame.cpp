@@ -2,6 +2,7 @@
 
 #include <string>
 #include "wx/filedlg.h"
+#include "CmdFactory.h"
 
 using namespace std;
 
@@ -57,8 +58,8 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle)
 
     m_txtFilename =new wxTextCtrl(m_bottomPanel,ID_TEXT_FILENAME,"",wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
     m_btnSelectFile = new wxButton(m_bottomPanel,ID_BTN_SELECTFILE,"...",wxDefaultPosition,wxSize(30,28));
-    m_btnTest = new wxButton(m_bottomPanel,ID_BTN_TEST,"test");
-    m_btnStart = new wxButton(m_bottomPanel,ID_BTN_START,"start");
+    m_btnTest = new wxButton(m_bottomPanel,ID_BTN_TEST,wxT("test"));
+    m_btnStart = new wxButton(m_bottomPanel,ID_BTN_START,wxT("start"));
 
     m_bottomSizer->Add(m_txtFilename, 1, wxEXPAND);
     m_bottomSizer->Add(m_btnSelectFile,0,wxLEFT);
@@ -66,12 +67,15 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle)
     m_bottomSizer->Add(m_btnStart, 0,wxLEFT, 5);
 
 
-    Bind(wxEVT_BUTTON,&MainFrame::OnBtnSelectFileClick,this,ID_BTN_SELECTFILE);
+    Bind(wxEVT_BUTTON,&MainFrame::onBtnSelectFileClick,this,ID_BTN_SELECTFILE);
+    Bind(wxEVT_BUTTON,&MainFrame::onBtnStartClick,this,ID_BTN_START);
 
+    m_udpBroadcaster.start(8899);
+    m_tcpServer.start("0.0.0.0",11212);
 
 }
 
-void MainFrame::OnBtnSelectFileClick(wxCommandEvent& event)
+void MainFrame::onBtnSelectFileClick(wxCommandEvent& event)
 {
     wxFileDialog dlg(this,wxT("打开文件"),wxT(""),wxT(""),
         wxT("所有文件(*)|*|C++源程序(*.cpp)|*.cpp"),
@@ -80,4 +84,13 @@ void MainFrame::OnBtnSelectFileClick(wxCommandEvent& event)
         return;
     m_txtFilename->SetValue(dlg.GetPath());
     //m_txtInfo->LoadFile(dlg.GetPath());
+}
+
+void MainFrame::onBtnStartClick(wxCommandEvent& event)
+{
+    char* buf = nullptr;
+    int len = 0;
+    CmdFactory::makeDiscoverMsg("127.0.0.1",8899,buf,len);
+    m_udpBroadcaster.broadcast(buf,len);
+    free(buf);
 }
