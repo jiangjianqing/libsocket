@@ -83,9 +83,7 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 
     Centre();
 
-    m_cmdParser.setCmdParserCb([this](const unsigned char* buf, const unsigned len){
-        this->onRecvCmd(buf,len);
-    });
+    m_cmdParser.setCmdParserCb(std::bind(&MainFrame::onRecvCmd,this,placeholders::_1,placeholders::_2));
 
     initSocket();
     cmdProcesser.test();
