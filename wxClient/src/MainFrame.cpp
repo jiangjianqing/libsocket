@@ -216,7 +216,6 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     unsigned char* dest = nullptr;
     unsigned len = -1;
     CmdFactory::makeIdentifyRequestMsg(dest,len);
-    CmdBufParser::makeCmd(cmd_types::MESSAGE,&dest,&len,(const unsigned char*)payload,7);
 
     m_cmdParser.inputData(dest,len);
 

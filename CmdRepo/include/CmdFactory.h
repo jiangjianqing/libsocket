@@ -15,6 +15,7 @@ public:
     static bool makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len);
 
     static string buf2Str(const char* buf,int len);
+
 };
 
 #endif // CMDFACTORY_H

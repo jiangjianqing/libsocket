@@ -139,19 +139,19 @@ class ProtoPackage : public ::google::protobuf::Message /* @@protoc_insertion_po
 
   // accessors -------------------------------------------------------
 
-  // string name = 1;
-  void clear_name();
-  static const int kNameFieldNumber = 1;
-  const ::std::string& name() const;
-  void set_name(const ::std::string& value);
+  // string type_name = 1;
+  void clear_type_name();
+  static const int kTypeNameFieldNumber = 1;
+  const ::std::string& type_name() const;
+  void set_type_name(const ::std::string& value);
   #if LANG_CXX11
-  void set_name(::std::string&& value);
+  void set_type_name(::std::string&& value);
   #endif
-  void set_name(const char* value);
-  void set_name(const char* value, size_t size);
-  ::std::string* mutable_name();
-  ::std::string* release_name();
-  void set_allocated_name(::std::string* name);
+  void set_type_name(const char* value);
+  void set_type_name(const char* value, size_t size);
+  ::std::string* mutable_type_name();
+  ::std::string* release_type_name();
+  void set_allocated_type_name(::std::string* type_name);
 
   // bytes data = 2;
   void clear_data();
@@ -171,7 +171,7 @@ class ProtoPackage : public ::google::protobuf::Message /* @@protoc_insertion_po
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::ArenaStringPtr name_;
+  ::google::protobuf::internal::ArenaStringPtr type_name_;
   ::google::protobuf::internal::ArenaStringPtr data_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2epackage_2eproto::TableStruct;
@@ -188,57 +188,57 @@ class ProtoPackage : public ::google::protobuf::Message /* @@protoc_insertion_po
 #endif  // __GNUC__
 // ProtoPackage
 
-// string name = 1;
-inline void ProtoPackage::clear_name() {
-  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+// string type_name = 1;
+inline void ProtoPackage::clear_type_name() {
+  type_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline const ::std::string& ProtoPackage::name() const {
-  // @@protoc_insertion_point(field_get:tcp_msg.ProtoPackage.name)
-  return name_.GetNoArena();
+inline const ::std::string& ProtoPackage::type_name() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.ProtoPackage.type_name)
+  return type_name_.GetNoArena();
 }
-inline void ProtoPackage::set_name(const ::std::string& value) {
+inline void ProtoPackage::set_type_name(const ::std::string& value) {
   
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
-  // @@protoc_insertion_point(field_set:tcp_msg.ProtoPackage.name)
+  type_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tcp_msg.ProtoPackage.type_name)
 }
 #if LANG_CXX11
-inline void ProtoPackage::set_name(::std::string&& value) {
+inline void ProtoPackage::set_type_name(::std::string&& value) {
   
-  name_.SetNoArena(
+  type_name_.SetNoArena(
     &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:tcp_msg.ProtoPackage.name)
+  // @@protoc_insertion_point(field_set_rvalue:tcp_msg.ProtoPackage.type_name)
 }
 #endif
-inline void ProtoPackage::set_name(const char* value) {
+inline void ProtoPackage::set_type_name(const char* value) {
   GOOGLE_DCHECK(value != NULL);
   
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:tcp_msg.ProtoPackage.name)
+  type_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tcp_msg.ProtoPackage.type_name)
 }
-inline void ProtoPackage::set_name(const char* value, size_t size) {
+inline void ProtoPackage::set_type_name(const char* value, size_t size) {
   
-  name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+  type_name_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:tcp_msg.ProtoPackage.name)
+  // @@protoc_insertion_point(field_set_pointer:tcp_msg.ProtoPackage.type_name)
 }
-inline ::std::string* ProtoPackage::mutable_name() {
+inline ::std::string* ProtoPackage::mutable_type_name() {
   
-  // @@protoc_insertion_point(field_mutable:tcp_msg.ProtoPackage.name)
-  return name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  // @@protoc_insertion_point(field_mutable:tcp_msg.ProtoPackage.type_name)
+  return type_name_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline ::std::string* ProtoPackage::release_name() {
-  // @@protoc_insertion_point(field_release:tcp_msg.ProtoPackage.name)
+inline ::std::string* ProtoPackage::release_type_name() {
+  // @@protoc_insertion_point(field_release:tcp_msg.ProtoPackage.type_name)
   
-  return name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  return type_name_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
-inline void ProtoPackage::set_allocated_name(::std::string* name) {
-  if (name != NULL) {
+inline void ProtoPackage::set_allocated_type_name(::std::string* type_name) {
+  if (type_name != NULL) {
     
   } else {
     
   }
-  name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:tcp_msg.ProtoPackage.name)
+  type_name_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), type_name);
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.ProtoPackage.type_name)
 }
 
 // bytes data = 2;

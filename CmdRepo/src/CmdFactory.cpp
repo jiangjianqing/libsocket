@@ -25,16 +25,14 @@ bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 {
     tcp_msg::IdentifyRequest msg;
-    string abc = msg.GetTypeName();
 
-    unsigned slen = msg.ByteSize();
-    unsigned char* payload = (unsigned char*)malloc(slen);
-/*
     tcp_msg::ProtoPackage pkg;
-    pkg.set_name("");
-    CmdParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
-    */
-
+    pkg.set_type_name(msg.GetTypeName());
+    pkg.set_data(msg.SerializeAsString());
+    int slen = pkg.ByteSize();
+    unsigned char* payload = (unsigned char*)malloc(slen);
+    pkg.SerializeToArray(payload,slen);
+    CmdBufParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
     free(payload);
     return true;
 }

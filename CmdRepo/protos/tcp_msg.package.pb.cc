@@ -56,7 +56,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::ProtoPackage, name_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::ProtoPackage, type_name_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::ProtoPackage, data_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
@@ -89,12 +89,12 @@ void protobuf_RegisterTypes(const ::std::string&) {
 void AddDescriptorsImpl() {
   InitDefaults();
   static const char descriptor[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-      "\n\025tcp_msg.package.proto\022\007tcp_msg\"*\n\014Prot"
-      "oPackage\022\014\n\004name\030\001 \001(\t\022\014\n\004data\030\002 \001(\014b\006pr"
-      "oto3"
+      "\n\025tcp_msg.package.proto\022\007tcp_msg\"/\n\014Prot"
+      "oPackage\022\021\n\ttype_name\030\001 \001(\t\022\014\n\004data\030\002 \001("
+      "\014b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 84);
+      descriptor, 89);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "tcp_msg.package.proto", &protobuf_RegisterTypes);
 }
@@ -117,7 +117,7 @@ namespace tcp_msg {
 void ProtoPackage::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int ProtoPackage::kNameFieldNumber;
+const int ProtoPackage::kTypeNameFieldNumber;
 const int ProtoPackage::kDataFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
@@ -134,9 +134,9 @@ ProtoPackage::ProtoPackage(const ProtoPackage& from)
       _internal_metadata_(NULL),
       _cached_size_(0) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  if (from.name().size() > 0) {
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+  type_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.type_name().size() > 0) {
+    type_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.type_name_);
   }
   data_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (from.data().size() > 0) {
@@ -146,7 +146,7 @@ ProtoPackage::ProtoPackage(const ProtoPackage& from)
 }
 
 void ProtoPackage::SharedCtor() {
-  name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  type_name_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   data_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   _cached_size_ = 0;
 }
@@ -157,7 +157,7 @@ ProtoPackage::~ProtoPackage() {
 }
 
 void ProtoPackage::SharedDtor() {
-  name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  type_name_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   data_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -190,7 +190,7 @@ void ProtoPackage::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  type_name_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   data_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   _internal_metadata_.Clear();
 }
@@ -205,16 +205,16 @@ bool ProtoPackage::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // string name = 1;
+      // string type_name = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_name()));
+                input, this->mutable_type_name()));
           DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-            this->name().data(), static_cast<int>(this->name().length()),
+            this->type_name().data(), static_cast<int>(this->type_name().length()),
             ::google::protobuf::internal::WireFormatLite::PARSE,
-            "tcp_msg.ProtoPackage.name"));
+            "tcp_msg.ProtoPackage.type_name"));
         } else {
           goto handle_unusual;
         }
@@ -259,14 +259,14 @@ void ProtoPackage::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string name = 1;
-  if (this->name().size() > 0) {
+  // string type_name = 1;
+  if (this->type_name().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->name().data(), static_cast<int>(this->name().length()),
+      this->type_name().data(), static_cast<int>(this->type_name().length()),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "tcp_msg.ProtoPackage.name");
+      "tcp_msg.ProtoPackage.type_name");
     ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->name(), output);
+      1, this->type_name(), output);
   }
 
   // bytes data = 2;
@@ -289,15 +289,15 @@ void ProtoPackage::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string name = 1;
-  if (this->name().size() > 0) {
+  // string type_name = 1;
+  if (this->type_name().size() > 0) {
     ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-      this->name().data(), static_cast<int>(this->name().length()),
+      this->type_name().data(), static_cast<int>(this->type_name().length()),
       ::google::protobuf::internal::WireFormatLite::SERIALIZE,
-      "tcp_msg.ProtoPackage.name");
+      "tcp_msg.ProtoPackage.type_name");
     target =
       ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->name(), target);
+        1, this->type_name(), target);
   }
 
   // bytes data = 2;
@@ -324,11 +324,11 @@ size_t ProtoPackage::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // string name = 1;
-  if (this->name().size() > 0) {
+  // string type_name = 1;
+  if (this->type_name().size() > 0) {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
-        this->name());
+        this->type_name());
   }
 
   // bytes data = 2;
@@ -367,9 +367,9 @@ void ProtoPackage::MergeFrom(const ProtoPackage& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.name().size() > 0) {
+  if (from.type_name().size() > 0) {
 
-    name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.name_);
+    type_name_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.type_name_);
   }
   if (from.data().size() > 0) {
 
@@ -401,7 +401,7 @@ void ProtoPackage::Swap(ProtoPackage* other) {
 }
 void ProtoPackage::InternalSwap(ProtoPackage* other) {
   using std::swap;
-  name_.Swap(&other->name_);
+  type_name_.Swap(&other->type_name_);
   data_.Swap(&other->data_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
