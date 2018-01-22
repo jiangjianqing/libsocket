@@ -80,6 +80,26 @@ void ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
     */
 }
 
+void TcpServer_CloseCB(int clientid, void* userdata)
+{
+    fprintf(stdout,"cliend %d close\n",clientid);
+    uv::TCPServer *theclass = (uv::TCPServer *)userdata;
+    //is_eist = true;
+}
+
+void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata)
+{
+    int i = 0;
+    i++;
+}
+
+void TcpServer_NewConnect(int clientid, void* userdata)
+{
+    fprintf(stdout,"new connect:%d\n",clientid);
+    uv::TCPServer *theclass = (uv::TCPServer *)userdata;
+    theclass->SetRecvCB(clientid,TcpServer_ReadCB,userdata);
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -130,6 +150,10 @@ MainWindow::MainWindow(QWidget *parent) :
     m_tcpClient.SetRecvCB(ReadCB, &m_tcpClient);
     m_tcpClient.SetClosedCB(CloseCB, &m_tcpClient);
     uv::TCPClient::StartLog("log/");
+
+    uv::TCPServer::StartLog("log/");
+    m_tcpServer.SetNewConnectCB(TcpServer_NewConnect,&m_tcpServer);
+    //m_tcpServer.SetPortocol(&protocol);
 }
 
 MainWindow::~MainWindow()
@@ -196,6 +220,7 @@ void MainWindow::on_pushButton_clicked()
     int len = 0;
 
     m_tcpClient.Close();
+    m_tcpServer.Close();
 }
 
 void MainWindow::on_btnStart_clicked()
@@ -205,4 +230,10 @@ void MainWindow::on_btnStart_clicked()
     } else {
         fprintf(stdout, "client(%p) connect succeed.\n", &m_tcpClient);
     }
+
+    if(!m_tcpServer.Start("0.0.0.0",12345)) {
+            fprintf(stdout,"Start Server error:%s\n",m_tcpServer.GetLastErrMsg());
+    }
+    m_tcpServer.SetKeepAlive(1,60);//enable Keepalive, 60s
+    fprintf(stdout,"server return on main.\n");
 }

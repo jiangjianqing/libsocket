@@ -142,8 +142,6 @@ private:
 	bool isIPv6_;
     std::string errmsg_;
 
-    char PACKET_HEAD;//protocol head
-    char PACKET_TAIL;//protocol tail
 };
 }
 

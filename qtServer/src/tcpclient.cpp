@@ -66,7 +66,7 @@ bool TCPClient::init()
     client_handle_->parent_server = this;
 
     client_handle_->packet_->SetPacketCB(GetPacket, client_handle_);
-    client_handle_->packet_->Start(PACKET_HEAD, PACKET_TAIL);
+    //client_handle_->packet_->Start(PACKET_HEAD, PACKET_TAIL);//2018.01.22
 
     iret = uv_timer_init(&loop_, &reconnect_timer_);
     if (iret) {

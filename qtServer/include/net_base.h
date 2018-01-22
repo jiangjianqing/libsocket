@@ -75,9 +75,11 @@ public:
         free(thread_packetdata.base);
     }
 
-    bool Start(char packhead, char packtail) {
+    /*
+    bool Start() {
         return true;
     }
+    */
 
 public:
     void recvdata(const unsigned char* data, int len) { //接收到数据，把数据保存在circulebuffer_
@@ -113,7 +115,7 @@ typedef void (*TcpCloseCB)(int clientid, void* userdata);
 typedef void (*NewConnectCB)(int clientid, void* userdata);
 
 //TCPServer接收到客户端数据回调给用户
-typedef void (*ServerRecvCB)(int clientid, const unsigned char* buf, void* userdata);
+typedef void (*ServerRecvCB)(int clientid, const unsigned char* buf,const unsigned len, void* userdata);
 
 //TCPClient接收到服务器数据回调给用户
 typedef void (*ClientRecvCB)(const unsigned char* buf,const unsigned len, void* userdata);
