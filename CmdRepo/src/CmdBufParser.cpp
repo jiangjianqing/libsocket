@@ -1,13 +1,10 @@
-#include "CmdParser.h"
+#include "CmdBufParser.h"
 #include <stdlib.h> //calloc、malloc
 #include <string.h> //memset
 #include <stdexcept>
 #include <assert.h>
-#include "CmdParser.h"
 
-using namespace std;
-
-CmdParser::CmdParser()
+CmdBufParser::CmdBufParser()
 {
     m_parserBuf = static_cast<unsigned char*>(calloc(1,MAX_CMD_PARSER_BUF_LENGTH));
     //m_parserBuf = malloc(MAX_CMD_PARSER_BUF_LENGTH);
@@ -15,12 +12,12 @@ CmdParser::CmdParser()
     cleanParserBuf();
 }
 
-CmdParser::~CmdParser()
+CmdBufParser::~CmdBufParser()
 {
     free(m_parserBuf);
 }
 
-void CmdParser::resetParserBuf(const unsigned char* buf,const unsigned len,int newHeaderPosInBuf)
+void CmdBufParser::resetParserBuf(const unsigned char* buf,const unsigned len,int newHeaderPosInBuf)
 {
     memset(m_parserBuf,0,MAX_CMD_PARSER_BUF_LENGTH);
     if(buf == nullptr){
@@ -34,13 +31,13 @@ void CmdParser::resetParserBuf(const unsigned char* buf,const unsigned len,int n
     }
 }
 
-void CmdParser::appendToParserBuf(const unsigned char* buf,const unsigned len)
+void CmdBufParser::appendToParserBuf(const unsigned char* buf,const unsigned len)
 {
     memcpy(m_parserBuf+m_bufTailPos,buf,len);
     m_bufTailPos += len;
 }
 
-unsigned  CmdParser::getChecksum(const unsigned char* payload,const unsigned len)
+unsigned  CmdBufParser::getChecksum(const unsigned char* payload,const unsigned len)
 {
     unsigned iret = 0;
     // 调用sha256哈希
@@ -50,8 +47,9 @@ unsigned  CmdParser::getChecksum(const unsigned char* payload,const unsigned len
     return iret;
 }
 
-int CmdParser::makeCmd(cmd_types type,unsigned char** dest,unsigned* dlen,const unsigned char* payload,const unsigned slen)
+int CmdBufParser::makeCmd(cmd_types type,unsigned char** dest,unsigned* dlen,const unsigned char* payload,const unsigned slen)
 {
+    assert(type == cmd_types::MESSAGE);//2018.01.22 目前只支持message类型
     common_header_t* header = NULL;
 
     switch(type){
@@ -75,7 +73,7 @@ int CmdParser::makeCmd(cmd_types type,unsigned char** dest,unsigned* dlen,const 
     return 0;
 }
 
-void CmdParser::inputData(const unsigned char* buf , const unsigned len)
+void CmdBufParser::inputData(const unsigned char* buf , const unsigned len)
 {
     assert(len < MAX_CMD_PARSER_BUF_LENGTH - 1024);
     /*if(len >= MAX_CMD_PARSER_BUF_LENGTH){
@@ -103,7 +101,7 @@ void CmdParser::inputData(const unsigned char* buf , const unsigned len)
     processParserBuf();//从parserBuf中获取指令
 }
 
-int CmdParser::checkCmd(const unsigned char* buf,const unsigned len,const int headerPos)
+int CmdBufParser::checkCmd(const unsigned char* buf,const unsigned len,const int headerPos)
 {
     int availdBufLen = len - headerPos;
     if(availdBufLen < sizeof(cmd_message_t)){//2018.01.22 当前只支持识别cmd_message_t
@@ -122,7 +120,7 @@ int CmdParser::checkCmd(const unsigned char* buf,const unsigned len,const int he
     return 0;
 }
 
-void CmdParser::processParserBuf()
+void CmdBufParser::processParserBuf()
 {
     int remainedDataLen = 0;// = 0时不需要进行递归处理
     int cmdTotalLen = 0;
@@ -134,8 +132,8 @@ void CmdParser::processParserBuf()
         //取到命令，通知回调
         unsigned char* cmdBufTemp = (unsigned char*)malloc(cmdTotalLen);
         memcpy(cmdBufTemp,m_parserBuf,cmdTotalLen);
-        if(m_cmdParserCb){//可以考虑加入多线程，提升处理能力
-            m_cmdParserCb(cmdBufTemp,cmdTotalLen);
+        if(m_parserCb){//可以考虑加入多线程，提升处理能力
+            m_parserCb(cmdBufTemp,cmdTotalLen);
         }
         free(cmdBufTemp);
         //----继续处理下一条命令-----
@@ -167,7 +165,7 @@ void CmdParser::processParserBuf()
     }
 }
 
-bool CmdParser::isSingleEntireCmd(const unsigned char* buf , const unsigned len)
+bool CmdBufParser::isSingleEntireCmd(const unsigned char* buf , const unsigned len)
 {
     int headerPos = findCmdHeader(buf,len);
     if(headerPos != 0){
@@ -177,7 +175,7 @@ bool CmdParser::isSingleEntireCmd(const unsigned char* buf , const unsigned len)
     return checkCmd(buf,len,headerPos) == 0;
 }
 
-int CmdParser::findCmdHeader(const unsigned char* buf,const unsigned len)
+int CmdBufParser::findCmdHeader(const unsigned char* buf,const unsigned len)
 {
     int headerPos = -1;
     bool found = false;

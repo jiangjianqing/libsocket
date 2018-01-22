@@ -6,6 +6,7 @@
 #include "SocketData.h"
 #include "wx/event.h"
 #include "LuaEngine.h"
+#include "CmdBufParser.h"
 
 using namespace std;
 

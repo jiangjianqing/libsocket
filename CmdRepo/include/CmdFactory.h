@@ -12,7 +12,7 @@ public:
 
     static bool makeDiscoverMsg(string ip , int port,char*& buf,int& len);
 
-    static bool makeIdentifyRequestMsg(char*& buf,int& len);
+    static bool makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len);
 
     static string buf2Str(const char* buf,int len);
 };

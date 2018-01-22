@@ -5,7 +5,8 @@
 #include <sstream>
 #include "protos/tcp_msg.cmd.pb.h"
 #include "cmd_def.h"
-#include "CmdParser.h"
+#include "CmdBufParser.h"
+#include "protos/tcp_msg.package.pb.h"
 
 bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 {
@@ -21,14 +22,21 @@ bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
     return msg.SerializeToArray(buf,len);
 }
 
-bool CmdFactory::makeIdentifyRequestMsg(char*& buf,int& len)
+bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 {
     tcp_msg::IdentifyRequest msg;
-    int slen = msg.ByteSize();
-    unsigned char* payload = nullptr;
-    //make_cmd(cmd_types::MESSAGE,buf,len,payload,slen);
-    ///todu: continue 2018.01.21
-    return false;
+    string abc = msg.GetTypeName();
+
+    unsigned slen = msg.ByteSize();
+    unsigned char* payload = (unsigned char*)malloc(slen);
+/*
+    tcp_msg::ProtoPackage pkg;
+    pkg.set_name("");
+    CmdParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
+    */
+
+    free(payload);
+    return true;
 }
 
 string CmdFactory::buf2Str(const char* buf,int len)

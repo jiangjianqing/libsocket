@@ -7,7 +7,7 @@ TARGET = CmdRepo
 
 QT       -= core gui
 TEMPLATE = lib
-CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
+#CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
 CONFIG += c++14
 #CONFIG -= app_bundle
 CONFIG -= qt
@@ -147,7 +147,6 @@ INCLUDEPATH += $$PWD/../_lib/protobuf/include
 
 LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include
-LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 
 message("Defines:")
 message($$DEFINES)

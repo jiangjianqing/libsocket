@@ -83,7 +83,7 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 
     Centre();
 
-    m_cmdParser.setCmdParserCb(std::bind(&MainFrame::onRecvCmd,this,placeholders::_1,placeholders::_2));
+    m_cmdParser.setCmdBufParserCb(std::bind(&MainFrame::onRecvCmd,this,placeholders::_1,placeholders::_2));
 
     initSocket();
     cmdProcesser.test();
@@ -215,7 +215,8 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     char payload[] = "123456";
     unsigned char* dest = nullptr;
     unsigned len = -1;
-    CmdParser::makeCmd(cmd_types::MESSAGE,&dest,&len,(const unsigned char*)payload,7);
+    CmdFactory::makeIdentifyRequestMsg(dest,len);
+    CmdBufParser::makeCmd(cmd_types::MESSAGE,&dest,&len,(const unsigned char*)payload,7);
 
     m_cmdParser.inputData(dest,len);
 

@@ -9,6 +9,7 @@
 #include "TcpServer.h"
 #include "UdpBroadcaster.h"
 #include "ServerCmdProcesser.h"
+#include "CmdBufParser.h"
 
 using namespace std;
 
@@ -60,6 +61,8 @@ private:
     UdpBroadcaster m_udpBroadcaster;
 
     ServerCmdProcesser m_cmdProcesser;
+
+    CmdBufParser m_cmdBufParser;
 
     bool m_isRunning;
     void appendInfo(const string& info);

@@ -11,7 +11,7 @@
 #include "TcpClient.h"
 #include "UdpClient.h"
 #include "ClientCmdProcesser.h"
-#include "CmdParser.h"
+#include "CmdBufParser.h"
 
 class MyTray;
 
@@ -72,7 +72,7 @@ private:
 
     ClientCmdProcesser cmdProcesser;
 
-    CmdParser m_cmdParser;
+    CmdBufParser m_cmdParser;
 
     void initSocket();
 };

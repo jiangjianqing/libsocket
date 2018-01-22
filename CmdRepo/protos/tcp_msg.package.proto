@@ -1,0 +1,10 @@
+syntax = "proto3";
+package tcp_msg; 
+
+message ProtoPackage
+{
+    string      name = 1;  // 在.proto文件中定义的message名称，需要带package的完整限定名
+    bytes       data = 2;  //由name指定的序列化数据
+}
+
+
