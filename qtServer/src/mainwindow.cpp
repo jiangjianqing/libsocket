@@ -5,8 +5,8 @@
 #include <thread>
 #include <chrono>
 
-#include "CmdFactory.h"
-#include "udp_msg.discover.pb.h"
+//#include "CmdFactory.h"
+//#include "udp_msg.discover.pb.h"
 
 //总结：
 //1、sendEvent只能用在同一个线程中；
@@ -49,6 +49,35 @@ void Thread2(void *lpParam)
         i--;
     }
     //return 0;
+}
+
+int call_time = 0;
+
+void CloseCB(int clientid, void* userdata)
+{
+    //fprintf(stdout, "cliend %d close\n", clientid);
+    uv::TCPClient* client = (uv::TCPClient*)userdata;
+    client->Close();
+}
+
+void ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
+{
+    fprintf(stdout,"call time %d\n",++call_time);
+    if (call_time > 5000) {
+        return;
+    }
+    char senddata[256] = {0};
+    uv::TCPClient* client = (uv::TCPClient*)userdata;
+    //sprintf(senddata, "****recv server data(%p,%d)", client, packet.datalen);
+    fprintf(stdout, "%s\n", senddata);
+    //NetPacket tmppack = packet;
+    //tmppack.datalen = (std::min)(strlen(senddata), sizeof(senddata) - 1);
+    //std::string retstr = PacketData(tmppack, (const unsigned char*)senddata);
+    /*
+    if (client->Send(&retstr[0], retstr.length()) <= 0) {
+        fprintf(stdout, "(%p)send error.%s\n", client, client->GetLastErrMsg());
+    }
+    */
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -98,6 +127,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_tcpServer.setSocketEventCb(tcpCb);
     */
+    m_tcpClient.SetRecvCB(ReadCB, &m_tcpClient);
+    m_tcpClient.SetClosedCB(CloseCB, &m_tcpClient);
+    uv::TCPClient::StartLog("log/");
 }
 
 MainWindow::~MainWindow()
@@ -139,8 +171,6 @@ bool MainWindow::event(QEvent *event)
     return QMainWindow::event(event);
 }
 
-
-
 /*
 void MainWindow::onClientAccepted(const socket_event_t& event)
 {
@@ -165,18 +195,14 @@ void MainWindow::on_pushButton_clicked()
     char* buf = nullptr;
     int len = 0;
 
-
-    if(CmdFactory::makeDiscoverMsg("192.168.18.3",11211,buf,len)){
-        //m_udpBroadcaster.broadcast(buf,len);//注意内存泄露
-        //string str = CmdFactory::buf2Str(buf,len);
-        /*
-        fstream output("./cmd_log", ios::out | ios::trunc | ios::binary);
-        output<<str;
-        output.flush();*/
-    }
+    m_tcpClient.Close();
 }
 
 void MainWindow::on_btnStart_clicked()
 {
-    //m_tcpServer.start("0.0.0.0",11211);
+    if (!m_tcpClient.Connect("192.168.1.107",11212)) {
+        fprintf(stdout, "connect error:%s\n", m_tcpClient.GetLastErrMsg());
+    } else {
+        fprintf(stdout, "client(%p) connect succeed.\n", &m_tcpClient);
+    }
 }

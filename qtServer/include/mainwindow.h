@@ -2,11 +2,12 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "UdpBroadcaster.h"
-#include "TcpServer.h"
+//#include "UdpBroadcaster.h"
+//#include "TcpServer.h"
 #include <string>
 #include "MsgEventThread.h"
 #include "Msg.h"
+#include "tcpclient.h"
 
 using namespace std;
 
@@ -36,6 +37,8 @@ private:
     MsgEventThread *t;
 
     void DisplayMsg(Msg);
+
+    uv::TCPClient m_tcpClient;
 
     //UdpBroadcaster m_udpBroadcaster;
     //TcpServer m_tcpServer;
