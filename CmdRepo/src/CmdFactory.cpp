@@ -5,6 +5,7 @@
 #include <sstream>
 #include "protos/tcp_msg.cmd.pb.h"
 #include "cmd_def.h"
+#include "CmdParser.h"
 
 bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 {
