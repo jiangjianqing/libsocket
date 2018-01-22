@@ -8,6 +8,7 @@
 #include "wx/textctrl.h"
 #include "TcpServer.h"
 #include "UdpBroadcaster.h"
+#include "ServerCmdProcesser.h"
 
 using namespace std;
 
@@ -57,6 +58,8 @@ private:
 
     TcpServer m_tcpServer;
     UdpBroadcaster m_udpBroadcaster;
+
+    ServerCmdProcesser m_cmdProcesser;
 
     bool m_isRunning;
     void appendInfo(const string& info);

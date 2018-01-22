@@ -11,6 +11,7 @@
 #include "TcpClient.h"
 #include "UdpClient.h"
 #include "ClientCmdProcesser.h"
+#include "CmdParser.h"
 
 class MyTray;
 
@@ -48,6 +49,7 @@ private:
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
     void onSimpleTcpSocketEvent(socket_event_type type);
+    void onRecvCmd(const unsigned char* buf,const unsigned len);
 
     wxTextCtrl* m_txtInfo;
     MyTray* m_tray;
@@ -69,6 +71,8 @@ private:
     UdpClient udpClient;
 
     ClientCmdProcesser cmdProcesser;
+
+    CmdParser m_cmdParser;
 
     void initSocket();
 };

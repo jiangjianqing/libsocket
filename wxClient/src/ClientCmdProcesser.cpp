@@ -5,6 +5,7 @@
 #include "cmd_def.h"
 #include "ProtobufUtils.h"
 #include "CmdProcesserThreadEvent.h"
+#include "CmdParser.h"
 
 ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
@@ -50,7 +51,7 @@ void ClientCmdProcesser::test()
 {
     cmd_message_t* buf = nullptr;
     unsigned int len;
-    make_cmd(cmd_types::MESSAGE,(unsigned char**)&buf,&len,(const unsigned char*)"1234567",8);
+    CmdParser::makeCmd(cmd_types::MESSAGE,(unsigned char**)&buf,&len,(const unsigned char*)"1234567",8);
 
     char line[100] = {0};
     memcpy(line,buf->payload,buf->header.length);

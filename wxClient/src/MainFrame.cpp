@@ -83,6 +83,10 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 
     Centre();
 
+    m_cmdParser.setCmdParserCb([this](const unsigned char* buf, const unsigned len){
+        this->onRecvCmd(buf,len);
+    });
+
     initSocket();
     cmdProcesser.test();
 }
@@ -210,7 +214,16 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     m_txtInfo->SetValue("11223344");//改变文本框的内容
 
-    tcpClient.connect("127.0.0.1",11212);
+    char payload[] = "123456";
+    unsigned char* dest = nullptr;
+    unsigned len = -1;
+    CmdParser::makeCmd(cmd_types::MESSAGE,&dest,&len,(const unsigned char*)payload,7);
+
+    m_cmdParser.inputData(dest,len);
+
+    free(dest);
+
+    //tcpClient.connect("127.0.0.1",11212);
     //server.start("0.0.0.0",11211);
     //udpClient.connect(8899);
     //udpBroadcaster.start(8899);
@@ -230,6 +243,14 @@ void MainFrame::OnStopButtonClick(wxCommandEvent& event)
     //server.close();
     tcpClient.close();
     wxLogMessage("server stoped!");
+}
+
+void MainFrame::onRecvCmd(const unsigned char* buf,const unsigned len)
+{
+    //该方法一定在其他线程中调用，注意线程间通讯
+    bool bOk = m_cmdParser.isSingleEntireCmd(buf,len);
+    int i = 0;
+    i++;
 }
 
 void MainFrame::onClientAccepted(const string& ip,int port)

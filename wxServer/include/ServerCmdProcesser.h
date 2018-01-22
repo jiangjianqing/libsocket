@@ -12,6 +12,8 @@ public:
     void recvTcpData(const char* buf,int nread,socket_reply_cb replyCb);
 private:
     wxEvtHandler* m_wxEvtHandler;
+
+    bool m_isRecvingFilePartData;
 };
 
 #endif // SERVERCMDPROCESSER_H

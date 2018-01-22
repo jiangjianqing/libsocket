@@ -18,7 +18,7 @@ const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
 const unsigned short kTcpServerPort = 11212;
 
-MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false),m_cmdProcesser(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
