@@ -26,6 +26,7 @@ public:
     void callCmdEventCb(const CmdEventType& event);
 
     void recvUdpData(const char* buf,int nread,socket_reply_cb replyCb);
+    void recvTcpData(const char* buf,int nread,socket_reply_cb replyCb);
 
     string serverIp(){return m_serverIp;}
     int serverPort(){return m_serverPort;}
@@ -38,8 +39,10 @@ private:
     wxEvtHandler* m_wxEvtHandler;
     string m_serverIp;
     int m_serverPort;
-
+    CmdBufParser m_cmdParser;
     LuaEngine m_luaEngine;
+
+    void onRecvTcpCmd(const unsigned char* buf,const unsigned len);
 };
 
 #endif // CMDPROCESSER_H

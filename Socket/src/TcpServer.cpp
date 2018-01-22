@@ -190,8 +190,14 @@ void TcpServer::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
 
     } else /*if (client->recvcb_)*/ {//正常读取数据
         //echo test
-        SocketData::reverse(buf->base,nread);
-        cdata->send(buf->base,nread,&TcpServer::onAfterWrite);
+        //SocketData::reverse(buf->base,nread);
+        //cdata->send(buf->base,nread,&TcpServer::onAfterWrite);
+
+        socket_event_t event(socket_event_type::ReadData,handleData->socketData);
+        auto reply = [&cdata](const char* buf,int len){
+            cdata->send(buf,len,&TcpServer::onAfterWrite);
+        };
+
         //uv_as
         //client->recvcb_(client->client_id,buf->base,nread);
     }

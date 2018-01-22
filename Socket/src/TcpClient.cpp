@@ -167,8 +167,15 @@ void TcpClient::onAfterRead(uv_stream_t *handle, ssize_t nread, const uv_buf_t* 
 
     } else /*if (client->recvcb_)*/ {//正常读取数据
         //echo test
-        SocketData::reverse(buf->base,nread);
-        client->send(buf->base,nread);
+        //SocketData::reverse(buf->base,nread);
+        //client->send(buf->base,nread);
+
+        socket_event_t event(socket_event_type::ReadData,handleData->socketData);
+        auto reply = [&client](const char* nbuf,int nlen){
+            client->send(nbuf,nlen);
+        };
+
+        client->callSocketEventCb(event,buf->base,nread,reply);
     }
 
     client->freeBuf(buf);

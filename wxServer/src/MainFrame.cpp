@@ -92,8 +92,14 @@ void MainFrame::initSocket()
 
     auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
         switch(event.type){
-        case socket_event_type::ConnectionAccept:
-            onClientAccepted(event.ip,event.port);
+        case socket_event_type::ConnectionAccept:{
+                unsigned char* dest = nullptr;
+                unsigned dlen = 0;
+                CmdFactory::makeIdentifyRequestMsg(dest,dlen);
+                m_tcpServer.send(event.clientId,(const char*)dest,dlen);
+                free(dest);
+                onClientAccepted(event.ip,event.port);
+            }
             break;
         case socket_event_type::ConnectionClose:
             onClientClosed(event.clientId,event.ip,event.port);

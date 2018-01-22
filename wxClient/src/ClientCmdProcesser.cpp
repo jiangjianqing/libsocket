@@ -9,6 +9,7 @@
 ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
     m_luaEngine.testLua();
+    m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
 void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb)
@@ -22,6 +23,28 @@ void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb r
 
         callCmdEventCb(CmdEventType::UdpDiscover);
     }
+}
+
+void ClientCmdProcesser::recvTcpData(const char* buf,int nread,socket_reply_cb replyCb)
+{
+    if(m_cmdParser.isSingleEntireCmd((const unsigned char*)buf,nread)){
+        m_cmdParser.cleanParserBuf();
+
+
+
+        //直接处理
+    }else{
+        m_cmdParser.inputData((const unsigned char*)buf,nread);
+    }
+
+}
+
+void ClientCmdProcesser::onRecvTcpCmd(const unsigned char* buf,const unsigned len)
+{
+    //该方法一定在其他线程中调用，注意线程间通讯
+    bool bOk = m_cmdParser.isSingleEntireCmd(buf,len);
+    int i = 0;
+    i++;
 }
 
 void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)

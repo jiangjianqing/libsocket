@@ -70,9 +70,7 @@ private:
     TcpClient tcpClient;
     UdpClient udpClient;
 
-    ClientCmdProcesser cmdProcesser;
-
-    CmdBufParser m_cmdParser;
+    ClientCmdProcesser m_cmdProcesser;
 
     void initSocket();
 };

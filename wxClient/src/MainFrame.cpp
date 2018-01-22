@@ -17,7 +17,7 @@
 #include "TcpClientThreadEvent.h"
 #include "CmdProcesserThreadEvent.h"
 
-MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
@@ -83,14 +83,14 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),cmdProcesser(this)
 
     Centre();
 
-    m_cmdParser.setCmdBufParserCb(std::bind(&MainFrame::onRecvCmd,this,placeholders::_1,placeholders::_2));
-
     initSocket();
-    cmdProcesser.test();
+
 }
 
 MainFrame::~MainFrame()
 {
+    udpClient.close();
+    tcpClient.close();
     if(m_tray){
         delete m_tray;
     }
@@ -130,6 +130,7 @@ void MainFrame::initSocket()
             onClientClosed(event.clientId,event.ip,event.port);
             break;
         case socket_event_type::ReadData:
+            m_cmdProcesser.recvTcpData(buf,nread,reply);
             break;
         default:
             onSimpleTcpSocketEvent(event.type);
@@ -146,7 +147,7 @@ void MainFrame::initSocket()
             onClientClosed(event.clientId,event.ip,event.port);
             break;
         case socket_event_type::ReadData:
-            cmdProcesser.recvUdpData(buf,nread,reply);
+            m_cmdProcesser.recvUdpData(buf,nread,reply);
             break;
         default:
             onSimpleTcpSocketEvent(event.type);
@@ -212,15 +213,6 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     wxLogMessage("The name is : " + str);
     m_txtInfo->SetValue("11223344");//改变文本框的内容
 
-    char payload[] = "123456";
-    unsigned char* dest = nullptr;
-    unsigned len = -1;
-    CmdFactory::makeIdentifyRequestMsg(dest,len);
-
-    m_cmdParser.inputData(dest,len);
-
-    free(dest);
-
     //tcpClient.connect("127.0.0.1",11212);
     //server.start("0.0.0.0",11211);
     //udpClient.connect(8899);
@@ -235,20 +227,14 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
 
 void MainFrame::OnStopButtonClick(wxCommandEvent& event)
 {
+    udpClient.close();
+    tcpClient.close();
     INFO("test123456");
     //udpClient.close();
     //udpBroadcaster.close();
     //server.close();
     tcpClient.close();
     wxLogMessage("server stoped!");
-}
-
-void MainFrame::onRecvCmd(const unsigned char* buf,const unsigned len)
-{
-    //该方法一定在其他线程中调用，注意线程间通讯
-    bool bOk = m_cmdParser.isSingleEntireCmd(buf,len);
-    int i = 0;
-    i++;
 }
 
 void MainFrame::onClientAccepted(const string& ip,int port)
@@ -317,7 +303,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
     if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
         switch(event.GetId()){
         case (int)CmdEventType::UdpDiscover:
-            tcpClient.connect(cmdProcesser.serverIp().c_str(),cmdProcesser.serverPort());
+            tcpClient.connect(m_cmdProcesser.serverIp().c_str(),m_cmdProcesser.serverPort());
             break;
         }
 
