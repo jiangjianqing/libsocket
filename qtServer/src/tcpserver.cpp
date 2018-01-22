@@ -31,6 +31,7 @@ TCPServer::~TCPServer()
 {
     Close();
 
+
     uv_thread_join(&start_threadhandle_);
     uv_mutex_destroy(&mutex_clients_);
     uv_loop_close(&loop_);
@@ -88,6 +89,7 @@ void TCPServer::closeinl()
         auto data = it->second;
         data->Close();
     }
+    uv_mutex_unlock(&mutex_clients_);
     uv_walk(&loop_, CloseWalkCB, this);//close all handle in loop
     LOGI("close server");
 }
