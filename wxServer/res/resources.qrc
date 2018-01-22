@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/lighting-ipu.png</file>
+        <file>icons/lighting-refimage.png</file>
+        <file>icons/lighting-workstation.png</file>
+        <file>icons/lighting-camera.png</file>
+        <file>icons/process.png</file>
+        <file>icons/algorithm-v1.png</file>
+        <file>icons/algorithm-v2.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/delete-over.png</file>
+        <file>icons/warning.png</file>
+        <file>icons/pointer.png</file>
+        <file>icons/reset.png</file>
+        <file>icons/lighting-integrate.png</file>
+        <file>icons/drag-mode.png</file>
+    </qresource>
+    <qresource prefix="/image">
+        <file>blueprint.png</file>
+    </qresource>
+</RCC>
