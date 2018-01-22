@@ -27,6 +27,7 @@ void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb r
 
 void ClientCmdProcesser::recvTcpData(const char* buf,int nread,socket_reply_cb replyCb)
 {
+    return;
     if(m_cmdParser.isSingleEntireCmd((const unsigned char*)buf,nread)){
         m_cmdParser.cleanParserBuf();
 
