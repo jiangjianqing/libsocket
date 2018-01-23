@@ -19,6 +19,7 @@ class MyTray;
 #define OKBTNID   wxID_HIGHEST+21
 
 static void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
+static void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
 
 class MainFrame : public wxFrame
 {
@@ -76,6 +77,7 @@ private:
     void initSocket();
 protected:
     friend void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
+    friend void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
 };
 
 #endif // MainFrame_H

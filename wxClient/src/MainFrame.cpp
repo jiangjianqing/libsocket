@@ -113,6 +113,12 @@ MainFrame::~MainFrame()
     */
 }
 
+void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
+{
+    MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
+    mainFrame->m_cmdProcesser.recvTcpData((const char*)buf,len);
+}
+
 void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
@@ -125,6 +131,9 @@ void MainFrame::initSocket()
     //原因是通过Bind + ID来区分的方式未生效
     fprintf(stdout,"为什么 Bind + ID 区分的方式在Thread上没有生效，而普通Button却可以？？？");
     Bind(wxEVT_THREAD,&MainFrame::onThreadEvent,this);
+
+    m_tcpClient.setNoDelay(true);
+    m_tcpClient.setRecvCB(Tcp_ReadCB,this);
 
     m_udpClient.setRecvCB(Udp_ReadCB,this);
     m_udpClient.connect("0.0.0.0",8899);//ip设为0.0.0.0就可以作为UdpServer使用

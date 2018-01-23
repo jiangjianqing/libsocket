@@ -103,8 +103,13 @@ void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len,
 void TcpServer_NewConnect(int clientid, void* userdata)
 {
     fprintf(stdout,"new connect:%d\n",clientid);
-    uv::TcpServer *theclass = (uv::TcpServer *)userdata;
-    theclass->setRecvCB(clientid,TcpServer_ReadCB,userdata);
+    MainFrame *mainFrame = (MainFrame *)userdata;
+    mainFrame->m_tcpServer.setRecvCB(clientid,TcpServer_ReadCB,mainFrame);
+    unsigned char* buf = nullptr;
+    unsigned len = 0;
+    CmdFactory::makeIdentifyRequestMsg(buf,len);
+    mainFrame->m_tcpServer.send((const char*)buf,len,clientid);
+    free(buf);
 }
 
 void MainFrame::initSocket()

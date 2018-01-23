@@ -93,6 +93,8 @@ public:
 	//delay is the initial delay in seconds, ignored when enable is zero
     bool setKeepAlive(int enable, unsigned int delay);
 
+    bool send(const char* buf,const unsigned len, int clientid);
+
     const char* getLastErrMsg() const {
         return errmsg_.c_str();
     };
@@ -123,6 +125,7 @@ private:
     bool bind6(const char* ip, int port);
     bool listen(int backlog = SOMAXCONN);
     bool sendinl(const std::string& senddata, TcpClientCtx* client);
+    bool sendinl(const char* buf,const unsigned len, TcpClientCtx* client);
     bool broadcast(const std::string& senddata, std::vector<int> excludeid);//broadcast to all clients, except the client who's id in excludeid
     uv_loop_t loop_;
     uv_tcp_t tcp_handle_;

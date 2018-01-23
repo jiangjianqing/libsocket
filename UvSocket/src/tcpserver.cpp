@@ -464,12 +464,28 @@ bool TcpServer::broadcast(const std::string& senddata, std::vector<int> excludei
     return true;
 }
 
-bool TcpServer::sendinl(const std::string& senddata, TcpClientCtx* client)
+bool TcpServer::send(const char* buf,const unsigned len, int clientid)
 {
-    if (senddata.empty()) {
+    if (!buf || len == 0) {
         LOGA("send data is empty.");
         return true;
     }
+    uv_mutex_lock(&mutex_clients_);
+    AcceptClient* pClient = NULL;
+    write_param* writep = NULL;
+    auto it = clients_list_.find(clientid);
+    if(it != clients_list_.end()){
+        pClient = it->second;
+        sendinl(buf,len, pClient->GetTcpHandle());
+    }else{
+        LOGA("client(" << clientid << ") not found" );
+    }
+    uv_mutex_unlock(&mutex_clients_);
+    return true;
+}
+
+bool TcpServer::sendinl(const char* buf,const unsigned len, TcpClientCtx* client)
+{
     write_param* writep = NULL;
     if (writeparam_list_.empty()) {
         writep = AllocWriteParam();
@@ -477,12 +493,12 @@ bool TcpServer::sendinl(const std::string& senddata, TcpClientCtx* client)
         writep = writeparam_list_.front();
         writeparam_list_.pop_front();
     }
-    if (writep->buf_truelen_ < senddata.length()) {
-        writep->buf_.base = (char*)realloc(writep->buf_.base, senddata.length());
-        writep->buf_truelen_ = senddata.length();
+    if (writep->buf_truelen_ < len) {
+        writep->buf_.base = (char*)realloc(writep->buf_.base, len);
+        writep->buf_truelen_ = len;
     }
-    memcpy(writep->buf_.base, senddata.data(), senddata.length());
-    writep->buf_.len = senddata.length();
+    memcpy(writep->buf_.base, buf, len);
+    writep->buf_.len = len;
     writep->write_req_.data = client;
     int iret = uv_write((uv_write_t*)&writep->write_req_, (uv_stream_t*)&client->tcphandle, &writep->buf_, 1, AfterSend);//发送
     if (iret) {
@@ -493,6 +509,11 @@ bool TcpServer::sendinl(const std::string& senddata, TcpClientCtx* client)
         return false;
     }
     return true;
+}
+
+bool TcpServer::sendinl(const std::string& senddata, TcpClientCtx* client)
+{
+    return sendinl(senddata.data(),senddata.length(),client);
 }
 
 /*****************************************AcceptClient*************************************************************/

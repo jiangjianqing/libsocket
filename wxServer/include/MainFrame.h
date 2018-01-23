@@ -13,6 +13,8 @@
 
 using namespace std;
 
+static void TcpServer_NewConnect(int clientid, void* userdata);
+
 class MainFrame : public wxFrame
 {
 public:
@@ -39,6 +41,8 @@ protected:
 
     //线程事件处理函数
     void onSocketThreadEvent(wxThreadEvent& event);
+
+    friend void TcpServer_NewConnect(int clientid, void* userdata);
 private:
     void initSocket();
     wxButton* m_btnStart;
