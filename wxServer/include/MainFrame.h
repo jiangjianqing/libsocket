@@ -10,10 +10,12 @@
 #include "UdpBroadcaster.h"
 #include "ServerCmdProcesser.h"
 #include "CmdBufParser.h"
+#include <map>
 
 using namespace std;
 
 static void TcpServer_NewConnect(int clientid, void* userdata);
+static void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata);
 
 class MainFrame : public wxFrame
 {
@@ -43,6 +45,7 @@ protected:
     void onSocketThreadEvent(wxThreadEvent& event);
 
     friend void TcpServer_NewConnect(int clientid, void* userdata);
+    friend void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata);
 private:
     void initSocket();
     wxButton* m_btnStart;
@@ -61,7 +64,7 @@ private:
     uv::TcpServer m_tcpServer;
     uv::UdpClient m_udpBroadcaster;
 
-    ServerCmdProcesser m_cmdProcesser;
+    map<int,ServerCmdProcesser*> m_cmdProcessers;
 
     CmdBufParser m_cmdBufParser;
 

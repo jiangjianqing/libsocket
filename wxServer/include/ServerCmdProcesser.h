@@ -6,11 +6,12 @@
 class ServerCmdProcesser
 {
 public:
-    explicit ServerCmdProcesser(wxEvtHandler* evtHandler);
+    explicit ServerCmdProcesser(wxEvtHandler* evtHandler , int clientId);
 
     void recvTcpData(const char* buf,int nread);
 private:
     wxEvtHandler* m_wxEvtHandler;
+    int m_clientId;
 
     bool m_isRecvingFilePartData;
 };

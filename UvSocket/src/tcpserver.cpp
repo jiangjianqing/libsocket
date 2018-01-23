@@ -646,7 +646,7 @@ void GetPacket(const unsigned char* packetdata,const unsigned packetlen, void* u
     AcceptClient* acceptclient = (AcceptClient*)theclass->parent_acceptclient;
 
     if(acceptclient->recvcb_){
-        acceptclient->recvcb_(acceptclient->client_id_,packetdata , packetlen, userdata);
+        acceptclient->recvcb_(acceptclient->client_id_,packetdata , packetlen,acceptclient->recvcb_userdata_);
     }
 
 /*

@@ -18,7 +18,7 @@ const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
 const unsigned short kTcpServerPort = 11212;
 
-MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false),m_cmdProcesser(this)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
@@ -96,14 +96,21 @@ void TcpServer_CloseCB(int clientid, void* userdata)
 
 void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata)
 {
-    int i = 0;
-    i++;
+    MainFrame *mainFrame = (MainFrame *)userdata;
+    auto it = mainFrame->m_cmdProcessers.find(clientid);
+    if(it != mainFrame->m_cmdProcessers.end()){
+        ServerCmdProcesser* cmdProcesser = it->second;
+        cmdProcesser->recvTcpData((const char*)buf,len);
+    }
+    //mainFrame->m_cmdProcessers[clientid]->recvTcpData((const char*)buf,len);
 }
 
 void TcpServer_NewConnect(int clientid, void* userdata)
 {
     fprintf(stdout,"new connect:%d\n",clientid);
     MainFrame *mainFrame = (MainFrame *)userdata;
+    ServerCmdProcesser* cmdProcesser = new ServerCmdProcesser(mainFrame,clientid);
+    mainFrame->m_cmdProcessers.insert(make_pair(clientid,cmdProcesser));
     mainFrame->m_tcpServer.setRecvCB(clientid,TcpServer_ReadCB,mainFrame);
     unsigned char* buf = nullptr;
     unsigned len = 0;
