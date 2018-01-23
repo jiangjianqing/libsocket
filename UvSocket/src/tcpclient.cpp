@@ -1,5 +1,6 @@
 ﻿#include "tcpclient.h"
 #include "log4z.h"
+#include <thread>
 #define MAXLISTSIZE 20
 
 namespace uv
@@ -31,16 +32,9 @@ TcpClient::TcpClient()
 TcpClient::~TcpClient()
 {
     close();
-    uv_thread_join(&connect_threadhandle_);
-    FreeTcpClientCtx(client_handle_);
-    uv_loop_close(&loop_);
-    uv_mutex_destroy(&mutex_writebuf_);
-    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
-        FreeWriteParam(*it);
-    }
-    writeparam_list_.clear();
 
-    LOGI("client(" << this << ")exit");
+    FreeTcpClientCtx(client_handle_);
+    uv_mutex_destroy(&mutex_writebuf_);
 }
 
 bool TcpClient::init()
@@ -48,7 +42,9 @@ bool TcpClient::init()
     if (!isclosed_) {
         return true;
     }
-    int iret = uv_async_init(&loop_, &async_handle_, AsyncCB);
+    int iret = uv_loop_init(&loop_);
+
+    iret = uv_async_init(&loop_, &async_handle_, AsyncCB);
     if (iret) {
         errmsg_ = GetUVError(iret);
         LOGE(errmsg_);
@@ -87,6 +83,18 @@ void TcpClient::close()
     }
     isuseraskforclosed_ = true;
     uv_async_send(&async_handle_);
+
+    //----等待线程停止------------
+    uv_thread_join(&connect_threadhandle_);
+
+    uv_loop_close(&loop_);
+
+    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
+        FreeWriteParam(*it);
+    }
+    writeparam_list_.clear();
+
+    LOGI("client(" << this << ")exit");
 }
 
 void TcpClient::closeinl()
@@ -140,10 +148,13 @@ bool TcpClient::setKeepAlive(int enable, unsigned int delay)
 
 bool TcpClient::connect(const char* ip, int port)
 {
-    closeinl();
+    if(!isclosed_){
+        close();
+    }
     if (!init()) {
         return false;
     }
+    isuseraskforclosed_ = false;
     connectip_ = ip;
     connectport_ = port;
     isIPv6_ = false;
@@ -250,7 +261,10 @@ void TcpClient::AfterConnect(uv_connect_t* handle, int status)
             parent->repeat_time_ *= 2;
             uv_timer_start(&parent->reconnect_timer_, TcpClient::ReconnectTimer, parent->repeat_time_, parent->repeat_time_);
         }else{//不重连接则fully close
-
+            std::thread t1{[&parent](){
+                parent->close();
+            }};
+            t1.detach();
         }
         return;
     }
@@ -349,7 +363,10 @@ void TcpClient::AfterRecv(uv_stream_t* handle, ssize_t nread, const uv_buf_t* bu
             }
             uv_close((uv_handle_t*)handle, AfterClientClose);//close before reconnect
         }else{//不重新连接则fully close
-
+            std::thread t1{[parent](){
+                parent->close();
+            }};
+            t1.detach();
         }
 
         return;
