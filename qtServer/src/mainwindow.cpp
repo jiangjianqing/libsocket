@@ -97,7 +97,7 @@ void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len,
 void TcpServer_NewConnect(int clientid, void* userdata)
 {
     fprintf(stdout,"new connect:%d\n",clientid);
-    uv::TCPServer *theclass = (uv::TCPServer *)userdata;
+    uv::TcpServer *theclass = (uv::TcpServer *)userdata;
     theclass->setRecvCB(clientid,TcpServer_ReadCB,userdata);
 }
 
@@ -154,7 +154,7 @@ MainWindow::MainWindow(QWidget *parent) :
     uv::TcpClient::StartLog("log/");
     */
 
-    uv::TCPServer::StartLog("log/");
+    uv::TcpServer::StartLog("log/");
     m_tcpServer.setNewConnectCB(TcpServer_NewConnect,&m_tcpServer);
 }
 

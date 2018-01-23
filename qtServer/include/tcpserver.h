@@ -66,11 +66,11 @@ Close Server               : Close. this fun only set the close command, call Is
 Stop the log fun(optional) : StopLog
 GetLastErrMsg(optional)    : when the above fun call failure, call this fun to get the error message.
 *************************************************/
-class TCPServer
+class TcpServer
 {
 public:
-    TCPServer();
-    virtual ~TCPServer();
+    TcpServer();
+    virtual ~TcpServer();
 	//Start/Stop the log
     static void StartLog(const char* logpath = nullptr);
 	static void StopLog();

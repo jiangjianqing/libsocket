@@ -40,7 +40,7 @@ private:
     void DisplayMsg(Msg);
 
     //uv::TcpClient m_tcpClient;
-    uv::TCPServer m_tcpServer;
+    uv::TcpServer m_tcpServer;
 
     //UdpBroadcaster m_udpBroadcaster;
     //TcpServer m_tcpServer;
