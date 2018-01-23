@@ -190,7 +190,7 @@ void MainFrame::onBtnBroadcastClick(wxCommandEvent& event)
 void MainFrame::onBtnStartClick(wxCommandEvent& event)
 {
     if(m_isRunning){
-        m_tcpServer.close();
+        //m_tcpServer.close();
         m_udpBroadcaster.close();
         m_btnBroadcast->Disable();
         m_btnStart->SetLabel(wxT("start"));

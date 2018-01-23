@@ -1,5 +1,6 @@
 #include "UdpBroadcaster.h"
 #include "log4z.h"
+#include <thread>
 #define MAXLISTSIZE 20
 
 namespace uv
@@ -28,16 +29,9 @@ UdpClient::UdpClient()
 UdpClient::~UdpClient()
 {
     close();
-    uv_thread_join(&connect_threadhandle_);
-    FreeUdpClientCtx(client_handle_);
-    uv_loop_close(&loop_);
-    uv_mutex_destroy(&mutex_writebuf_);
-    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
-        FreeUdpSendParam(*it);
-    }
-    writeparam_list_.clear();
 
-    LOGI("udpbroadcaster(" << this << ")exit");
+    FreeUdpClientCtx(client_handle_);
+    uv_mutex_destroy(&mutex_writebuf_);
 }
 
 bool UdpClient::init()
@@ -45,7 +39,8 @@ bool UdpClient::init()
     if (!isclosed_) {
         return true;
     }
-    int iret = uv_async_init(&loop_, &async_handle_, AsyncCB);
+    int iret = uv_loop_init(&loop_);
+    iret = uv_async_init(&loop_, &async_handle_, AsyncCB);
     if (iret) {
         errmsg_ = GetUVError(iret);
         LOGE(errmsg_);
@@ -64,18 +59,28 @@ bool UdpClient::init()
 
     client_handle_->packet_->SetPacketCB(GetPacket, client_handle_);
     //client_handle_->packet_->Start(PACKET_HEAD, PACKET_TAIL);//2018.01.22
-/*
-    iret = uv_timer_init(&loop_, &reconnect_timer_);
-    if (iret) {
-        errmsg_ = GetUVError(iret);
-        LOGE(errmsg_);
-        return false;
-    }
-    reconnect_timer_.data = this;
-    */
-    LOGI("client(" << this << ")Init");
+    LOGI("udpclient(" << this << ")Init");
     isclosed_ = false;
     return true;
+}
+
+void UdpClient::close()
+{
+    if (isclosed_) {
+        return;
+    }
+    isuseraskforclosed_ = true;
+    uv_async_send(&async_handle_);
+
+    //-------等待线程停止------
+    uv_thread_join(&connect_threadhandle_);
+    uv_loop_close(&loop_);
+    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
+        FreeUdpSendParam(*it);
+    }
+    writeparam_list_.clear();
+
+    LOGI("udpbroadcaster(" << this << ")exit");
 }
 
 void UdpClient::closeinl()
@@ -105,10 +110,14 @@ bool UdpClient::run(int status)
 
 bool UdpClient::connect(const char* ip, int port)
 {
-    closeinl();
+    if(!isclosed_){
+        close();
+    }
     if (!init()) {
         return false;
     }
+    isuseraskforclosed_ = false;
+
     if(ip == nullptr || strlen(ip) == 0 ){
         isBroadcast_ = true;
         //255.255.255.255为受限广播地址，如果Linux环境发现客户端无法收到数据，则执行route add -host 255.255.255.255 dev eth0 //eth0为网卡名称
@@ -118,7 +127,6 @@ bool UdpClient::connect(const char* ip, int port)
         isBroadcast_  = strcmp(strrchr(ip,(char)'.')+1,"255") == 0;
         connectip_ = ip;
     }
-
 
     connectport_ = port;
     isIPv6_ = false;
@@ -169,14 +177,7 @@ void UdpClient::AfterRecv(uv_udp_t* handle
     UdpClientCtx* theclass = (UdpClientCtx*)handle->data;
     assert(theclass);
     UdpClient* parent = (UdpClient*)theclass->parent_server;
-    if (nread < 0) {/*
-        if (parent->reconnectcb_) {
-            parent->reconnectcb_(NET_EVENT_TYPE_DISCONNECT, parent->reconnect_userdata_);
-        }
-        if (!parent->startReconnect()) {
-            fprintf(stdout, "Start Reconnect Failure.\n");
-            return;
-        }*/
+    if (nread < 0) {
         if (nread == UV_EOF) {
             fprintf(stdout, "Server close(EOF), Client %p\n", handle);
             LOGW("Server close(EOF)");
@@ -187,7 +188,10 @@ void UdpClient::AfterRecv(uv_udp_t* handle
             fprintf(stdout, "Server close,Client %p:%s\n", handle, GetUVError(nread));
             LOGW("Server close" << GetUVError(nread));
         }
-        uv_close((uv_handle_t*)handle, AfterClientClose);//close before reconnect
+        std::thread t1{[parent](){
+            parent->close();
+        }};
+        t1.detach();
         return;
     }
     parent->send_inl(NULL);
@@ -199,34 +203,14 @@ void UdpClient::AfterRecv(uv_udp_t* handle
 void UdpClient::AfterClientClose(uv_handle_t* handle)
 {
     UdpClient* theclass = (UdpClient*)handle->data;
-    fprintf(stdout, "Close CB handle %p\n", handle);
-    /*
-    if (handle == (uv_handle_t*)&theclass->client_handle_->udphandle && theclass->isreconnecting_) {
-        //closed, start reconnect timer
-        int iret = 0;
-        iret = uv_timer_start(&theclass->reconnect_timer_, TcpClient::ReconnectTimer, theclass->repeat_time_, theclass->repeat_time_);
-        if (iret) {
-            uv_close((uv_handle_t*)&theclass->reconnect_timer_, TcpClient::AfterClientClose);
-            LOGE(GetUVError(iret));
-            return;
-        }
-    }
-    */
+    fprintf(stdout, "udpclient Close CB handle %p\n", handle);
+
 }
 
 void UdpClient::ConnectThread(void* arg)
 {
     UdpClient* pclient = (UdpClient*)arg;
     pclient->run();
-}
-
-void UdpClient::close()
-{
-    if (isclosed_) {
-        return;
-    }
-    isuseraskforclosed_ = true;
-    uv_async_send(&async_handle_);
 }
 
 int UdpClient::send(const char* data, std::size_t len)
@@ -243,7 +227,7 @@ int UdpClient::send(const char* data, std::size_t len)
         iret += write_circularbuf_.write(data + iret, len - iret);
         uv_mutex_unlock(&mutex_writebuf_);
         if (iret < len) {
-            ThreadSleep(100);
+            ThreadSleep(20);
             continue;
         } else {
             break;
@@ -263,7 +247,7 @@ void UdpClient::send_inl(uv_udp_send_t* req /*= NULL*/)
             writeparam_list_.push_back(writep);
         }
     }
-    while (true) {
+    while (!isuseraskforclosed_) {
         uv_mutex_lock(&mutex_writebuf_);
         if (write_circularbuf_.empty()) {
             uv_mutex_unlock(&mutex_writebuf_);
