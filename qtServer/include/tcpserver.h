@@ -75,30 +75,30 @@ public:
     static void StartLog(const char* logpath = nullptr);
 	static void StopLog();
 public:
-    void SetNewConnectCB(NewConnectCB cb, void* userdata);//set new connect cb.
-    void SetRecvCB(int clientid, ServerRecvCB cb, void* userdata); //set recv cb. call for each accept client.
-    void SetClosedCB(TcpCloseCB pfun, void* userdata);//set close cb.
+    void setNewConnectCB(NewConnectCB cb, void* userdata);//set new connect cb.
+    void setRecvCB(int clientid, ServerRecvCB cb, void* userdata); //set recv cb. call for each accept client.
+    void setClosedCB(TcpCloseCB pfun, void* userdata);//set close cb.
 
-    bool Start(const char* ip, int port);//Start the server, ipv4
-    bool Start6(const char* ip, int port);//Start the server, ipv6
-    void Close();//send close command. verify IsClosed for real closed
-    bool IsClosed() {//verify if real closed
+    bool start(const char* ip, int port);//Start the server, ipv4
+    bool start6(const char* ip, int port);//Start the server, ipv6
+    void close();//send close command. verify IsClosed for real closed
+    bool isClosed() {//verify if real closed
         return isclosed_;
     };
 
     //Enable or disable Nagle’s algorithm. must call after Server succeed start.
-    bool SetNoDelay(bool enable);
+    bool setNoDelay(bool enable);
 
 	//Enable or disable KeepAlive. must call after Server succeed start.
 	//delay is the initial delay in seconds, ignored when enable is zero
-    bool SetKeepAlive(int enable, unsigned int delay);
+    bool setKeepAlive(int enable, unsigned int delay);
 
-    const char* GetLastErrMsg() const {
+    const char* getLastErrMsg() const {
         return errmsg_.c_str();
     };
 
 protected:
-    int GetAvailaClientID()const;
+    int getAvailaClientID()const;
     //Static callback function
     static void AfterServerClose(uv_handle_t* handle);
     static void DeleteTcpHandle(uv_handle_t* handle);//delete handle after close client

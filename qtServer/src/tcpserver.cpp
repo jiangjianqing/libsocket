@@ -29,7 +29,7 @@ TCPServer::TCPServer()
 
 TCPServer::~TCPServer()
 {
-    Close();
+    close();
 
 
     uv_thread_join(&start_threadhandle_);
@@ -106,7 +106,7 @@ bool TCPServer::run(int status)
     return true;
 }
 
-bool TCPServer::SetNoDelay(bool enable)
+bool TCPServer::setNoDelay(bool enable)
 {
     int iret = uv_tcp_nodelay(&tcp_handle_, enable ? 1 : 0);
     if (iret) {
@@ -117,7 +117,7 @@ bool TCPServer::SetNoDelay(bool enable)
     return true;
 }
 
-bool TCPServer::SetKeepAlive(int enable, unsigned int delay)
+bool TCPServer::setKeepAlive(int enable, unsigned int delay)
 {
     int iret = uv_tcp_keepalive(&tcp_handle_, enable , delay);
     if (iret) {
@@ -180,7 +180,7 @@ bool TCPServer::listen(int backlog)
     return true;
 }
 
-bool TCPServer::Start(const char* ip, int port)
+bool TCPServer::start(const char* ip, int port)
 {
     serverip_ = ip;
     serverport_ = port;
@@ -211,7 +211,7 @@ bool TCPServer::Start(const char* ip, int port)
     return startstatus_ == START_FINISH;
 }
 
-bool TCPServer::Start6(const char* ip, int port)
+bool TCPServer::start6(const char* ip, int port)
 {
     serverip_ = ip;
     serverport_ = port;
@@ -282,7 +282,7 @@ void TCPServer::AcceptConnection(uv_stream_t* server, int status)
     }
     tmptcp->tcphandle.data = tmptcp;
 
-    auto clientid = tcpsock->GetAvailaClientID();
+    auto clientid = tcpsock->getAvailaClientID();
     tmptcp->clientid = clientid;
     iret = uv_accept((uv_stream_t*)server, (uv_stream_t*)&tmptcp->tcphandle);
     if (iret) {
@@ -313,7 +313,7 @@ void TCPServer::AcceptConnection(uv_stream_t* server, int status)
     return;
 }
 
-void TCPServer::SetRecvCB(int clientid, ServerRecvCB cb, void* userdata)
+void TCPServer::setRecvCB(int clientid, ServerRecvCB cb, void* userdata)
 {
     uv_mutex_lock(&mutex_clients_);
     auto itfind = clients_list_.find(clientid);
@@ -323,13 +323,13 @@ void TCPServer::SetRecvCB(int clientid, ServerRecvCB cb, void* userdata)
     uv_mutex_unlock(&mutex_clients_);
 }
 
-void TCPServer::SetNewConnectCB(NewConnectCB cb, void* userdata)
+void TCPServer::setNewConnectCB(NewConnectCB cb, void* userdata)
 {
     newconcb_ = cb;
     newconcb_userdata_ = userdata;
 }
 
-void TCPServer::SetClosedCB(TcpCloseCB pfun, void* userdata)
+void TCPServer::setClosedCB(TcpCloseCB pfun, void* userdata)
 {
     closedcb_ = pfun;
     closedcb_userdata_ = userdata;
@@ -369,7 +369,7 @@ void TCPServer::RecycleTcpHandle(uv_handle_t* handle)
     }
 }
 
-int TCPServer::GetAvailaClientID() const
+int TCPServer::getAvailaClientID() const
 {
     static int s_id = 0;
     return ++s_id;
@@ -423,7 +423,7 @@ void TCPServer::AsyncCloseCB(uv_async_t* handle)
         return;
 }
 
-void TCPServer::Close()
+void TCPServer::close()
 {
     if (isclosed_) {
         return;
