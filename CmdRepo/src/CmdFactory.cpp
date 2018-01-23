@@ -8,6 +8,19 @@
 #include "CmdBufParser.h"
 #include "protos/tcp_msg.package.pb.h"
 
+using namespace google::protobuf;
+
+void packageMsg(const Message& msg,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::ProtoPackage pkg;
+    pkg.set_type_name(msg.GetTypeName());
+    pkg.set_data(msg.SerializeAsString());
+    int slen = pkg.ByteSize();
+    unsigned char* payload = (unsigned char*)malloc(slen);
+    pkg.SerializeToArray(payload,slen);
+    CmdBufParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
+    free(payload);
+}
 bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 {
     udp_msg::discover msg;
@@ -26,14 +39,15 @@ bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 {
     tcp_msg::IdentifyRequest msg;
 
-    tcp_msg::ProtoPackage pkg;
-    pkg.set_type_name(msg.GetTypeName());
-    pkg.set_data(msg.SerializeAsString());
-    int slen = pkg.ByteSize();
-    unsigned char* payload = (unsigned char*)malloc(slen);
-    pkg.SerializeToArray(payload,slen);
-    CmdBufParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
-    free(payload);
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeIdentifyResponseMsg(unsigned id,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::IdentityResponse msg;
+    msg.set_id(id);
+    packageMsg(msg,buf,len);
     return true;
 }
 

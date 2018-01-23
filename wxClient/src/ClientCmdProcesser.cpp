@@ -4,6 +4,8 @@
 #include "cmd_def.h"
 #include "ProtobufUtils.h"
 #include "CmdProcesserThreadEvent.h"
+#include "tcp_msg.package.pb.h"
+#include "ProtobufUtils.h"
 
 ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
 {
@@ -28,7 +30,7 @@ void ClientCmdProcesser::recvTcpData(const char* buf,int nread)
 {
     if(m_cmdParser.isSingleEntireCmd((const unsigned char*)buf,nread)){
         m_cmdParser.cleanParserBuf();
-
+        onRecvTcpCmd((const unsigned char*)buf,nread);
         //直接处理
     }else{
         m_cmdParser.inputData((const unsigned char*)buf,nread);
@@ -38,10 +40,26 @@ void ClientCmdProcesser::recvTcpData(const char* buf,int nread)
 
 void ClientCmdProcesser::onRecvTcpCmd(const unsigned char* buf,const unsigned len)
 {
-    //该方法一定在其他线程中调用，注意线程间通讯
-    bool bOk = m_cmdParser.isSingleEntireCmd(buf,len);
-    int i = 0;
-    i++;
+    //注意线程间通讯
+    cmd_message_s* cmd = (cmd_message_s*)buf;
+    tcp_msg::ProtoPackage pkg;
+    if(pkg.ParseFromArray(cmd->payload,cmd->header.length)){//解析成功
+        Message* msg = ProtobufUtils::createMessage(pkg.type_name());
+        if(msg != nullptr){
+            string a = pkg.type_name();
+            if(strcmp(a.c_str(),"tcp_msg.IdentifyRequest") == 0){
+                int i = 0;
+                i = i + 1;
+            }
+
+            delete msg;
+        }
+
+    }else{//解析失败
+
+    }
+
+    //CmdFactory::makeIdentifyResponseMsg(1,buf,len);
 }
 
 void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)
