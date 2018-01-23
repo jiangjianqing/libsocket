@@ -39,11 +39,11 @@ protected:
     bool init();
     void closeinl();//real close fun
     bool run(int status = UV_RUN_DEFAULT);
-    void send_inl(uv_write_t* req = NULL);//real send data fun
+    void send_inl(uv_udp_send_t* req = NULL);//real send data fun
     static void ConnectThread(void* arg);//connect thread,run until use close the client
 
     static void AfterRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf, const struct sockaddr *addr, unsigned flags);
-    static void AfterSend(uv_write_t* req, int status);
+    static void AfterSend(uv_udp_send_t* req, int status);
     static void AllocBufferForRecv(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf);
     static void AfterClientClose(uv_handle_t* handle);
     static void AsyncCB(uv_async_t* handle);//async close
@@ -72,7 +72,7 @@ private:
 
     //send param
     uv_mutex_t mutex_writebuf_;//mutex of writebuf_list_
-    list<write_param*> writeparam_list_;//Availa write_t
+    list<udp_send_param*> writeparam_list_;//Availa write_t
     PodCircularBuffer<char> write_circularbuf_;//the data prepare to send
 
     ClientRecvCB recvcb_;

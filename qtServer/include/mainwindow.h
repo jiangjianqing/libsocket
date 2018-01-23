@@ -30,6 +30,8 @@ private slots:
 
     void on_btnStart_clicked();
 
+    void on_btnSend_clicked();
+
 protected:
     bool event(QEvent *event);//用QEvent方式完成线程通信
 

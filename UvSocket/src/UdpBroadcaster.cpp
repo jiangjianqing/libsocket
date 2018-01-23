@@ -33,7 +33,7 @@ UdpClient::~UdpClient()
     uv_loop_close(&loop_);
     uv_mutex_destroy(&mutex_writebuf_);
     for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
-        FreeWriteParam(*it);
+        FreeUdpSendParam(*it);
     }
     writeparam_list_.clear();
 
@@ -257,12 +257,12 @@ int UdpClient::send(const char* data, std::size_t len)
     return iret;
 }
 
-void UdpClient::send_inl(uv_write_t* req /*= NULL*/)
+void UdpClient::send_inl(uv_udp_send_t* req /*= NULL*/)
 {
-    write_param* writep = (write_param*)req;
+    udp_send_param* writep = (udp_send_param*)req;
     if (writep) {
         if (writeparam_list_.size() > MAXLISTSIZE) {
-            FreeWriteParam(writep);
+            FreeUdpSendParam(writep);
         } else {
             writeparam_list_.push_back(writep);
         }
@@ -274,7 +274,7 @@ void UdpClient::send_inl(uv_write_t* req /*= NULL*/)
             break;
         }
         if (writeparam_list_.empty()) {
-            writep = AllocWriteParam();
+            writep = AllocUdpSendParam();
             writep->write_req_.data = this;
         } else {
             writep = writeparam_list_.front();
@@ -282,7 +282,10 @@ void UdpClient::send_inl(uv_write_t* req /*= NULL*/)
         }
         writep->buf_.len = write_circularbuf_.read(writep->buf_.base, writep->buf_truelen_);
         uv_mutex_unlock(&mutex_writebuf_);
-        int iret = uv_write((uv_write_t*)&writep->write_req_, (uv_stream_t*)&client_handle_->udphandle, &writep->buf_, 1, AfterSend);
+        struct sockaddr_in send_addr;
+        uv_ip4_addr("255.255.255.255", 8899, &send_addr);
+        int iret = uv_udp_send(&writep->write_req_, &client_handle_->udphandle, &writep->buf_, 1, (const struct sockaddr *)&send_addr, AfterSend);
+        //int iret = uv_write((uv_write_t*)&writep->write_req_, (uv_stream_t*)&client_handle_->udphandle, &writep->buf_, 1, AfterSend);
         if (iret) {
             writeparam_list_.push_back(writep);//failure not call AfterSend. so recycle req
             LOGE("client(" << this << ") send error:" << GetUVError(iret));
@@ -291,14 +294,14 @@ void UdpClient::send_inl(uv_write_t* req /*= NULL*/)
     }
 }
 
-void UdpClient::AfterSend(uv_write_t* req, int status)
+void UdpClient::AfterSend(uv_udp_send_t* req, int status)
 {
     UdpClient* theclass = (UdpClient*)req->data;
     if (status < 0) {
         if (theclass->writeparam_list_.size() > MAXLISTSIZE) {
-            FreeWriteParam((write_param*)req);
+            FreeUdpSendParam((udp_send_param*)req);
         } else {
-            theclass->writeparam_list_.push_back((write_param*)req);
+            theclass->writeparam_list_.push_back((udp_send_param*)req);
         }
         LOGE("send error:" << GetUVError(status));
         fprintf(stderr, "send error %s\n", GetUVError(status));

@@ -34,6 +34,19 @@ void FreeWriteParam(write_param* param)
     free(param);
 }
 
+udp_send_param * AllocUdpSendParam(void)
+{
+    udp_send_param* param = (udp_send_param*)calloc(1,sizeof(param));
+    param->buf_.base = (char*)malloc(BUFFER_SIZE);
+    param->buf_.len = BUFFER_SIZE;
+    param->buf_truelen_ = BUFFER_SIZE;
+}
+void FreeUdpSendParam(udp_send_param* param)
+{
+    free(param->buf_.base);
+    free(param);
+}
+
 
 UdpClientCtx* AllocUdpClientCtx(void* parentserver)
 {

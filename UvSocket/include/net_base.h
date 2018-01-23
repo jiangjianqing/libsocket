@@ -74,6 +74,14 @@ typedef struct _write_param{//param of uv_write
 write_param * AllocWriteParam(void);
 void FreeWriteParam(write_param* param);
 
+typedef struct _udp_send_param{//param of uv_udp_send
+    uv_udp_send_t write_req_;//store TCPClient on data
+    uv_buf_t buf_;
+    int buf_truelen_;
+}udp_send_param;
+udp_send_param * AllocUdpSendParam(void);
+void FreeUdpSendParam(udp_send_param* param);
+
 class PacketSync
 {
 public:

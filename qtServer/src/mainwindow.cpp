@@ -278,3 +278,8 @@ void MainWindow::on_btnStart_clicked()
     m_udpBroadcaster.connect(nullptr,8899);
 
 }
+
+void MainWindow::on_btnSend_clicked()
+{
+    m_udpBroadcaster.send("123456",6);
+}
