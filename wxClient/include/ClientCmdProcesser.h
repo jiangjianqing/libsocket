@@ -10,7 +10,7 @@
 using namespace std;
 
 enum class CmdEventType{
-    UNKNOW,UdpDiscover
+    UNKNOW,UdpDiscover,TcpIdentifyResponse
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30

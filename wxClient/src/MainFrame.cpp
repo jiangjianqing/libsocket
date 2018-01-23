@@ -16,6 +16,7 @@
 #include "ProtobufUtils.h"
 #include "TcpClientThreadEvent.h"
 #include "CmdProcesserThreadEvent.h"
+#include <thread>
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
 {
@@ -242,7 +243,19 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
     if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
         switch(event.GetId()){
         case (int)CmdEventType::UdpDiscover:
-            m_tcpClient.connect(m_cmdProcesser.serverIp().c_str(),m_cmdProcesser.serverPort());
+        {
+            thread t1{[this](){
+                 m_tcpClient.connect(m_cmdProcesser.serverIp().c_str(),m_cmdProcesser.serverPort());
+            }};
+            t1.detach();
+        }
+            break;
+        case (int)CmdEventType::TcpIdentifyResponse:
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeIdentifyResponseMsg(1,buf,len);
+            m_tcpClient.send((const char*)buf,len);
+            free(buf);
             break;
         }
 

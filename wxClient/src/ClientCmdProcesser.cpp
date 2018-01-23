@@ -48,8 +48,7 @@ void ClientCmdProcesser::onRecvTcpCmd(const unsigned char* buf,const unsigned le
         if(msg != nullptr){
             string a = pkg.type_name();
             if(strcmp(a.c_str(),"tcp_msg.IdentifyRequest") == 0){
-                int i = 0;
-                i = i + 1;
+                callCmdEventCb(CmdEventType::TcpIdentifyResponse);
             }
 
             delete msg;
