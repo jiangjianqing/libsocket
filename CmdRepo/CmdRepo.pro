@@ -5,12 +5,10 @@
 #-------------------------------------------------
 TARGET = CmdRepo
 
-QT       -= core gui
+QT       -= core gui qt
 TEMPLATE = lib
-#CONFIG += staticlib  #2018.01.18:设为staticlib后，client无法通过编译
 CONFIG += c++14
 #CONFIG -= app_bundle
-CONFIG -= qt
 
 #使Release版本可调试
 QMAKE_CXXFLAGS_RELEASE = $$QMAKE_CFLAGS_RELEASE_WITH_DEBUGINFO
@@ -52,6 +50,8 @@ RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
 
 win32: {
+    #重要：windows下需要生成静态库来支持LIBS += 操作
+    CONFIG += staticlib
     #CONFIG(release, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
 

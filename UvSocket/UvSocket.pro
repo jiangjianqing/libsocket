@@ -9,7 +9,6 @@ DEFINES += UVSOCKET_LIBRARY
 
 QT       -= core gui qt
 TEMPLATE = lib
-#CONFIG += staticlib
 
 CONFIG += c++14
 #CONFIG -= app_bundle
@@ -57,6 +56,8 @@ RESOURCES   += $$files(*.qrc,true)
 OTHER_FILES += $$files(*,true)
 
 win32: {
+    #重要：windows下需要生成静态库来支持LIBS += 操作
+    CONFIG += staticlib
     #CONFIG(release, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
     #else:CONFIG(debug, debug|release): LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lIPL
 
@@ -140,6 +141,11 @@ INCLUDEPATH += $$PWD/include/
 #特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
 LIBS += -L$$PWD/../_lib/libuv/lib/$$PLATFORM -luv
 INCLUDEPATH += $$PWD/../_lib/libuv/include
+
+INCLUDEPATH += $$PWD/../_lib/openssl/include
+#特别注意:在linux下，-l后面需要忽略"lib"字符，比如libuv.so，就要写成-luv
+LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
+
 
 message("Defines:")
 message($$DEFINES)
