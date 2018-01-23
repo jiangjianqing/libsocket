@@ -29,13 +29,6 @@ packet.Start(0x01,0x02);
 #define ThreadSleep(ms) usleep((ms) * 1000)//睡眠ms毫秒
 #endif
 
-#ifdef _MSC_VER
-#ifdef NDEBUG
-#pragma comment(lib,"libeay32.lib")
-#else
-#pragma comment(lib,"libeay32d.lib")
-#endif
-#endif
 typedef void (*GetFullPacket)(const unsigned char* packetdata,const unsigned packetlen, void* userdata);
 
 #ifndef BUFFER_SIZE
