@@ -288,16 +288,17 @@ void UdpClient::send_inl(uv_udp_send_t* req /*= NULL*/)
 void UdpClient::AfterSend(uv_udp_send_t* req, int status)
 {
     UdpClient* theclass = (UdpClient*)req->data;
+    if (theclass->writeparam_list_.size() > MAXLISTSIZE) {
+        FreeUdpSendParam((udp_send_param*)req);
+    } else {
+        theclass->writeparam_list_.push_back((udp_send_param*)req);
+    }
     if (status < 0) {
-        if (theclass->writeparam_list_.size() > MAXLISTSIZE) {
-            FreeUdpSendParam((udp_send_param*)req);
-        } else {
-            theclass->writeparam_list_.push_back((udp_send_param*)req);
-        }
+
         LOGE("send error:" << GetUVError(status));
         fprintf(stderr, "send error %s\n", GetUVError(status));
-        return;
     }
+
 }
 
 void UdpClient::GetPacket(const unsigned char* packetdata, const unsigned packetlen, void* userdata)
