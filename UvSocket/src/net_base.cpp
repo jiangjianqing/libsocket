@@ -36,7 +36,7 @@ void FreeWriteParam(write_param* param)
 
 udp_send_param * AllocUdpSendParam(void)
 {
-    udp_send_param* param = (udp_send_param*)calloc(1,sizeof(param));
+    udp_send_param* param = (udp_send_param*)malloc(sizeof(*param));
     param->buf_.base = (char*)malloc(BUFFER_SIZE);
     param->buf_.len = BUFFER_SIZE;
     param->buf_truelen_ = BUFFER_SIZE;

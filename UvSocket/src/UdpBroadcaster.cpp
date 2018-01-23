@@ -115,13 +115,13 @@ bool UdpClient::connect(const char* ip, int port)
     isIPv6_ = false;
     struct sockaddr_in bind_addr;
     int iret = 0;
-/*
+
     if(isBroadcast_){
         iret = uv_ip4_addr(connectip_.c_str(), 0, &bind_addr);
     }else{
+        iret = uv_ip4_addr(connectip_.c_str(), connectport_, &bind_addr);
+    }
 
-    }*/
-    iret = uv_ip4_addr(connectip_.c_str(), connectport_, &bind_addr);
     if (iret) {
         errmsg_ = GetUVError(iret);
         LOGE(errmsg_);
@@ -269,7 +269,12 @@ void UdpClient::send_inl(uv_udp_send_t* req /*= NULL*/)
         writep->buf_.len = write_circularbuf_.read(writep->buf_.base, writep->buf_truelen_);
         uv_mutex_unlock(&mutex_writebuf_);
         struct sockaddr_in send_addr;
-        uv_ip4_addr("255.255.255.255", 8899, &send_addr);
+        if(isBroadcast_){
+            uv_ip4_addr("255.255.255.255", connectport_, &send_addr);
+        }else{
+            uv_ip4_addr(connectip_.c_str(), connectport_, &send_addr);
+        }
+
         int iret = uv_udp_send(&writep->write_req_, &client_handle_->udphandle, &writep->buf_, 1, (const struct sockaddr *)&send_addr, AfterSend);
         //int iret = uv_write((uv_write_t*)&writep->write_req_, (uv_stream_t*)&client_handle_->udphandle, &writep->buf_, 1, AfterSend);
         if (iret) {
