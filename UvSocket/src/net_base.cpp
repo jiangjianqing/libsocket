@@ -40,6 +40,7 @@ udp_send_param * AllocUdpSendParam(void)
     param->buf_.base = (char*)malloc(BUFFER_SIZE);
     param->buf_.len = BUFFER_SIZE;
     param->buf_truelen_ = BUFFER_SIZE;
+    return param;
 }
 void FreeUdpSendParam(udp_send_param* param)
 {
