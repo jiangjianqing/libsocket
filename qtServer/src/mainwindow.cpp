@@ -156,6 +156,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     uv::TcpServer::StartLog("log/");
     m_tcpServer.setNewConnectCB(TcpServer_NewConnect,&m_tcpServer);
+    m_tcpServer.setClosedCB(TcpServer_CloseCB,&m_tcpServer);
 }
 
 MainWindow::~MainWindow()
