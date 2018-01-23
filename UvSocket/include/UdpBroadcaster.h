@@ -68,8 +68,6 @@ private:
     uv_thread_t connect_threadhandle_;
     uv_connect_t connect_req_;
 
-    int connectstatus_;
-
     //send param
     uv_mutex_t mutex_writebuf_;//mutex of writebuf_list_
     list<udp_send_param*> writeparam_list_;//Availa write_t

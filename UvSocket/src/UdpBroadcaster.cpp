@@ -6,7 +6,7 @@ namespace uv
 {
 UdpClient::UdpClient()
     : recvcb_(nullptr), recvcb_userdata_(nullptr), closedcb_(nullptr), closedcb_userdata_(nullptr)
-    , connectstatus_(CONNECT_DIS), write_circularbuf_(BUFFER_SIZE)
+    , write_circularbuf_(BUFFER_SIZE)
     , isclosed_(true), isuseraskforclosed_(false)
     , isIPv6_(false)
 {
@@ -141,20 +141,6 @@ bool UdpClient::connect(const char* ip, int port)
         LOGE(errmsg_);
         return false;
     }
-    int wait_count = 0;
-    while (connectstatus_ == CONNECT_DIS) {
-        ThreadSleep(100);
-        if (++wait_count > 100) {
-            connectstatus_ = CONNECT_TIMEOUT;
-            break;
-        }
-    }
-    if (CONNECT_FINISH != connectstatus_) {
-        errmsg_ = "connect time out";
-        return false;
-    } else {
-        return true;
-    }
 }
 
 void UdpClient::AllocBufferForRecv(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
@@ -240,7 +226,7 @@ int UdpClient::send(const char* data, std::size_t len)
         LOGE(errmsg_);
         return 0;
     }
-    uv_async_send(&async_handle_);
+    //uv_async_send(&async_handle_);
     size_t iret = 0;
     while (!isuseraskforclosed_) {
         uv_mutex_lock(&mutex_writebuf_);
@@ -307,7 +293,6 @@ void UdpClient::AfterSend(uv_udp_send_t* req, int status)
         fprintf(stderr, "send error %s\n", GetUVError(status));
         return;
     }
-    theclass->send_inl(req);
 }
 
 void UdpClient::GetPacket(const unsigned char* packetdata, const unsigned packetlen, void* userdata)
