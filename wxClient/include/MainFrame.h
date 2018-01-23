@@ -8,8 +8,8 @@
 #include "wx/panel.h"
 #include "wx/stattext.h"
 
-#include "TcpClient.h"
-#include "UdpClient.h"
+#include "tcpclient.h"
+#include "UdpBroadcaster.h"
 #include "ClientCmdProcesser.h"
 #include "CmdBufParser.h"
 
@@ -17,6 +17,8 @@ class MyTray;
 
 //这种方式定义ID更好
 #define OKBTNID   wxID_HIGHEST+21
+
+static void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
 
 class MainFrame : public wxFrame
 {
@@ -48,7 +50,6 @@ private:
 
     void onClientAccepted(const string& ip,int port);
     void onClientClosed(int id,const string& ip,int port);
-    void onSimpleTcpSocketEvent(socket_event_type type);
     void onRecvCmd(const unsigned char* buf,const unsigned len);
 
     wxTextCtrl* m_txtInfo;
@@ -67,12 +68,14 @@ private:
     wxPanel *upPanel;
     wxStatusBar* statusbar;
 
-    TcpClient tcpClient;
-    UdpClient udpClient;
+    uv::TcpClient m_tcpClient;
+    uv::UdpClient m_udpClient;
 
     ClientCmdProcesser m_cmdProcesser;
 
     void initSocket();
+protected:
+    friend void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
 };
 
 #endif // MainFrame_H

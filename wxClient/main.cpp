@@ -6,7 +6,6 @@
 #endif
 
 #include "MainFrame.h"
-#include "TcpServer.h"
 
 #include <iostream>
 

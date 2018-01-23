@@ -86,91 +86,41 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false),m_
     onBtnStartClick(e);
 }
 
+void TcpServer_CloseCB(int clientid, void* userdata)
+{
+    fprintf(stdout,"cliend %d close\n",clientid);
+    //uv::TCPServer *theclass = (uv::TCPServer *)userdata;
+    //theclass->Close();
+    //is_eist = true;
+}
+
+void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata)
+{
+    int i = 0;
+    i++;
+}
+
+void TcpServer_NewConnect(int clientid, void* userdata)
+{
+    fprintf(stdout,"new connect:%d\n",clientid);
+    uv::TcpServer *theclass = (uv::TcpServer *)userdata;
+    theclass->setRecvCB(clientid,TcpServer_ReadCB,userdata);
+}
+
 void MainFrame::initSocket()
 {
     Bind(wxEVT_THREAD,&MainFrame::onSocketThreadEvent,this);
 
-    auto tcpCb= [this](AbstractSocket* socket,const socket_event_t& event,const char* buf, int nread,socket_reply_cb reply){
-        switch(event.type){
-        case socket_event_type::ConnectionAccept:{
-                unsigned char* dest = nullptr;
-                unsigned dlen = 0;
-                CmdFactory::makeIdentifyRequestMsg(dest,dlen);
-                m_tcpServer.send(event.clientId,(const char*)dest,dlen);
-                free(dest);
-                onClientAccepted(event.ip,event.port);
-            }
-            break;
-        case socket_event_type::ConnectionClose:
-            onClientClosed(event.clientId,event.ip,event.port);
-            break;
-        case socket_event_type::ReadData:
-            break;
-        default:
-            onSimpleTcpSocketEvent(event.type);
-            break;
-        }
-    };
-    m_tcpServer.setSocketEventCb(tcpCb);    
+    m_tcpServer.setKeepAlive(1,60);//enable Keepalive, 60s
+    m_tcpServer.setNewConnectCB(TcpServer_NewConnect,this);
 }
 
-void MainFrame::onClientAccepted(const string& ip,int port)
-{
-    //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
-    event.SetId((int)socket_event_type::ConnectionAccept);
-    ostringstream ostr;
-    ostr<<ip<<":"<<port;
-    //string info = std::to_string(port);
-    event.SetString(ostr.str());
-    wxQueueEvent(this,event.Clone());
-    //wxTheApp->QueueEvent(e.Clone());
-}
-
-void MainFrame::onClientClosed(int id,const string& ip,int port)
-{
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
-    event.SetId((int)socket_event_type::ConnectionClose);
-    event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
-    wxQueueEvent(this,event.Clone());
-}
-
-
-void MainFrame::onSimpleTcpSocketEvent(socket_event_type type)
-{
-    wxThreadEvent event(wxEVT_COMMAND_THREAD, wxID_ANY);
-    event.SetId((int)type);
-    //event.SetString(std::to_string(id) + ":" + ip + ":" + std::to_string(port));
-    wxQueueEvent(this,event.Clone());
-}
 
 void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 {
     wxString msg = event.GetString();
     string info = "uninitialized info!";
-    switch(event.GetId()){
-    case (int)socket_event_type::ConnectionAccept:
-        info = "client accepted : " + msg;
-        break;
-    case (int)socket_event_type::ConnectFault:
-        info = "client connect fault : ";
-        break;
-    case (int)socket_event_type::ConnectionClose:
-        info = "client closed : " + msg;
-        break;
-    case (int)socket_event_type::Listening:
-        info = "server is listening ! port =" + std::to_string(kTcpServerPort);
-        break;
-    case (int)socket_event_type::ListenFault:
-        info = "establish listen fault !";
-        break;
-    case (int)socket_event_type::Unknow:
-        info = "occur unknow socket event !";
-        break;
-    case (int)socket_event_type::SocketClose:
-        info = "socket closed !";
-        break;
-    }
+
     appendInfo(info);
 /*
  *
@@ -206,7 +156,7 @@ void MainFrame::onBtnBroadcastClick(wxCommandEvent& event)
         char* buf = nullptr;
         int len = 0;
         if(CmdFactory::makeDiscoverMsg("127.0.0.1",kTcpServerPort,buf,len)){
-            m_udpBroadcaster.broadcast(buf,len);
+            m_udpBroadcaster.send(buf,len);
 
             free(buf);
             /*
@@ -234,7 +184,7 @@ void MainFrame::onBtnStartClick(wxCommandEvent& event)
         m_btnStart->SetLabel(wxT("start"));
     }else{
         m_txtInfo->Clear();//清除文本框
-        m_udpBroadcaster.start(8899);
+        m_udpBroadcaster.connect(nullptr,8899);
         m_tcpServer.start("0.0.0.0",kTcpServerPort);
         m_btnBroadcast->Enable();
         m_btnStart->SetLabel(wxT("stop"));

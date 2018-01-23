@@ -1,5 +1,4 @@
 #include "ClientCmdProcesser.h"
-#include "SocketData.h"
 #include "CmdFactory.h"
 #include "udp_msg.discover.pb.h"
 #include "cmd_def.h"
@@ -12,7 +11,7 @@ ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(
     m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
-void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb replyCb)
+void ClientCmdProcesser::recvUdpData(const char* buf,int nread)
 {
     //只识别一个discover命令,而且为可见字符集
     udp_msg::discover msg;
@@ -25,7 +24,7 @@ void ClientCmdProcesser::recvUdpData(const char* buf,int nread,socket_reply_cb r
     }
 }
 
-void ClientCmdProcesser::recvTcpData(const char* buf,int nread,socket_reply_cb replyCb)
+void ClientCmdProcesser::recvTcpData(const char* buf,int nread)
 {
     return;
     if(m_cmdParser.isSingleEntireCmd((const unsigned char*)buf,nread)){

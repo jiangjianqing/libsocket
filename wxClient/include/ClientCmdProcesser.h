@@ -3,7 +3,6 @@
 
 #include <string>
 #include <functional>
-#include "SocketData.h"
 #include "wx/event.h"
 #include "LuaEngine.h"
 #include "CmdBufParser.h"
@@ -25,8 +24,8 @@ public:
 
     void callCmdEventCb(const CmdEventType& event);
 
-    void recvUdpData(const char* buf,int nread,socket_reply_cb replyCb);
-    void recvTcpData(const char* buf,int nread,socket_reply_cb replyCb);
+    void recvUdpData(const char* buf,int nread);
+    void recvTcpData(const char* buf,int nread);
 
     string serverIp(){return m_serverIp;}
     int serverPort(){return m_serverPort;}

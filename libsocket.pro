@@ -7,8 +7,8 @@ SUBDIRS += \
     lua_extend_dll_test \
     Socket  \
     CmdRepo \
-    #wxServer    \
-    #wxClient
+    wxServer    \
+    wxClient    \
     UvSocket
 
 wxClient.depends = CmdRepo Socket CryptoUtils

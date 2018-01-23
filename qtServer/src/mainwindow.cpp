@@ -87,25 +87,6 @@ void ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
     */
 }
 
-void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
-{
-    fprintf(stdout,"call time %d\n",++call_time);
-    if (call_time > 5000) {
-        return;
-    }
-    char senddata[256] = {0};
-    //uv::TCPClient* client = (uv::TCPClient*)userdata;
-    //sprintf(senddata, "****recv server data(%p,%d)", client, packet.datalen);
-    fprintf(stdout, "%s\n", senddata);
-    //NetPacket tmppack = packet;
-    //tmppack.datalen = (std::min)(strlen(senddata), sizeof(senddata) - 1);
-    //std::string retstr = PacketData(tmppack, (const unsigned char*)senddata);
-    /*
-    if (client->Send(&retstr[0], retstr.length()) <= 0) {
-        fprintf(stdout, "(%p)send error.%s\n", client, client->GetLastErrMsg());
-    }
-    */
-}
 
 void TcpServer_CloseCB(int clientid, void* userdata)
 {
@@ -187,7 +168,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     uv::UdpClient::StartLog("log/udp_log");
     m_udpBroadcaster.setClosedCB(Udp_CloseCB,&m_udpBroadcaster);
-    m_udpBroadcaster.setRecvCB(Udp_ReadCB,&m_udpBroadcaster);
 
 }
 

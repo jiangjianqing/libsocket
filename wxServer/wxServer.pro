@@ -185,8 +185,8 @@ INCLUDEPATH += $$PWD/../CryptoUtils/include
 LIBS += -L$$PWD/../_lib/openssl/lib/$$PLATFORM -lcrypto -lssl
 INCLUDEPATH += $$PWD/../_lib/openssl/include
 
-LIBS += -L$$PWD/../_bin/Socket/$$CONFIGURATION/$$PLATFORM -lSocket
-INCLUDEPATH += $$PWD/../Socket/include
+LIBS += -L$$PWD/../_bin/UvSocket/$$CONFIGURATION/$$PLATFORM -lUvSocket
+INCLUDEPATH += $$PWD/../UvSocket/include
 
 LIBS += -L$$PWD/../_bin/CmdRepo/$$CONFIGURATION/$$PLATFORM -lCmdRepo
 INCLUDEPATH += $$PWD/../CmdRepo/include

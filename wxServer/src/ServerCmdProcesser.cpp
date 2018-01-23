@@ -5,7 +5,7 @@ ServerCmdProcesser::ServerCmdProcesser(wxEvtHandler* evtHandler) : m_wxEvtHandle
     m_isRecvingFilePartData = false;
 }
 
-void ServerCmdProcesser::recvTcpData(const char* buf,int nread,socket_reply_cb replyCb)
+void ServerCmdProcesser::recvTcpData(const char* buf,int nread)
 {
 
 }

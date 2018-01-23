@@ -6,7 +6,7 @@
 #include "wx/sizer.h"
 #include "wx/button.h"
 #include "wx/textctrl.h"
-#include "TcpServer.h"
+#include "tcpserver.h"
 #include "UdpBroadcaster.h"
 #include "ServerCmdProcesser.h"
 #include "CmdBufParser.h"
@@ -37,9 +37,6 @@ protected:
     void onBtnBroadcastClick(wxCommandEvent& event);
     void onBtnStartClick(wxCommandEvent& event);
 
-    void onClientAccepted(const string& ip,int port);
-    void onClientClosed(int id,const string& ip,int port);
-    void onSimpleTcpSocketEvent(socket_event_type type);
     //线程事件处理函数
     void onSocketThreadEvent(wxThreadEvent& event);
 private:
@@ -57,8 +54,8 @@ private:
     wxBoxSizer* m_bottomSizer;
     wxBoxSizer* m_centerSizer;
 
-    TcpServer m_tcpServer;
-    UdpBroadcaster m_udpBroadcaster;
+    uv::TcpServer m_tcpServer;
+    uv::UdpClient m_udpBroadcaster;
 
     ServerCmdProcesser m_cmdProcesser;
 
