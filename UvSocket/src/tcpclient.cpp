@@ -80,6 +80,15 @@ bool TcpClient::init()
     return true;
 }
 
+void TcpClient::close()
+{
+    if (isclosed_) {
+        return;
+    }
+    isuseraskforclosed_ = true;
+    uv_async_send(&async_handle_);
+}
+
 void TcpClient::closeinl()
 {
     if (isclosed_) {
@@ -240,6 +249,8 @@ void TcpClient::AfterConnect(uv_connect_t* handle, int status)
             uv_timer_stop(&parent->reconnect_timer_);
             parent->repeat_time_ *= 2;
             uv_timer_start(&parent->reconnect_timer_, TcpClient::ReconnectTimer, parent->repeat_time_, parent->repeat_time_);
+        }else{//不重连接则fully close
+
         }
         return;
     }
@@ -318,13 +329,6 @@ void TcpClient::AfterRecv(uv_stream_t* handle, ssize_t nread, const uv_buf_t* bu
     assert(theclass);
     TcpClient* parent = (TcpClient*)theclass->parent_server;
     if (nread < 0) {
-        if (parent->reconnectcb_) {
-            parent->reconnectcb_(NET_EVENT_TYPE_DISCONNECT, parent->reconnect_userdata_);
-        }
-        if (!parent->startReconnect()) {
-            fprintf(stdout, "Start Reconnect Failure.\n");
-            return;
-        }
         if (nread == UV_EOF) {
             fprintf(stdout, "Server close(EOF), Client %p\n", handle);
             LOGW("Server close(EOF)");
@@ -335,7 +339,19 @@ void TcpClient::AfterRecv(uv_stream_t* handle, ssize_t nread, const uv_buf_t* bu
             fprintf(stdout, "Server close,Client %p:%s\n", handle, GetUVError(nread));
             LOGW("Server close" << GetUVError(nread));
         }
-        uv_close((uv_handle_t*)handle, AfterClientClose);//close before reconnect
+        if (parent->isreconnecting_){
+            if (parent->reconnectcb_) {
+                parent->reconnectcb_(NET_EVENT_TYPE_DISCONNECT, parent->reconnect_userdata_);
+            }
+            if (!parent->startReconnect()) {
+                fprintf(stdout, "Start Reconnect Failure.\n");
+                return;
+            }
+            uv_close((uv_handle_t*)handle, AfterClientClose);//close before reconnect
+        }else{//不重新连接则fully close
+
+        }
+
         return;
     }
     parent->send_inl(NULL);
@@ -373,7 +389,7 @@ void TcpClient::AfterClientClose(uv_handle_t* handle)
 {
     TcpClient* theclass = (TcpClient*)handle->data;
     fprintf(stdout, "Close CB handle %p\n", handle);
-    if (handle == (uv_handle_t*)&theclass->client_handle_->tcphandle && theclass->isreconnecting_) {
+    if (theclass->isreconnecting_ && handle == (uv_handle_t*)&theclass->client_handle_->tcphandle) {
         //closed, start reconnect timer
         int iret = 0;
         iret = uv_timer_start(&theclass->reconnect_timer_, TcpClient::ReconnectTimer, theclass->repeat_time_, theclass->repeat_time_);
@@ -455,15 +471,6 @@ void TcpClient::send_inl(uv_write_t* req /*= NULL*/)
             fprintf(stdout, "send error. %s-%s\n", uv_err_name(iret), uv_strerror(iret));
         }
     }
-}
-
-void TcpClient::close()
-{
-    if (isclosed_) {
-        return;
-    }
-    isuseraskforclosed_ = true;
-    uv_async_send(&async_handle_);
 }
 
 bool TcpClient::startReconnect(void)
