@@ -55,6 +55,17 @@ typedef struct _tcpclient_ctx {
 TcpClientCtx* AllocTcpClientCtx(void* parentserver);
 void FreeTcpClientCtx(TcpClientCtx* ctx);
 
+typedef struct _udpclient_ctx {
+    uv_udp_t udphandle;//store this on data
+    uv_write_t write_req;//store this on data
+    PacketSync* packet_;//store this on userdata
+    uv_buf_t read_buf_;
+    //int clientid;
+    void* parent_server;//store UdpClient point
+} UdpClientCtx;
+UdpClientCtx* AllocUdpClientCtx(void* parentserver);
+void FreeUdpClientCtx(UdpClientCtx* ctx);
+
 typedef struct _write_param{//param of uv_write
     uv_write_t write_req_;//store TCPClient on data
     uv_buf_t buf_;

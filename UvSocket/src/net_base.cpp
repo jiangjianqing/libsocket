@@ -33,3 +33,22 @@ void FreeWriteParam(write_param* param)
     free(param->buf_.base);
     free(param);
 }
+
+
+UdpClientCtx* AllocUdpClientCtx(void* parentserver)
+{
+    UdpClientCtx* ctx = (UdpClientCtx*)malloc(sizeof(*ctx));
+    ctx->packet_ = new PacketSync;
+    ctx->read_buf_.base = (char*)malloc(BUFFER_SIZE);
+    ctx->read_buf_.len = BUFFER_SIZE;
+    ctx->write_req.data = ctx;//store self
+    ctx->parent_server = parentserver;//store UdpClient
+    //ctx->parent_acceptclient = NULL;
+    return ctx;
+}
+void FreeUdpClientCtx(UdpClientCtx* ctx)
+{
+    delete ctx->packet_;
+    free(ctx->read_buf_.base);
+    free(ctx);
+}

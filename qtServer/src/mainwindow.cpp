@@ -60,7 +60,34 @@ void CloseCB(int clientid, void* userdata)
     //client->Close();
 }
 
+void Udp_CloseCB(int clientid, void* userdata)
+{
+    //fprintf(stdout, "cliend %d close\n", clientid);
+    //uv::TCPClient* client = (uv::TCPClient*)userdata;
+    //client->Close();
+}
+
 void ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
+{
+    fprintf(stdout,"call time %d\n",++call_time);
+    if (call_time > 5000) {
+        return;
+    }
+    char senddata[256] = {0};
+    //uv::TCPClient* client = (uv::TCPClient*)userdata;
+    //sprintf(senddata, "****recv server data(%p,%d)", client, packet.datalen);
+    fprintf(stdout, "%s\n", senddata);
+    //NetPacket tmppack = packet;
+    //tmppack.datalen = (std::min)(strlen(senddata), sizeof(senddata) - 1);
+    //std::string retstr = PacketData(tmppack, (const unsigned char*)senddata);
+    /*
+    if (client->Send(&retstr[0], retstr.length()) <= 0) {
+        fprintf(stdout, "(%p)send error.%s\n", client, client->GetLastErrMsg());
+    }
+    */
+}
+
+void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
 {
     fprintf(stdout,"call time %d\n",++call_time);
     if (call_time > 5000) {
@@ -157,6 +184,11 @@ MainWindow::MainWindow(QWidget *parent) :
     uv::TcpServer::StartLog("log/");
     m_tcpServer.setNewConnectCB(TcpServer_NewConnect,&m_tcpServer);
     m_tcpServer.setClosedCB(TcpServer_CloseCB,&m_tcpServer);
+
+    uv::UdpClient::StartLog("log/udp_log");
+    m_udpBroadcaster.setClosedCB(Udp_CloseCB,&m_udpBroadcaster);
+    m_udpBroadcaster.setRecvCB(Udp_ReadCB,&m_udpBroadcaster);
+
 }
 
 MainWindow::~MainWindow()
@@ -242,5 +274,7 @@ void MainWindow::on_btnStart_clicked()
     m_tcpServer.setKeepAlive(1,60);//enable Keepalive, 60s
 
     fprintf(stdout,"server return on main.\n");
+
+    m_udpBroadcaster.connect(nullptr,8899);
 
 }

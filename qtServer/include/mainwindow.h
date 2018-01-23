@@ -9,6 +9,7 @@
 #include "Msg.h"
 //#include "tcpclient.h"
 #include "tcpserver.h"
+#include "UdpBroadcaster.h"
 
 using namespace std;
 
@@ -41,6 +42,7 @@ private:
 
     //uv::TcpClient m_tcpClient;
     uv::TcpServer m_tcpServer;
+    uv::UdpClient m_udpBroadcaster;
 
     //UdpBroadcaster m_udpBroadcaster;
     //TcpServer m_tcpServer;
