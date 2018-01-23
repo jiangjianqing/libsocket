@@ -7,8 +7,8 @@
 #include <string>
 #include "MsgEventThread.h"
 #include "Msg.h"
-//#include "tcpclient.h"
-#include "tcpserver.h"
+#include "tcpclient.h"
+//#include "tcpserver.h"
 
 using namespace std;
 
@@ -39,8 +39,8 @@ private:
 
     void DisplayMsg(Msg);
 
-    //uv::TCPClient m_tcpClient;
-    uv::TCPServer m_tcpServer;
+    uv::TcpClient m_tcpClient;
+    //uv::TCPServer m_tcpServer;
 
     //UdpBroadcaster m_udpBroadcaster;
     //TcpServer m_tcpServer;

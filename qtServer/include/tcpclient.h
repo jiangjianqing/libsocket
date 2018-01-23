@@ -54,33 +54,33 @@ Close Server               : Close. this fun only set the close command, call Is
 Stop the log fun(optional) : StopLog
 GetLastErrMsg(optional)    : when the above fun call failure, call this fun to get the error message.
 *************************************************/
-class TCPClient
+class TcpClient
 {
 public:
-    TCPClient();
-    virtual ~TCPClient();
+    TcpClient();
+    virtual ~TcpClient();
 	//Start/Stop the log
     static void StartLog(const char* logpath = nullptr);
 	static void StopLog();
 public:
-    void SetRecvCB(ClientRecvCB pfun, void* userdata);//set recv cb
-    void SetClosedCB(TcpCloseCB pfun, void* userdata);//set close cb.
-	void SetReconnectCB(ReconnectCB pfun, void* userdata);//set reconnect cb
-    bool Connect(const char* ip, int port);//connect the server, ipv4
-    bool Connect6(const char* ip, int port);//connect the server, ipv6
-    int  Send(const char* data, std::size_t len);//send data to server
-    void Close();//send close command. verify IsClosed for real closed
-    bool IsClosed() {//verify if real closed
+    void setRecvCB(ClientRecvCB pfun, void* userdata);//set recv cb
+    void setClosedCB(TcpCloseCB pfun, void* userdata);//set close cb.
+    void setReconnectCB(ReconnectCB pfun, void* userdata);//set reconnect cb
+    bool connect(const char* ip, int port);//connect the server, ipv4
+    bool connect6(const char* ip, int port);//connect the server, ipv6
+    int  send(const char* data, std::size_t len);//send data to server
+    void close();//send close command. verify IsClosed for real closed
+    bool isClosed() {//verify if real closed
         return isclosed_;
     };
 	//Enable or disable Nagle’s algorithm. must call after Server succeed start.
-    bool SetNoDelay(bool enable);
+    bool setNoDelay(bool enable);
 
 	//Enable or disable KeepAlive. must call after Server succeed start.
 	//delay is the initial delay in seconds, ignored when enable is zero
-    bool SetKeepAlive(int enable, unsigned int delay);
+    bool setKeepAlive(int enable, unsigned int delay);
 
-    const char* GetLastErrMsg() const {
+    const char* getLastErrMsg() const {
         return errmsg_.c_str();
     };
 protected:
@@ -131,8 +131,8 @@ private:
 
 	ReconnectCB reconnectcb_;
 	void* reconnect_userdata_;
-	bool StartReconnect(void);
-	void StopReconnect(void);
+    bool startReconnect(void);
+    void stopReconnect(void);
 	uv_timer_t reconnect_timer_;
 	bool isreconnecting_;
 	int64_t repeat_time_;//repeat reconnect time. y=2x(x=1..)
