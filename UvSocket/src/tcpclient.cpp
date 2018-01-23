@@ -466,7 +466,7 @@ void TcpClient::send_inl(uv_write_t* req /*= NULL*/)
             writeparam_list_.push_back(writep);
         }
     }
-    while (true) {
+    while (!isuseraskforclosed_) {
         uv_mutex_lock(&mutex_writebuf_);
         if (write_circularbuf_.empty()) {
             uv_mutex_unlock(&mutex_writebuf_);
