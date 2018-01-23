@@ -86,6 +86,13 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
     onBtnStartClick(e);
 }
 
+MainFrame::~MainFrame()
+{
+    for(auto it = m_cmdProcessers.begin();it != m_cmdProcessers.end(); it++){
+        delete it->second;
+    }
+}
+
 void TcpServer_CloseCB(int clientid, void* userdata)
 {
     fprintf(stdout,"cliend %d close\n",clientid);
@@ -190,7 +197,7 @@ void MainFrame::onBtnBroadcastClick(wxCommandEvent& event)
 void MainFrame::onBtnStartClick(wxCommandEvent& event)
 {
     if(m_isRunning){
-        //m_tcpServer.close();
+        m_tcpServer.close();
         m_udpBroadcaster.close();
         m_btnBroadcast->Disable();
         m_btnStart->SetLabel(wxT("start"));

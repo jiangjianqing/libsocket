@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "log4z.h"
 #include <atomic>
+#include <thread>
 #define MAXLISTSIZE 20
 
 
@@ -32,20 +33,7 @@ TcpServer::~TcpServer()
 {
     close();
 
-
-    uv_thread_join(&start_threadhandle_);
     uv_mutex_destroy(&mutex_clients_);
-    uv_loop_close(&loop_);
-
-    for (auto it = avai_tcphandle_.begin(); it != avai_tcphandle_.end(); ++it) {
-        FreeTcpClientCtx(*it);
-    }
-    avai_tcphandle_.clear();
-
-    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
-        FreeWriteParam(*it);
-    }
-    writeparam_list_.clear();
     LOGI("tcp server exit.");
 }
 
@@ -54,7 +42,9 @@ bool TcpServer::init()
     if (!isclosed_) {
         return true;
     }
-    int iret = uv_async_init(&loop_, &async_handle_close_, AsyncCloseCB);
+    isuseraskforclosed_ = false;
+    int iret = uv_loop_init(&loop_);
+    iret = uv_async_init(&loop_, &async_handle_close_, AsyncCloseCB);
     if (iret) {
         errmsg_ = GetUVError(iret);
         LOGE(errmsg_);
@@ -77,6 +67,30 @@ bool TcpServer::init()
     }
     isclosed_ = false;
     return true;
+}
+
+void TcpServer::close()
+{
+    if (isclosed_) {
+        return;
+    }
+    isuseraskforclosed_ = true;
+    uv_async_send(&async_handle_close_);
+
+    //---------等待线程结束--------------
+    uv_thread_join(&start_threadhandle_);
+    uv_loop_close(&loop_);
+
+    for (auto it = avai_tcphandle_.begin(); it != avai_tcphandle_.end(); ++it) {
+        FreeTcpClientCtx(*it);
+    }
+    avai_tcphandle_.clear();
+
+    for (auto it = writeparam_list_.begin(); it != writeparam_list_.end(); ++it) {
+        FreeWriteParam(*it);
+    }
+    writeparam_list_.clear();
+
 }
 
 void TcpServer::closeinl()
@@ -185,7 +199,7 @@ bool TcpServer::start(const char* ip, int port)
 {
     serverip_ = ip;
     serverport_ = port;
-    closeinl();
+    close();
     if (!init()) {
         return false;
     }
@@ -216,7 +230,7 @@ bool TcpServer::start6(const char* ip, int port)
 {
     serverip_ = ip;
     serverport_ = port;
-    closeinl();
+    close();
     if (!init()) {
         return false;
     }
@@ -424,15 +438,6 @@ void TcpServer::AsyncCloseCB(uv_async_t* handle)
         theclass->closeinl();
     }
         return;
-}
-
-void TcpServer::close()
-{
-    if (isclosed_) {
-        return;
-    }
-    isuseraskforclosed_ = true;
-    uv_async_send(&async_handle_close_);
 }
 
 bool TcpServer::broadcast(const std::string& senddata, std::vector<int> excludeid)

@@ -29,6 +29,7 @@ public:
         ID_TEXT_INFO
     };
     explicit MainFrame();
+    ~MainFrame();
 
 protected:
 //--------wxwidget event---
