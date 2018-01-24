@@ -107,7 +107,7 @@ void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len,
     auto it = mainFrame->m_cmdProcessers.find(clientid);
     if(it != mainFrame->m_cmdProcessers.end()){
         ServerCmdProcesser* cmdProcesser = it->second;
-        cmdProcesser->recvTcpData((const char*)buf,len);
+        cmdProcesser->recvData((const char*)buf,len);
     }
     //mainFrame->m_cmdProcessers[clientid]->recvTcpData((const char*)buf,len);
 }

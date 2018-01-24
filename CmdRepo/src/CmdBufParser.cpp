@@ -31,6 +31,16 @@ void CmdBufParser::resetParserBuf(const unsigned char* buf,const unsigned len,in
     }
 }
 
+void CmdBufParser::recvData(const char* buf,int nread)
+{
+    if(isSingleEntireCmd((const unsigned char*)buf,nread)){//直接处理
+        cleanParserBuf();
+        onRecvCmd((const unsigned char*)buf,nread);
+    }else{
+        inputData((const unsigned char*)buf,nread);
+    }
+}
+
 void CmdBufParser::appendToParserBuf(const unsigned char* buf,const unsigned len)
 {
     memcpy(m_parserBuf+m_bufTailPos,buf,len);
@@ -132,9 +142,7 @@ void CmdBufParser::processParserBuf()
         //取到命令，通知回调
         unsigned char* cmdBufTemp = (unsigned char*)malloc(cmdTotalLen);
         memcpy(cmdBufTemp,m_parserBuf,cmdTotalLen);
-        if(m_parserCb){//可以考虑加入多线程，提升处理能力
-            m_parserCb(cmdBufTemp,cmdTotalLen);
-        }
+        onRecvCmd(cmdBufTemp,cmdTotalLen);//可以考虑加入多线程，提升处理能力
         free(cmdBufTemp);
         //----继续处理下一条命令-----
         if(cmdTotalLen == m_bufTailPos){

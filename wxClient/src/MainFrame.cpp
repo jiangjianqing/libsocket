@@ -117,7 +117,7 @@ MainFrame::~MainFrame()
 void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
-    mainFrame->m_cmdProcesser.recvTcpData((const char*)buf,len);
+    mainFrame->m_cmdProcesser.recvData((const char*)buf,len);
 }
 
 void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)

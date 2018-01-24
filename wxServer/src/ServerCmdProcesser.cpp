@@ -4,10 +4,10 @@ ServerCmdProcesser::ServerCmdProcesser(wxEvtHandler* evtHandler,int clientId)
     : m_wxEvtHandler(evtHandler),m_clientId(clientId)
 {
     m_isRecvingFilePartData = false;
+    //m_cmdParser.setCmdBufParserCb(std::bind(&ServerCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
-void ServerCmdProcesser::recvTcpData(const char* buf,int nread)
+void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
 {
-    int i = 0 ;
-    i = i + 1;
+
 }

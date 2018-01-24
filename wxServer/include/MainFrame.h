@@ -67,8 +67,6 @@ private:
 
     map<int,ServerCmdProcesser*> m_cmdProcessers;
 
-    CmdBufParser m_cmdBufParser;
-
     bool m_isRunning;
     void appendInfo(const string& info);
 };

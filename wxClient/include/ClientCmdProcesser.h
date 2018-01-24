@@ -17,7 +17,7 @@ enum class CmdEventType{
 
 typedef function<void (const CmdEventType& event)> CmdEventCb;
 
-class ClientCmdProcesser
+class ClientCmdProcesser : public CmdBufParser
 {
 public:
     explicit ClientCmdProcesser(wxEvtHandler* evtHandler);
@@ -25,7 +25,6 @@ public:
     void callCmdEventCb(const CmdEventType& event);
 
     void recvUdpData(const char* buf,int nread);
-    void recvTcpData(const char* buf,int nread);
 
     string serverIp(){return m_serverIp;}
     int serverPort(){return m_serverPort;}
@@ -33,15 +32,15 @@ public:
     void test();
     void protobuf_test(const char* msg_type_name,const char* buf,size_t len);
 
-
+protected:
+    void onRecvCmd(const unsigned char* buf,const unsigned len) override;
 private:
     wxEvtHandler* m_wxEvtHandler;
     string m_serverIp;
     int m_serverPort;
-    CmdBufParser m_cmdParser;
     LuaEngine m_luaEngine;
 
-    void onRecvTcpCmd(const unsigned char* buf,const unsigned len);
+
 };
 
 #endif // CMDPROCESSER_H

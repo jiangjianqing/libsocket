@@ -7,24 +7,21 @@
 
 using namespace std;
 
-typedef function<void(const unsigned char* buf,const unsigned len)> CmdBufParserCb;
-
 class CmdBufParser
 {
 public:
     CmdBufParser();
     virtual ~CmdBufParser();
 
-    void inputData(const unsigned char* buf , const unsigned len);
     void cleanParserBuf(){resetParserBuf(nullptr,0,-1);}
     static bool isSingleEntireCmd(const unsigned char* buf , const unsigned len);//是否整个buf为一个完整指令
 
-    void setCmdBufParserCb(CmdBufParserCb cb){m_parserCb = cb;}
-
     static unsigned  getChecksum(const unsigned char* payload,const unsigned len);
     static int makeCmd(cmd_types type,unsigned char** dest,unsigned* dlen,const unsigned char* payload,const unsigned slen);
+    void recvData(const char* buf,int nread);
+protected:
+    virtual void onRecvCmd(const unsigned char* buf,const unsigned len) = 0;
 private:
-    CmdBufParserCb m_parserCb;
     unsigned char* m_parserBuf;
     unsigned m_bufTailPos;//parserBuf的最后位置，用于填充数据
     //obsoleted，设计简化,指令头永远在0位置
@@ -36,6 +33,8 @@ private:
     void processParserBuf();//处理parserBuf，获取可用指令
     static int findCmdHeader(const unsigned char* buf,const unsigned len);
     static int checkCmd(const unsigned char* buf,const unsigned len,const int headerPos);
+    //insert data into parseBuf
+    void inputData(const unsigned char* buf , const unsigned len);
 };
 
 #endif // CMDBUFPARSER_H
