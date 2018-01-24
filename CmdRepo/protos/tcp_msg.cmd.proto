@@ -15,7 +15,7 @@ message IdentifyRequest{
     CommonHeader    header  =   1;
 }
 
-message IdentityResponse{
+message IdentifyResponse{
     CommonHeader    header  =   1;
     int32           id      =   2;   
 }

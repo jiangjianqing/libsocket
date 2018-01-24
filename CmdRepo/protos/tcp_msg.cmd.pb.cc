@@ -30,11 +30,11 @@ class IdentifyRequestDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<IdentifyRequest>
       _instance;
 } _IdentifyRequest_default_instance_;
-class IdentityResponseDefaultTypeInternal {
+class IdentifyResponseDefaultTypeInternal {
  public:
-  ::google::protobuf::internal::ExplicitlyConstructed<IdentityResponse>
+  ::google::protobuf::internal::ExplicitlyConstructed<IdentifyResponse>
       _instance;
-} _IdentityResponse_default_instance_;
+} _IdentifyResponse_default_instance_;
 class StartUpdateDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<StartUpdate>
@@ -95,7 +95,7 @@ void InitDefaultsIdentifyRequest() {
   ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsIdentifyRequestImpl);
 }
 
-void InitDefaultsIdentityResponseImpl() {
+void InitDefaultsIdentifyResponseImpl() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
 #ifdef GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
@@ -105,16 +105,16 @@ void InitDefaultsIdentityResponseImpl() {
 #endif  // GOOGLE_PROTOBUF_ENFORCE_UNIQUENESS
   protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsCommonHeader();
   {
-    void* ptr = &::tcp_msg::_IdentityResponse_default_instance_;
-    new (ptr) ::tcp_msg::IdentityResponse();
+    void* ptr = &::tcp_msg::_IdentifyResponse_default_instance_;
+    new (ptr) ::tcp_msg::IdentifyResponse();
     ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
   }
-  ::tcp_msg::IdentityResponse::InitAsDefaultInstance();
+  ::tcp_msg::IdentifyResponse::InitAsDefaultInstance();
 }
 
-void InitDefaultsIdentityResponse() {
+void InitDefaultsIdentifyResponse() {
   static GOOGLE_PROTOBUF_DECLARE_ONCE(once);
-  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsIdentityResponseImpl);
+  ::google::protobuf::GoogleOnceInit(&once, &InitDefaultsIdentifyResponseImpl);
 }
 
 void InitDefaultsStartUpdateImpl() {
@@ -200,12 +200,12 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentifyRequest, header_),
   ~0u,  // no _has_bits_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentityResponse, _internal_metadata_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentifyResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentityResponse, header_),
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentityResponse, id_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentifyResponse, header_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::IdentifyResponse, id_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::StartUpdate, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -231,7 +231,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tcp_msg::CommonHeader)},
   { 6, -1, sizeof(::tcp_msg::IdentifyRequest)},
-  { 12, -1, sizeof(::tcp_msg::IdentityResponse)},
+  { 12, -1, sizeof(::tcp_msg::IdentifyResponse)},
   { 19, -1, sizeof(::tcp_msg::StartUpdate)},
   { 25, -1, sizeof(::tcp_msg::FinishUpdate)},
   { 31, -1, sizeof(::tcp_msg::SendFile)},
@@ -240,7 +240,7 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
 static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_CommonHeader_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_IdentifyRequest_default_instance_),
-  reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_IdentityResponse_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_IdentifyResponse_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_StartUpdate_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_FinishUpdate_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::tcp_msg::_SendFile_default_instance_),
@@ -271,7 +271,7 @@ void AddDescriptorsImpl() {
       "\n\021tcp_msg.cmd.proto\022\007tcp_msg\".\n\014CommonHe"
       "ader\022\036\n\004type\030\001 \001(\0162\020.tcp_msg.CmdType\"8\n\017"
       "IdentifyRequest\022%\n\006header\030\001 \001(\0132\025.tcp_ms"
-      "g.CommonHeader\"E\n\020IdentityResponse\022%\n\006he"
+      "g.CommonHeader\"E\n\020IdentifyResponse\022%\n\006he"
       "ader\030\001 \001(\0132\025.tcp_msg.CommonHeader\022\n\n\002id\030"
       "\002 \001(\005\"4\n\013StartUpdate\022%\n\006header\030\001 \001(\0132\025.t"
       "cp_msg.CommonHeader\"5\n\014FinishUpdate\022%\n\006h"
@@ -828,24 +828,24 @@ void IdentifyRequest::InternalSwap(IdentifyRequest* other) {
 
 // ===================================================================
 
-void IdentityResponse::InitAsDefaultInstance() {
-  ::tcp_msg::_IdentityResponse_default_instance_._instance.get_mutable()->header_ = const_cast< ::tcp_msg::CommonHeader*>(
+void IdentifyResponse::InitAsDefaultInstance() {
+  ::tcp_msg::_IdentifyResponse_default_instance_._instance.get_mutable()->header_ = const_cast< ::tcp_msg::CommonHeader*>(
       ::tcp_msg::CommonHeader::internal_default_instance());
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int IdentityResponse::kHeaderFieldNumber;
-const int IdentityResponse::kIdFieldNumber;
+const int IdentifyResponse::kHeaderFieldNumber;
+const int IdentifyResponse::kIdFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
-IdentityResponse::IdentityResponse()
+IdentifyResponse::IdentifyResponse()
   : ::google::protobuf::Message(), _internal_metadata_(NULL) {
   if (GOOGLE_PREDICT_TRUE(this != internal_default_instance())) {
-    ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentityResponse();
+    ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentifyResponse();
   }
   SharedCtor();
-  // @@protoc_insertion_point(constructor:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(constructor:tcp_msg.IdentifyResponse)
 }
-IdentityResponse::IdentityResponse(const IdentityResponse& from)
+IdentifyResponse::IdentifyResponse(const IdentifyResponse& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL),
       _cached_size_(0) {
@@ -856,50 +856,50 @@ IdentityResponse::IdentityResponse(const IdentityResponse& from)
     header_ = NULL;
   }
   id_ = from.id_;
-  // @@protoc_insertion_point(copy_constructor:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(copy_constructor:tcp_msg.IdentifyResponse)
 }
 
-void IdentityResponse::SharedCtor() {
+void IdentifyResponse::SharedCtor() {
   ::memset(&header_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&id_) -
       reinterpret_cast<char*>(&header_)) + sizeof(id_));
   _cached_size_ = 0;
 }
 
-IdentityResponse::~IdentityResponse() {
-  // @@protoc_insertion_point(destructor:tcp_msg.IdentityResponse)
+IdentifyResponse::~IdentifyResponse() {
+  // @@protoc_insertion_point(destructor:tcp_msg.IdentifyResponse)
   SharedDtor();
 }
 
-void IdentityResponse::SharedDtor() {
+void IdentifyResponse::SharedDtor() {
   if (this != internal_default_instance()) delete header_;
 }
 
-void IdentityResponse::SetCachedSize(int size) const {
+void IdentifyResponse::SetCachedSize(int size) const {
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = size;
   GOOGLE_SAFE_CONCURRENT_WRITES_END();
 }
-const ::google::protobuf::Descriptor* IdentityResponse::descriptor() {
+const ::google::protobuf::Descriptor* IdentifyResponse::descriptor() {
   ::protobuf_tcp_5fmsg_2ecmd_2eproto::protobuf_AssignDescriptorsOnce();
   return ::protobuf_tcp_5fmsg_2ecmd_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
 }
 
-const IdentityResponse& IdentityResponse::default_instance() {
-  ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentityResponse();
+const IdentifyResponse& IdentifyResponse::default_instance() {
+  ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentifyResponse();
   return *internal_default_instance();
 }
 
-IdentityResponse* IdentityResponse::New(::google::protobuf::Arena* arena) const {
-  IdentityResponse* n = new IdentityResponse;
+IdentifyResponse* IdentifyResponse::New(::google::protobuf::Arena* arena) const {
+  IdentifyResponse* n = new IdentifyResponse;
   if (arena != NULL) {
     arena->Own(n);
   }
   return n;
 }
 
-void IdentityResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:tcp_msg.IdentityResponse)
+void IdentifyResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:tcp_msg.IdentifyResponse)
   ::google::protobuf::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -912,11 +912,11 @@ void IdentityResponse::Clear() {
   _internal_metadata_.Clear();
 }
 
-bool IdentityResponse::MergePartialFromCodedStream(
+bool IdentifyResponse::MergePartialFromCodedStream(
     ::google::protobuf::io::CodedInputStream* input) {
 #define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
   ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(parse_start:tcp_msg.IdentifyResponse)
   for (;;) {
     ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
@@ -960,17 +960,17 @@ bool IdentityResponse::MergePartialFromCodedStream(
     }
   }
 success:
-  // @@protoc_insertion_point(parse_success:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(parse_success:tcp_msg.IdentifyResponse)
   return true;
 failure:
-  // @@protoc_insertion_point(parse_failure:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(parse_failure:tcp_msg.IdentifyResponse)
   return false;
 #undef DO_
 }
 
-void IdentityResponse::SerializeWithCachedSizes(
+void IdentifyResponse::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(serialize_start:tcp_msg.IdentifyResponse)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -989,13 +989,13 @@ void IdentityResponse::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
   }
-  // @@protoc_insertion_point(serialize_end:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(serialize_end:tcp_msg.IdentifyResponse)
 }
 
-::google::protobuf::uint8* IdentityResponse::InternalSerializeWithCachedSizesToArray(
+::google::protobuf::uint8* IdentifyResponse::InternalSerializeWithCachedSizesToArray(
     bool deterministic, ::google::protobuf::uint8* target) const {
   (void)deterministic; // Unused
-  // @@protoc_insertion_point(serialize_to_array_start:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(serialize_to_array_start:tcp_msg.IdentifyResponse)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
@@ -1015,12 +1015,12 @@ void IdentityResponse::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(serialize_to_array_end:tcp_msg.IdentifyResponse)
   return target;
 }
 
-size_t IdentityResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:tcp_msg.IdentityResponse)
+size_t IdentifyResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:tcp_msg.IdentifyResponse)
   size_t total_size = 0;
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -1049,23 +1049,23 @@ size_t IdentityResponse::ByteSizeLong() const {
   return total_size;
 }
 
-void IdentityResponse::MergeFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:tcp_msg.IdentityResponse)
+void IdentifyResponse::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:tcp_msg.IdentifyResponse)
   GOOGLE_DCHECK_NE(&from, this);
-  const IdentityResponse* source =
-      ::google::protobuf::internal::DynamicCastToGenerated<const IdentityResponse>(
+  const IdentifyResponse* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const IdentifyResponse>(
           &from);
   if (source == NULL) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:tcp_msg.IdentifyResponse)
     ::google::protobuf::internal::ReflectionOps::Merge(from, this);
   } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:tcp_msg.IdentifyResponse)
     MergeFrom(*source);
   }
 }
 
-void IdentityResponse::MergeFrom(const IdentityResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:tcp_msg.IdentityResponse)
+void IdentifyResponse::MergeFrom(const IdentifyResponse& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:tcp_msg.IdentifyResponse)
   GOOGLE_DCHECK_NE(&from, this);
   _internal_metadata_.MergeFrom(from._internal_metadata_);
   ::google::protobuf::uint32 cached_has_bits = 0;
@@ -1079,29 +1079,29 @@ void IdentityResponse::MergeFrom(const IdentityResponse& from) {
   }
 }
 
-void IdentityResponse::CopyFrom(const ::google::protobuf::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:tcp_msg.IdentityResponse)
+void IdentifyResponse::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:tcp_msg.IdentifyResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-void IdentityResponse::CopyFrom(const IdentityResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:tcp_msg.IdentityResponse)
+void IdentifyResponse::CopyFrom(const IdentifyResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:tcp_msg.IdentifyResponse)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
-bool IdentityResponse::IsInitialized() const {
+bool IdentifyResponse::IsInitialized() const {
   return true;
 }
 
-void IdentityResponse::Swap(IdentityResponse* other) {
+void IdentifyResponse::Swap(IdentifyResponse* other) {
   if (other == this) return;
   InternalSwap(other);
 }
-void IdentityResponse::InternalSwap(IdentityResponse* other) {
+void IdentifyResponse::InternalSwap(IdentifyResponse* other) {
   using std::swap;
   swap(header_, other->header_);
   swap(id_, other->id_);
@@ -1109,7 +1109,7 @@ void IdentityResponse::InternalSwap(IdentityResponse* other) {
   swap(_cached_size_, other->_cached_size_);
 }
 
-::google::protobuf::Metadata IdentityResponse::GetMetadata() const {
+::google::protobuf::Metadata IdentifyResponse::GetMetadata() const {
   protobuf_tcp_5fmsg_2ecmd_2eproto::protobuf_AssignDescriptorsOnce();
   return ::protobuf_tcp_5fmsg_2ecmd_2eproto::file_level_metadata[kIndexInFileMessages];
 }

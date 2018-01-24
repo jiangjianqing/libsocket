@@ -5,6 +5,7 @@
 #include "CmdFactory.h"
 #include "wx/msgdlg.h"
 #include <sstream>
+#include "CmdProcesserThreadEvent.h"
 
 #ifndef BUILD_DATE
 #define BUILD_DATE __DATE__
@@ -137,6 +138,17 @@ void MainFrame::initSocket()
 
 void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 {
+    if(typeid(event) == typeid(CmdProcesserThreadEvent)){
+        CmdProcesserThreadEvent& cmdProcessEvent = (CmdProcesserThreadEvent&)event;
+        ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
+        switch(event.GetId()){
+        case (int)CmdEventType::RecvTcpIdentifyResponse:
+            string temp = "client online , id = " + std::to_string(cmdProcesser->identifyResponseId());
+            appendInfo(temp);
+            break;
+        }
+        return;
+    }
     wxString msg = event.GetString();
     string info = "uninitialized info!";
 

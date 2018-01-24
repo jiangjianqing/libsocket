@@ -47,8 +47,8 @@ void InitDefaultsCommonHeaderImpl();
 void InitDefaultsCommonHeader();
 void InitDefaultsIdentifyRequestImpl();
 void InitDefaultsIdentifyRequest();
-void InitDefaultsIdentityResponseImpl();
-void InitDefaultsIdentityResponse();
+void InitDefaultsIdentifyResponseImpl();
+void InitDefaultsIdentifyResponse();
 void InitDefaultsStartUpdateImpl();
 void InitDefaultsStartUpdate();
 void InitDefaultsFinishUpdateImpl();
@@ -58,7 +58,7 @@ void InitDefaultsSendFile();
 inline void InitDefaults() {
   InitDefaultsCommonHeader();
   InitDefaultsIdentifyRequest();
-  InitDefaultsIdentityResponse();
+  InitDefaultsIdentifyResponse();
   InitDefaultsStartUpdate();
   InitDefaultsFinishUpdate();
   InitDefaultsSendFile();
@@ -74,9 +74,9 @@ extern FinishUpdateDefaultTypeInternal _FinishUpdate_default_instance_;
 class IdentifyRequest;
 class IdentifyRequestDefaultTypeInternal;
 extern IdentifyRequestDefaultTypeInternal _IdentifyRequest_default_instance_;
-class IdentityResponse;
-class IdentityResponseDefaultTypeInternal;
-extern IdentityResponseDefaultTypeInternal _IdentityResponse_default_instance_;
+class IdentifyResponse;
+class IdentifyResponseDefaultTypeInternal;
+extern IdentifyResponseDefaultTypeInternal _IdentifyResponse_default_instance_;
 class SendFile;
 class SendFileDefaultTypeInternal;
 extern SendFileDefaultTypeInternal _SendFile_default_instance_;
@@ -331,24 +331,24 @@ class IdentifyRequest : public ::google::protobuf::Message /* @@protoc_insertion
 };
 // -------------------------------------------------------------------
 
-class IdentityResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tcp_msg.IdentityResponse) */ {
+class IdentifyResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tcp_msg.IdentifyResponse) */ {
  public:
-  IdentityResponse();
-  virtual ~IdentityResponse();
+  IdentifyResponse();
+  virtual ~IdentifyResponse();
 
-  IdentityResponse(const IdentityResponse& from);
+  IdentifyResponse(const IdentifyResponse& from);
 
-  inline IdentityResponse& operator=(const IdentityResponse& from) {
+  inline IdentifyResponse& operator=(const IdentifyResponse& from) {
     CopyFrom(from);
     return *this;
   }
   #if LANG_CXX11
-  IdentityResponse(IdentityResponse&& from) noexcept
-    : IdentityResponse() {
+  IdentifyResponse(IdentifyResponse&& from) noexcept
+    : IdentifyResponse() {
     *this = ::std::move(from);
   }
 
-  inline IdentityResponse& operator=(IdentityResponse&& from) noexcept {
+  inline IdentifyResponse& operator=(IdentifyResponse&& from) noexcept {
     if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -358,30 +358,30 @@ class IdentityResponse : public ::google::protobuf::Message /* @@protoc_insertio
   }
   #endif
   static const ::google::protobuf::Descriptor* descriptor();
-  static const IdentityResponse& default_instance();
+  static const IdentifyResponse& default_instance();
 
   static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
-  static inline const IdentityResponse* internal_default_instance() {
-    return reinterpret_cast<const IdentityResponse*>(
-               &_IdentityResponse_default_instance_);
+  static inline const IdentifyResponse* internal_default_instance() {
+    return reinterpret_cast<const IdentifyResponse*>(
+               &_IdentifyResponse_default_instance_);
   }
   static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
     2;
 
-  void Swap(IdentityResponse* other);
-  friend void swap(IdentityResponse& a, IdentityResponse& b) {
+  void Swap(IdentifyResponse* other);
+  friend void swap(IdentifyResponse& a, IdentifyResponse& b) {
     a.Swap(&b);
   }
 
   // implements Message ----------------------------------------------
 
-  inline IdentityResponse* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline IdentifyResponse* New() const PROTOBUF_FINAL { return New(NULL); }
 
-  IdentityResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  IdentifyResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
   void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const IdentityResponse& from);
-  void MergeFrom(const IdentityResponse& from);
+  void CopyFrom(const IdentifyResponse& from);
+  void MergeFrom(const IdentifyResponse& from);
   void Clear() PROTOBUF_FINAL;
   bool IsInitialized() const PROTOBUF_FINAL;
 
@@ -397,7 +397,7 @@ class IdentityResponse : public ::google::protobuf::Message /* @@protoc_insertio
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(IdentityResponse* other);
+  void InternalSwap(IdentifyResponse* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return NULL;
@@ -428,7 +428,7 @@ class IdentityResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::google::protobuf::int32 id() const;
   void set_id(::google::protobuf::int32 value);
 
-  // @@protoc_insertion_point(class_scope:tcp_msg.IdentityResponse)
+  // @@protoc_insertion_point(class_scope:tcp_msg.IdentifyResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
@@ -436,7 +436,7 @@ class IdentityResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::google::protobuf::int32 id_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2ecmd_2eproto::TableStruct;
-  friend void ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentityResponseImpl();
+  friend void ::protobuf_tcp_5fmsg_2ecmd_2eproto::InitDefaultsIdentifyResponseImpl();
 };
 // -------------------------------------------------------------------
 
@@ -888,40 +888,40 @@ inline void IdentifyRequest::set_allocated_header(::tcp_msg::CommonHeader* heade
 
 // -------------------------------------------------------------------
 
-// IdentityResponse
+// IdentifyResponse
 
 // .tcp_msg.CommonHeader header = 1;
-inline bool IdentityResponse::has_header() const {
+inline bool IdentifyResponse::has_header() const {
   return this != internal_default_instance() && header_ != NULL;
 }
-inline void IdentityResponse::clear_header() {
+inline void IdentifyResponse::clear_header() {
   if (GetArenaNoVirtual() == NULL && header_ != NULL) {
     delete header_;
   }
   header_ = NULL;
 }
-inline const ::tcp_msg::CommonHeader& IdentityResponse::header() const {
+inline const ::tcp_msg::CommonHeader& IdentifyResponse::header() const {
   const ::tcp_msg::CommonHeader* p = header_;
-  // @@protoc_insertion_point(field_get:tcp_msg.IdentityResponse.header)
+  // @@protoc_insertion_point(field_get:tcp_msg.IdentifyResponse.header)
   return p != NULL ? *p : *reinterpret_cast<const ::tcp_msg::CommonHeader*>(
       &::tcp_msg::_CommonHeader_default_instance_);
 }
-inline ::tcp_msg::CommonHeader* IdentityResponse::release_header() {
-  // @@protoc_insertion_point(field_release:tcp_msg.IdentityResponse.header)
+inline ::tcp_msg::CommonHeader* IdentifyResponse::release_header() {
+  // @@protoc_insertion_point(field_release:tcp_msg.IdentifyResponse.header)
   
   ::tcp_msg::CommonHeader* temp = header_;
   header_ = NULL;
   return temp;
 }
-inline ::tcp_msg::CommonHeader* IdentityResponse::mutable_header() {
+inline ::tcp_msg::CommonHeader* IdentifyResponse::mutable_header() {
   
   if (header_ == NULL) {
     header_ = new ::tcp_msg::CommonHeader;
   }
-  // @@protoc_insertion_point(field_mutable:tcp_msg.IdentityResponse.header)
+  // @@protoc_insertion_point(field_mutable:tcp_msg.IdentifyResponse.header)
   return header_;
 }
-inline void IdentityResponse::set_allocated_header(::tcp_msg::CommonHeader* header) {
+inline void IdentifyResponse::set_allocated_header(::tcp_msg::CommonHeader* header) {
   ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == NULL) {
     delete header_;
@@ -937,21 +937,21 @@ inline void IdentityResponse::set_allocated_header(::tcp_msg::CommonHeader* head
     
   }
   header_ = header;
-  // @@protoc_insertion_point(field_set_allocated:tcp_msg.IdentityResponse.header)
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.IdentifyResponse.header)
 }
 
 // int32 id = 2;
-inline void IdentityResponse::clear_id() {
+inline void IdentifyResponse::clear_id() {
   id_ = 0;
 }
-inline ::google::protobuf::int32 IdentityResponse::id() const {
-  // @@protoc_insertion_point(field_get:tcp_msg.IdentityResponse.id)
+inline ::google::protobuf::int32 IdentifyResponse::id() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.IdentifyResponse.id)
   return id_;
 }
-inline void IdentityResponse::set_id(::google::protobuf::int32 value) {
+inline void IdentifyResponse::set_id(::google::protobuf::int32 value) {
   
   id_ = value;
-  // @@protoc_insertion_point(field_set:tcp_msg.IdentityResponse.id)
+  // @@protoc_insertion_point(field_set:tcp_msg.IdentifyResponse.id)
 }
 
 // -------------------------------------------------------------------

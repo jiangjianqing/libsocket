@@ -14,7 +14,13 @@ void packageMsg(const Message& msg,unsigned char*& buf,unsigned& len)
 {
     tcp_msg::ProtoPackage pkg;
     pkg.set_type_name(msg.GetTypeName());
-    pkg.set_data(msg.SerializeAsString());
+    pkg.set_data(msg.SerializeAsString());//比较简洁的写法
+    /*//比较复杂的写法
+    int tempBufSize = msg.ByteSize();
+    unsigned char tempBuf[tempBufSize];
+    msg.SerializeToArray(tempBuf,tempBufSize);
+    pkg.set_data(tempBuf,tempBufSize);*/
+
     int slen = pkg.ByteSize();
     unsigned char* payload = (unsigned char*)malloc(slen);
     pkg.SerializeToArray(payload,slen);
@@ -45,7 +51,7 @@ bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 
 bool CmdFactory::makeIdentifyResponseMsg(unsigned id,unsigned char*& buf,unsigned& len)
 {
-    tcp_msg::IdentityResponse msg;
+    tcp_msg::IdentifyResponse msg;
     msg.set_id(id);
     packageMsg(msg,buf,len);
     return true;
