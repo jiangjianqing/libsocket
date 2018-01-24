@@ -18,6 +18,8 @@
 #include "CmdProcesserThreadEvent.h"
 #include <thread>
 
+static int sIdentifyId = 1;
+
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
@@ -251,11 +253,22 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
         }
             break;
         case (int)CmdEventType::TcpIdentifyResponse:
+        {
             unsigned char* buf = nullptr;
             unsigned len = 0;
-            CmdFactory::makeIdentifyResponseMsg(1,buf,len);
+            CmdFactory::makeIdentifyResponseMsg(sIdentifyId,buf,len);
             m_tcpClient.send((const char*)buf,len);
             free(buf);
+        }
+            break;
+        case (int)CmdEventType::TcpFileListRequest:
+        {
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
+            m_tcpClient.send((const char*)buf,len);
+            free(buf);
+        }
             break;
         }
 

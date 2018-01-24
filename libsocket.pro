@@ -7,6 +7,7 @@ SUBDIRS += \
     lua_extend_dll_test \
     Socket  \
     CmdRepo \
+    CommonUtils \
     wxServer    \
     #wxClient    \
     UvSocket

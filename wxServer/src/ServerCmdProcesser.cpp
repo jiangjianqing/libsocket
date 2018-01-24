@@ -1,6 +1,6 @@
 #include "ServerCmdProcesser.h"
 #include "tcp_msg.package.pb.h"
-#include "tcp_msg.cmd.pb.h"
+#include "tcp_msg.cmd.global.pb.h"
 #include "CmdProcesserThreadEvent.h"
 #include "ProtobufUtils.h"
 
@@ -20,11 +20,11 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
         if(msg != nullptr){
             string a = pkg.type_name();
-            if(strcmp(a.c_str(),"tcp_msg.IdentifyResponse") == 0){
+            if(strcmp(a.c_str(),"tcp_msg.global.IdentifyResponse") == 0){
                 const string& str = pkg.data();
                 if(msg->ParseFromArray(str.data(),str.length()))
                 {
-                    tcp_msg::IdentifyResponse* idMsg= dynamic_cast<tcp_msg::IdentifyResponse*>(msg);
+                    tcp_msg::global::IdentifyResponse* idMsg= dynamic_cast<tcp_msg::global::IdentifyResponse*>(msg);
                     m_identifyResponseId = idMsg->id();
                     callCmdEventCb(CmdEventType::RecvTcpIdentifyResponse);
                 }

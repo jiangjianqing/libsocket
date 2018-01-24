@@ -3,10 +3,11 @@
 #include <stdlib.h>
 #include "CryptoUtils.h"
 #include <sstream>
-#include "protos/tcp_msg.cmd.pb.h"
+#include "protos/tcp_msg.package.pb.h"
 #include "cmd_def.h"
 #include "CmdBufParser.h"
-#include "protos/tcp_msg.package.pb.h"
+#include "protos/tcp_msg.cmd.file.pb.h"
+#include "protos/tcp_msg.cmd.global.pb.h"
 
 using namespace google::protobuf;
 
@@ -27,6 +28,9 @@ void packageMsg(const Message& msg,unsigned char*& buf,unsigned& len)
     CmdBufParser::makeCmd(cmd_types::MESSAGE,&buf,&len,payload,slen);
     free(payload);
 }
+
+//---------------------server request |  client response-------------------
+
 bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 {
     udp_msg::discover msg;
@@ -43,7 +47,7 @@ bool CmdFactory::makeDiscoverMsg(string ip , int port,char*& buf,int& len)
 
 bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 {
-    tcp_msg::IdentifyRequest msg;
+    tcp_msg::global::IdentifyRequest msg;
 
     packageMsg(msg,buf,len);
     return true;
@@ -51,8 +55,48 @@ bool CmdFactory::makeIdentifyRequestMsg(unsigned char*& buf,unsigned& len)
 
 bool CmdFactory::makeIdentifyResponseMsg(unsigned id,unsigned char*& buf,unsigned& len)
 {
-    tcp_msg::IdentifyResponse msg;
+    tcp_msg::global::IdentifyResponse msg;
     msg.set_id(id);
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeStartUpdateRequestMsg(unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::global::StartUpdateRequest msg;
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+//--------------------以下为client request   server response------------------------
+
+bool CmdFactory::makeFileListRequest(unsigned id,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::file::FileListRequest msg;
+    msg.set_id(id);
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeFileListResponse(const vector<string>& filenames,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::file::FileListResponse msg;
+    tcp_msg::file::FileInfo* fileinfo;
+    for(auto it = filenames.begin();it != filenames.end(); it++){
+        fileinfo = msg.add_fileinfo();
+        fileinfo->set_filename(*it);
+    }
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeSendFileResponseMsg(const string& file_name,const char* file_data,const unsigned file_len,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::file::SendFileResponse msg;
+    msg.set_filename(file_name);
+    msg.set_result(tcp_msg::file::SendFileResponse_SendFileResult_WHOLE);
+    msg.set_content(file_data,file_len);
+    msg.set_type(tcp_msg::file::SendFileResponse_FileType_UNKNOW_FILE_TYPE);
     packageMsg(msg,buf,len);
     return true;
 }

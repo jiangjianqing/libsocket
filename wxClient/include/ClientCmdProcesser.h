@@ -10,7 +10,7 @@
 using namespace std;
 
 enum class CmdEventType{
-    UNKNOW,UdpDiscover,TcpIdentifyResponse
+    UNKNOW,UdpDiscover,TcpIdentifyResponse,TcpFileListRequest
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30
@@ -29,7 +29,6 @@ public:
     string serverIp(){return m_serverIp;}
     int serverPort(){return m_serverPort;}
 
-    void test();
     void protobuf_test(const char* msg_type_name,const char* buf,size_t len);
 
 protected:

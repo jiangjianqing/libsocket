@@ -25,6 +25,7 @@ public:
         ID_BTN_START = wxID_HIGHEST + 1,
         ID_BTN_SELECTFILE,
         ID_BTN_BROADCAST,
+        ID_BTN_SENDFILE,
         ID_TEXT_FILENAME,
         ID_TEXT_INFO
     };
@@ -39,6 +40,7 @@ protected:
 //--------------自定义event-----------
     void OnClose(wxCloseEvent & event);
     void onBtnSelectFileClick(wxCommandEvent& event);
+    void onBtnSendFileClick(wxCommandEvent& event);
     void onBtnBroadcastClick(wxCommandEvent& event);
     void onBtnStartClick(wxCommandEvent& event);
 
@@ -52,6 +54,7 @@ private:
     wxButton* m_btnStart;
     wxButton* m_btnSelectFile;
     wxButton* m_btnBroadcast;
+    wxButton* m_btnSendFile;
     wxTextCtrl* m_txtInfo;
     wxTextCtrl* m_txtFilename;
 

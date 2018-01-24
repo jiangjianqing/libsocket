@@ -5,6 +5,7 @@
 #include "CmdFactory.h"
 #include "wx/msgdlg.h"
 #include <sstream>
+#include <fstream>
 #include "CmdProcesserThreadEvent.h"
 
 #ifndef BUILD_DATE
@@ -69,16 +70,19 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
     m_btnSelectFile = new wxButton(m_bottomPanel,ID_BTN_SELECTFILE,"...",wxDefaultPosition,wxSize(30,28));
     m_btnBroadcast = new wxButton(m_bottomPanel,ID_BTN_BROADCAST,wxT("broadcast"));
     m_btnStart = new wxButton(m_bottomPanel,ID_BTN_START,wxT("start"));
+    m_btnSendFile = new wxButton(m_bottomPanel,ID_BTN_SENDFILE,wxT("sendfile"));
 
     m_bottomSizer->Add(m_txtFilename, 1, wxEXPAND);
     m_bottomSizer->Add(m_btnSelectFile,0,wxLEFT);
-    m_bottomSizer->Add(m_btnBroadcast, 0, wxLEFT);
-    m_bottomSizer->Add(m_btnStart, 0,wxLEFT, 5);
+    m_bottomSizer->Add(m_btnSendFile,0,wxLEFT);
+    m_bottomSizer->Add(m_btnBroadcast, 0, wxRIGHT);
+    m_bottomSizer->Add(m_btnStart, 0,wxRIGHT, 5);
 
 
     Bind(wxEVT_BUTTON,&MainFrame::onBtnSelectFileClick,this,ID_BTN_SELECTFILE);
     Bind(wxEVT_BUTTON,&MainFrame::onBtnStartClick,this,ID_BTN_START);
     Bind(wxEVT_BUTTON,&MainFrame::onBtnBroadcastClick,this,ID_BTN_BROADCAST);
+    Bind(wxEVT_BUTTON,&MainFrame::onBtnSendFileClick,this,ID_BTN_SENDFILE);
 
     initSocket();
 
@@ -143,8 +147,15 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
         switch(event.GetId()){
         case (int)CmdEventType::RecvTcpIdentifyResponse:
-            string temp = "client online , id = " + std::to_string(cmdProcesser->identifyResponseId());
+            int clientId = cmdProcesser->identifyResponseId();
+            string temp = "client online , id = " + std::to_string(clientId);
             appendInfo(temp);
+            //发送更新请求
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeStartUpdateRequestMsg(buf,len);
+            m_tcpServer.send((const char*)buf,len,clientId);
+            free(buf);
             break;
         }
         return;
@@ -179,6 +190,43 @@ void MainFrame::onBtnSelectFileClick(wxCommandEvent& event)
         return;
     m_txtFilename->SetValue(dlg.GetPath());
     //m_txtInfo->LoadFile(dlg.GetPath());
+}
+
+void MainFrame::onBtnSendFileClick(wxCommandEvent& event)
+{
+    string filename = m_txtFilename->GetLineText(0).ToStdString();
+
+    //ifstream fin(filename);
+
+    char* buffer = nullptr;
+
+    ifstream fin (filename, ios::in|ios::binary|ios::ate);
+    if (!fin.is_open())  {
+        cout << "Error opening file";
+        return;
+    }
+    int len = fin.tellg();
+    if(len < 6e4){//暂时处理60k以下的文件
+        fin.seekg (0, ios::beg);
+        char* buffer = new char [len]{0};
+        fin.read(buffer,len);
+        int readCount = fin.gcount();
+    }
+    fin.close();
+
+    if(buffer != nullptr){
+
+    }
+
+
+    free(buffer);
+
+    /*while (!fin.eof() )  {
+        //fin.read()
+               //in.getline (buffer,100);
+               //cout << buffer << endl;
+    }*/
+
 }
 
 void MainFrame::onBtnBroadcastClick(wxCommandEvent& event)

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package tcp_msg; 
+
+enum CmdType{
+    START_UPDATE    = 0;
+    FINISH_UPDATE   = 1;
+}
+
+message CommonHeader
+{
+    CmdType type    =   1;
+}

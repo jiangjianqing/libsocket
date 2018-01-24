@@ -1,0 +1,50 @@
+syntax = "proto3";
+package tcp_msg.file;
+ 
+import "tcp_msg.cmd.common.proto";
+
+message FileListRequest
+{
+    CommonHeader    header      =   1;
+    int32           id          =   2;   //等于IdentifyResponse 中的id
+}
+
+message FileInfo
+{
+    string          filename    =   1;
+}
+
+message FileListResponse
+{
+    CommonHeader    header      =   1;
+    repeated FileInfo    fileinfo =   2;
+}
+
+message SendFileRequest
+{
+    CommonHeader    header      =   1;
+    string          filename    =   2;
+}
+
+message SendFileResponse
+{
+
+    enum FileType{
+            UNKNOW_FILE_TYPE  =   0;
+            SYSTEM  =   1; //系统内部文件，比如lua文件，lua_ex_dlls文件
+            TEMP    =   2;   //临时文件，比如更新其他目录下的文件
+        }
+    enum SendFileResult{
+            UNKNOW_SEND_FILE_RESULT      =   0;//未知状态
+            NOTFOUND    =   1;//文件未找到
+            WHOLE       =   2;//content为整个文件
+            PART        =   3;//content为部分文件
+    }
+    CommonHeader    header      =   1;
+    SendFileResult  result      =   2;
+    FileType        type        =   3;  // ID 
+    string          filename    =   4;  // server's ip ( tcp )
+    bytes           content     =   5;  //server's port ( tcp )
+}
+
+

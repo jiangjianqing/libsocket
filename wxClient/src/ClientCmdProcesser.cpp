@@ -35,8 +35,10 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
         if(msg != nullptr){
             string a = pkg.type_name();
-            if(strcmp(a.c_str(),"tcp_msg.IdentifyRequest") == 0){
+            if(strcmp(a.c_str(),"tcp_msg.global.IdentifyRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpIdentifyResponse);
+            }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
+                callCmdEventCb(CmdEventType::TcpFileListRequest);
             }
 
             delete msg;
@@ -69,26 +71,6 @@ void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf
     cout << endl;
 
     delete msg;
-}
-
-void ClientCmdProcesser::test()
-{
-
-    cmd_message_t* buf = nullptr;
-    unsigned int len;
-    CmdBufParser::makeCmd(cmd_types::MESSAGE,(unsigned char**)&buf,&len,(const unsigned char*)"1234567",8);
-
-    char line[100] = {0};
-    memcpy(line,buf->payload,buf->header.length);
-    short bt = 0;
-    for(int i = 0; i < buf->header.length;i++){
-        bt = buf->payload[i];
-    }
-
-    //check_buf_is_cmd((const unsigned char*)buf,len);
-
-    free(buf);
-
 }
 
 void ClientCmdProcesser::callCmdEventCb(const CmdEventType& eventType)
