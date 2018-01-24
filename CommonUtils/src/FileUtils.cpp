@@ -172,3 +172,46 @@ bool FileUtils::isSubDirectory(const std::string& parentFullpath, const std::str
 
     return ret;
 }
+
+string  replace_all_str(const string&   source,const   string&   old_value,const   string&   new_value){
+    string newStr = source;
+    while(true)   {
+        string::size_type   pos(0);
+        if(   (pos=newStr.find(old_value))!=string::npos   )
+            newStr.replace(pos,old_value.length(),new_value);
+        else
+            break;
+    }
+    return   std::move(newStr);
+}
+
+vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,function<bool (const string& filename)> filterCb)
+{
+    vector<string> list;
+
+#if defined(__linux__)
+    for(auto& fe: directory_iterator(dirname.c_str())){
+#elif defined(_WIN32)
+    //复制文件
+    for(auto& fe: fs::directory_iterator(dirname.c_str())){
+#endif
+        path fp = fe.path();
+        std::string filename = fp.filename().string() ;
+        std::string fullpathname = fp.string();
+
+        if(is_directory(fullpathname)){
+            vector<string> subList = ls_R(fullpathname,saveRelativePath,filterCb);
+            //todo: 附加
+        }else{
+            if(!filterCb || filterCb(fullpathname)){
+                if(saveRelativePath){
+                    list.push_back(replace_all_str(fullpathname,dirname,""));
+                }else{
+                    list.push_back(fullpathname);
+                }
+            }
+        }
+    }
+
+    return std::move(list);
+}

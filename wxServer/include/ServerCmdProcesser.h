@@ -5,7 +5,7 @@
 #include "CmdBufParser.h"
 
 enum class CmdEventType{
-    UNKNOW,RecvTcpIdentifyResponse,
+    UNKNOW,TcpIdentifyResponse,TcpFileListResponse
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30

@@ -1,6 +1,7 @@
 #include "ServerCmdProcesser.h"
 #include "tcp_msg.package.pb.h"
 #include "tcp_msg.cmd.global.pb.h"
+#include "tcp_msg.cmd.file.pb.h"
 #include "CmdProcesserThreadEvent.h"
 #include "ProtobufUtils.h"
 
@@ -26,11 +27,10 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 {
                     tcp_msg::global::IdentifyResponse* idMsg= dynamic_cast<tcp_msg::global::IdentifyResponse*>(msg);
                     m_identifyResponseId = idMsg->id();
-                    callCmdEventCb(CmdEventType::RecvTcpIdentifyResponse);
+                    callCmdEventCb(CmdEventType::TcpIdentifyResponse);
                 }
-            }else if(strcmp(a.c_str(),"tcp_msg.file.FileListRequest") == 0){
-                int i = 0;
-                i = i + 1;
+            }else if(dynamic_cast<tcp_msg::file::FileListRequest*>(msg) != nullptr){
+                callCmdEventCb(CmdEventType::TcpFileListResponse);
             }
 
             delete msg;

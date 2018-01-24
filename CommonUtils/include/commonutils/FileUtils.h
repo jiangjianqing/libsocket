@@ -71,6 +71,9 @@ public:
     static int saveStringToFile(const string & filePath, const string & str);
 
     static void foreachLine(const string& textFilePath, function<void (const string& line)> callback);
+
+    //获得指定目录下的所有文件列表(不包括目录)，支持filter
+    static vector<string> ls_R(const string &source,bool useRelativePath,function<bool (const string& filename)> filterCb);
 };
 
 #endif // FILEUTILS_H

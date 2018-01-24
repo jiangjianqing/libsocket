@@ -5,8 +5,8 @@
 #include "CmdFactory.h"
 #include "wx/msgdlg.h"
 #include <sstream>
-#include <fstream>
 #include "CmdProcesserThreadEvent.h"
+#include "commonutils/FileUtils.h"
 #include <thread>
 
 #ifndef BUILD_DATE
@@ -146,21 +146,31 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
     if(typeid(event) == typeid(CmdProcesserThreadEvent)){
         CmdProcesserThreadEvent& cmdProcessEvent = (CmdProcesserThreadEvent&)event;
         ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
+        int clientId = cmdProcesser->clientId();
         switch(event.GetId()){
-        case (int)CmdEventType::RecvTcpIdentifyResponse:
-            int clientId = cmdProcesser->clientId();
-            string temp = "client online , id = " + std::to_string(clientId);
+        case (int)CmdEventType::TcpIdentifyResponse:
+        {
+            string temp = "client online , clientIdd = " + std::to_string(clientId) + " , identifyId = " + std::to_string(cmdProcesser->identifyResponseId());
             appendInfo(temp);
             //发送更新请求
-            thread t1{[this,clientId](){
-                    unsigned char* buf = nullptr;
-                    unsigned len = 0;
-                    CmdFactory::makeStartUpdateRequestMsg(buf,len);
-                    m_tcpServer.send((const char*)buf,len,clientId);
-                    free(buf);
-            }};
-            t1.detach();
-
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeStartUpdateRequestMsg(buf,len);
+            m_tcpServer.send((const char*)buf,len,clientId);
+            free(buf);
+        }
+            break;
+        case (int)CmdEventType::TcpFileListResponse:
+        {
+            vector<string> list = FileUtils::ls_R("/home/cz_jjq/git/cpp/libsocket/qtServer",true,[](const string& filename){
+                return true;
+            });
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeFileListResponse(list,buf,len);
+            m_tcpServer.send((const char*)buf,len,clientId);
+            free(buf);
+        }
             break;
         }
         return;
@@ -204,7 +214,7 @@ void MainFrame::onBtnSendFileClick(wxCommandEvent& event)
     //ifstream fin(filename);
 
     char* buffer = nullptr;
-
+/*
     ifstream fin (filename, ios::in|ios::binary|ios::ate);
     if (!fin.is_open())  {
         cout << "Error opening file";
@@ -218,7 +228,7 @@ void MainFrame::onBtnSendFileClick(wxCommandEvent& event)
         int readCount = fin.gcount();
     }
     fin.close();
-
+*/
     if(buffer != nullptr){
 
     }

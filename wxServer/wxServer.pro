@@ -122,6 +122,9 @@ win32: {
 }
 
 linux: {
+    INCLUDEPATH += $$PWD/../_lib/boost_1_66_0/include
+    LIBS += -L$$PWD/../_lib/boost_1_66_0/lib -lboost_system -lboost_filesystem
+
     LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 
