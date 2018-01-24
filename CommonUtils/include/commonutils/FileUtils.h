@@ -63,8 +63,12 @@ public:
 
     //创建目录
     static bool mkdir(const string& dirname);
-
+    //是否为目录
     static bool isDirectory(const string& dirname);
+    //是否为普通文件
+    static bool isRegularFile(const string& filename);
+    //获得文件大小
+    static int getFileSize(const string& filename);
 
     static bool isSubDirectory(const string& parentFullpath, const string& childFullpath);
 
@@ -74,6 +78,9 @@ public:
 
     //获得指定目录下的所有文件列表(不包括目录)，支持filter
     static vector<string> ls_R(const string &source,bool useRelativePath,function<bool (const string& filename)> filterCb);
+
+    //从指定位置读取文件数据，最大读取buf_len，返回值为成功读取的字节数
+    static int ReadFileData(const string &filename,int startPos,char * buf,unsigned buf_len);
 };
 
 #endif // FILEUTILS_H

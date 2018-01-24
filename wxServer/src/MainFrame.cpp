@@ -20,6 +20,7 @@
 const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
 const unsigned short kTcpServerPort = 11212;
+static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 {
@@ -162,7 +163,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpFileListResponse:{
             thread t1{[this,clientId](){
-                    vector<string> list = FileUtils::ls_R("/home/cz_jjq/git/cpp/libsocket/qtServer",true,[](const string& filename){
+                    vector<string> list = FileUtils::ls_R(kFileRepoPath,true,[](const string& filename){
                         return true;
                     });
                     unsigned char* buf = nullptr;
@@ -178,10 +179,25 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpSendFileResponse:{
             thread t1{[this,cmdProcesser,clientId](){
-                string filename = cmdProcesser->currRequestFilename();
+                string relativeFilename = cmdProcesser->currRequestFilename();
+                string fullFilename = kFileRepoPath + relativeFilename;
+                unsigned char* file_data = nullptr;
+                unsigned file_data_size = FileUtils::getFileSize(fullFilename);
+                if(file_data_size< 6e4){
+                    file_data = (unsigned char*)malloc(file_data_size);
+                    FileUtils::ReadFileData(fullFilename,0,(char*)file_data,file_data_size);
+                }else{
+                    file_data_size = 20;
+                    file_data = (unsigned char*)malloc(file_data_size);
+                    char* hint = "FILE TOO LARGE!!!";
+                    memcpy(file_data,hint,strlen(hint)+1);
+                }
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                ///todu:文件名收到，准备发送
+                CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,file_data_size,buf,len);
+                m_tcpServer.send((const char*)buf,len,clientId);
+                free(buf);
+                free(file_data);
             }};
             t1.detach();
             }
@@ -225,36 +241,7 @@ void MainFrame::onBtnSendFileClick(wxCommandEvent& event)
 {
     string filename = m_txtFilename->GetLineText(0).ToStdString();
 
-    //ifstream fin(filename);
 
-    char* buffer = nullptr;
-/*
-    ifstream fin (filename, ios::in|ios::binary|ios::ate);
-    if (!fin.is_open())  {
-        cout << "Error opening file";
-        return;
-    }
-    int len = fin.tellg();
-    if(len < 6e4){//暂时处理60k以下的文件
-        fin.seekg (0, ios::beg);
-        char* buffer = new char [len]{0};
-        fin.read(buffer,len);
-        int readCount = fin.gcount();
-    }
-    fin.close();
-*/
-    if(buffer != nullptr){
-
-    }
-
-
-    free(buffer);
-
-    /*while (!fin.eof() )  {
-        //fin.read()
-               //in.getline (buffer,100);
-               //cout << buffer << endl;
-    }*/
 
 }
 

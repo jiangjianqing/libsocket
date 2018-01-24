@@ -84,6 +84,31 @@ bool FileUtils::mkdir(const std::string& dirname)
     return create_directory(dirname);
 }
 
+
+int FileUtils::getFileSize(const string& filename)
+{
+#if defined(__linux__)
+// Linux系统
+    return file_size(filename);
+#elif defined(_WIN32)
+
+// Windows系统
+    return fs::file_size(filename);
+#endif
+}
+
+bool FileUtils::isRegularFile(const string& filename)
+{
+#if defined(__linux__)
+// Linux系统
+    return is_regular_file(filename);
+#elif defined(_WIN32)
+
+// Windows系统
+    return fs::is_regular_file(filename);
+#endif
+}
+
 bool FileUtils::isDirectory(const std::string& dirname)
 {
 #if defined(__linux__)
@@ -214,4 +239,24 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
     }
 
     return std::move(list);
+}
+
+int FileUtils::ReadFileData(const string &filename,int startPos,char * buf,unsigned buf_len)
+{
+    std::ifstream fin (filename, ios::in|ios::binary|ios::ate);
+    if (!fin.is_open())  {
+        cout << "Error opening file";
+        return -1;
+    }
+    int size = fin.tellg();
+    if(size > 6e4){//暂时处理60k以下的文件
+        fin.close();
+        return -1;
+    }
+    fin.seekg (0, ios::beg);//文件指针回到开头
+    fin.read(buf,buf_len);
+    int readCount = fin.gcount();
+    fin.close();
+
+    return readCount;
 }
