@@ -25,6 +25,7 @@ public:
     static bool makeFileListRequest(unsigned id,unsigned char*& buf,unsigned& len);
     static bool makeFileListResponse(const vector<string>& filenames,unsigned char*& buf,unsigned& len);
 
+    static bool makeSendFileRequest(const string& filename,unsigned char*& buf,unsigned& len);
     static bool makeSendFileResponseMsg(const string& file_name,const char* file_data,const unsigned file_len,unsigned char*& buf,unsigned& len);
 
     static string buf2Str(const char* buf,int len);

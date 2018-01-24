@@ -2,7 +2,7 @@
 #define MainFrame_H
 
 #include "wx/frame.h"
-#include "wx/textctrl.h" //ÎÄ±¾¿ò
+#include "wx/textctrl.h" //æ–‡æœ¬æ¡†
 #include "wx/button.h"
 #include "wx/sizer.h"
 #include "wx/panel.h"
@@ -15,7 +15,7 @@
 
 class MyTray;
 
-//ÕâÖÖ·½Ê½¶¨ÒåID¸üºÃ
+//è¿™ç§æ–¹å¼å®šä¹‰IDæ›´å¥½
 #define OKBTNID   wxID_HIGHEST+21
 
 static void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
@@ -36,8 +36,8 @@ private:
         ID_Hello = wxID_HIGHEST + 1,
         ID_GetName,
         ID_STOP/*,
-        ID_THREADEVENT_TCPCLIENT,//ÎªÊ²Ã´ÎŞĞ§£¿£¿
-        ID_THREADEVENT_CMDPROCESSER//ÎªÊ²Ã´ÎŞĞ§*/
+        ID_THREADEVENT_TCPCLIENT,//ä¸ºä»€ä¹ˆæ— æ•ˆï¼Ÿï¼Ÿ
+        ID_THREADEVENT_CMDPROCESSER//ä¸ºä»€ä¹ˆæ— æ•ˆ*/
     };
     void OnClose(wxCloseEvent & event);
     void OnHello(wxCommandEvent& event);
@@ -46,7 +46,7 @@ private:
     void OnButtonClick(wxCommandEvent& event);
     void OnStopButtonClick(wxCommandEvent& event);
 
-    //Ïß³ÌÊÂ¼ş´¦Àíº¯Êı
+    //çº¿ç¨‹äº‹ä»¶å¤„ç†å‡½æ•°
     void onThreadEvent(wxThreadEvent& event);
 
     void onClientAccepted(const string& ip,int port);

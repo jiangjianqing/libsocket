@@ -160,17 +160,21 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             free(buf);
         }
             break;
-        case (int)CmdEventType::TcpFileListResponse:
-        {
-            vector<string> list = FileUtils::ls_R("/home/cz_jjq/git/cpp/libsocket/qtServer",true,[](const string& filename){
-                return true;
-            });
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeFileListResponse(list,buf,len);
-            m_tcpServer.send((const char*)buf,len,clientId);
-            free(buf);
-        }
+        case (int)CmdEventType::TcpFileListResponse:{
+            thread t1{[this,clientId](){
+                    vector<string> list = FileUtils::ls_R("/home/cz_jjq/git/cpp/libsocket/qtServer",true,[](const string& filename){
+                        return true;
+                    });
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeFileListResponse(list,buf,len);
+                    unsigned char buf111[len];
+                    memcpy(buf111,buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                    free(buf);
+            }};
+            t1.detach();
+            }
             break;
         }
         return;

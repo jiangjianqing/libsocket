@@ -5,9 +5,10 @@
 #include "ProtobufUtils.h"
 #include "CmdProcesserThreadEvent.h"
 #include "tcp_msg.package.pb.h"
+#include "tcp_msg.cmd.file.pb.h"
 #include "ProtobufUtils.h"
 
-ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler)
+ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler),m_CurrFileNameListIndex(-1)
 {
     m_luaEngine.testLua();
     //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
@@ -33,22 +34,63 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
     tcp_msg::ProtoPackage pkg;
     if(pkg.ParseFromArray(cmd->payload,cmd->header.length)){//解析成功
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
-        if(msg != nullptr){
+        if(msg == nullptr){
+            //未识别的指令类型
+            assert("未识别的指令类型");
+            return;
+        }
+        const string& str = pkg.data();
+        if(msg->ParseFromArray(str.data(),str.length())){
             string a = pkg.type_name();
             if(strcmp(a.c_str(),"tcp_msg.global.IdentifyRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpIdentifyResponse);
             }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpFileListRequest);
+            }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
+                tcp_msg::file::FileListResponse* filelistMsg= dynamic_cast<tcp_msg::file::FileListResponse*>(msg);
+
+                m_filenameList.clear();;
+                for(int i = 0;i < filelistMsg->fileinfo_size();i++){
+                    const tcp_msg::file::FileInfo& fileInfo = filelistMsg->fileinfo(i);
+                    m_filenameList.push_back(fileInfo.filename());
+                }
+                m_CurrFileNameListIndex = -1;
+                callCmdEventCb(CmdEventType::TcpSendFileRequest);
             }
 
-            delete msg;
-        }
 
+        }else{
+            //解析失败
+            //assert("解析失败");
+        }
+        delete msg;
     }else{//解析失败
 
     }
 
     //CmdFactory::makeIdentifyResponseMsg(1,buf,len);
+}
+
+string ClientCmdProcesser::getCurrFilename()
+{
+    if(m_CurrFileNameListIndex < 0){
+        return "";
+    }
+    if(m_CurrFileNameListIndex >= m_filenameList.size()){
+        return "";
+    }
+
+    return m_filenameList.at(m_CurrFileNameListIndex);
+}
+
+bool ClientCmdProcesser::toNextFilename()
+{
+    //注意跨线程访问的问题
+    int len = m_filenameList.size();
+    if(m_CurrFileNameListIndex < len){
+        m_CurrFileNameListIndex++;
+    }
+    return m_CurrFileNameListIndex < len;
 }
 
 void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)

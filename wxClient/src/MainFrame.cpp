@@ -238,44 +238,58 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
     if(dynamic_cast<TcpClientThreadEvent*>(&event) != nullptr){
         wxString msg = event.GetString();
         int i = event.GetId();
-
-
         return;
     }
 
     if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
         switch(event.GetId()){
-        case (int)CmdEventType::UdpDiscover:
-        {
+        case (int)CmdEventType::UdpDiscover:{
             thread t1{[this](){
                  m_tcpClient.connect(m_cmdProcesser.serverIp().c_str(),m_cmdProcesser.serverPort());
             }};
             t1.detach();
-        }
+            }
             break;
-        case (int)CmdEventType::TcpIdentifyResponse:
-        {
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeIdentifyResponseMsg(sIdentifyId,buf,len);
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
-        }
-            break;
-        case (int)CmdEventType::TcpFileListRequest:
-        {
+        case (int)CmdEventType::TcpIdentifyResponse:{
             thread t1{[this](){
-                    unsigned char* buf = nullptr;
-                    unsigned len = 0;
-                    CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
-                    m_tcpClient.send((const char*)buf,len);
-                    free(buf);
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
+                CmdFactory::makeIdentifyResponseMsg(sIdentifyId,buf,len);
+                m_tcpClient.send((const char*)buf,len);
+                free(buf);
             }};
             t1.detach();
+            }
+            break;
+        case (int)CmdEventType::TcpFileListRequest:{
+            thread t1{[this](){
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
+                CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
+                m_tcpClient.send((const char*)buf,len);
+                free(buf);
+            }};
+            t1.detach();
+            }
+            break;
+        case (int)CmdEventType::TcpSendFileRequest:{
+            if(m_cmdProcesser.toNextFilename()){
+                string filename = m_cmdProcesser.getCurrFilename();
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
+                CmdFactory::makeSendFileRequest(filename,buf,len);
+                m_tcpClient.send((const char*)buf,len);
+                free(buf);
+            }else{
+                ///todo:如果没有文件需要发送
+                fprintf(stdout,"如果没有文件需要发送");
+            }
 
-        }
+
+            }
             break;
         }
+
 
         return;
     }

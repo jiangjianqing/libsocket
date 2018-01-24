@@ -84,8 +84,17 @@ bool CmdFactory::makeFileListResponse(const vector<string>& filenames,unsigned c
     tcp_msg::file::FileInfo* fileinfo;
     for(auto it = filenames.begin();it != filenames.end(); it++){
         fileinfo = msg.add_fileinfo();
-        fileinfo->set_filename(*it);
+        string filename =*it;
+        fileinfo->set_filename(filename);
     }
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeSendFileRequest(const string& filename,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::file::SendFileRequest msg;
+    msg.set_filename(filename);
     packageMsg(msg,buf,len);
     return true;
 }
