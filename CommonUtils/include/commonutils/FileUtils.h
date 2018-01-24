@@ -74,6 +74,8 @@ public:
 
     static int saveStringToFile(const string & filePath, const string & str);
 
+    static int saveDataAsFile(const string& filePath,const char* data, const unsigned len);
+
     static void foreachLine(const string& textFilePath, function<void (const string& line)> callback);
 
     //获得指定目录下的所有文件列表(不包括目录)，支持filter
