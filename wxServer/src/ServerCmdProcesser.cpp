@@ -28,6 +28,9 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                     m_identifyResponseId = idMsg->id();
                     callCmdEventCb(CmdEventType::RecvTcpIdentifyResponse);
                 }
+            }else if(strcmp(a.c_str(),"tcp_msg.file.FileListRequest") == 0){
+                int i = 0;
+                i = i + 1;
             }
 
             delete msg;

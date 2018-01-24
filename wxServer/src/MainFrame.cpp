@@ -7,6 +7,7 @@
 #include <sstream>
 #include <fstream>
 #include "CmdProcesserThreadEvent.h"
+#include <thread>
 
 #ifndef BUILD_DATE
 #define BUILD_DATE __DATE__
@@ -147,15 +148,19 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
         switch(event.GetId()){
         case (int)CmdEventType::RecvTcpIdentifyResponse:
-            int clientId = cmdProcesser->identifyResponseId();
+            int clientId = cmdProcesser->clientId();
             string temp = "client online , id = " + std::to_string(clientId);
             appendInfo(temp);
             //发送更新请求
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeStartUpdateRequestMsg(buf,len);
-            m_tcpServer.send((const char*)buf,len,clientId);
-            free(buf);
+            thread t1{[this,clientId](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeStartUpdateRequestMsg(buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                    free(buf);
+            }};
+            t1.detach();
+
             break;
         }
         return;

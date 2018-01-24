@@ -188,6 +188,7 @@ void MainFrame::OnButtonClick(wxCommandEvent& event)
     wxString str =  m_txtInfo->GetLineText(0);
     wxLogMessage("The name is : " + str);
     m_txtInfo->SetValue("11223344");//改变文本框的内容
+    m_tcpClient.send("1234567890",10);
 
     //tcpClient.connect("127.0.0.1",11212);
     //server.start("0.0.0.0",11211);
@@ -263,11 +264,15 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpFileListRequest:
         {
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
+            thread t1{[this](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+            }};
+            t1.detach();
+
         }
             break;
         }
