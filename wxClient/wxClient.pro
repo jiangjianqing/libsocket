@@ -122,6 +122,9 @@ win32: {
 }
 
 linux: {
+    INCLUDEPATH += $$PWD/../_lib/boost_1_66_0/include
+    LIBS += -L$$PWD/../_lib/boost_1_66_0/lib -lboost_system -lboost_filesystem
+
     LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 
 
@@ -200,6 +203,9 @@ LIBS += -L$$PWD/../_lib/lua/lib/$$PLATFORM -llua
 linux: {
     LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 }
+
+LIBS += -L$$PWD/../_bin/CommonUtils/$$CONFIGURATION/$$PLATFORM -lCommonUtils
+INCLUDEPATH += $$PWD/../CommonUtils/include
 
 INCLUDEPATH += $$PWD/include/
 

@@ -8,6 +8,7 @@
 #include "wx/panel.h"
 #include "wx/stattext.h"
 
+#define BUFFER_SIZE (1024*512) //重要：在#include "tcpclient.h"之前设置缓冲区参数
 #include "tcpclient.h"
 #include "UdpBroadcaster.h"
 #include "ClientCmdProcesser.h"

@@ -32,7 +32,7 @@ packet.Start(0x01,0x02);
 typedef void (*GetFullPacket)(const unsigned char* packetdata,const unsigned packetlen, void* userdata);
 
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE (1024*10)
+#define BUFFER_SIZE (1024*66)//重点：tcpclient将会使用的缓冲区大小参数，设置过小会导致数据读写频繁,65k为推荐值
 #endif
 class PacketSync;
 

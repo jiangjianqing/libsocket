@@ -19,7 +19,7 @@ CmdBufParser::~CmdBufParser()
 
 void CmdBufParser::resetParserBuf(const unsigned char* buf,const unsigned len,int newHeaderPosInBuf)
 {
-    memset(m_parserBuf,0,MAX_CMD_PARSER_BUF_LENGTH);
+    //memset(m_parserBuf,0,MAX_CMD_PARSER_BUF_LENGTH);//为提升性能屏蔽，测试环境下建议开启
     if(buf == nullptr){
         m_bufTailPos = 0;
         m_bufHeaderPos = -1;
@@ -98,13 +98,21 @@ void CmdBufParser::inputData(const unsigned char* buf , const unsigned len)
     if(newHeaderPosInTempBuf == 0 || m_bufHeaderPos == -1){//如果开头就是header或parserBuf中不存在指令头,则清除所有parserBuf
         resetParserBuf(buf,len,newHeaderPosInTempBuf);
     }else{
-        int remainedDataLen = len - newHeaderPosInTempBuf;//上次遗留数据长度
+        int remainedDataLen = 0;
+        if(newHeaderPosInTempBuf == -1){//没有找到头，则认为全部都是接上次的后续数据
+            remainedDataLen = len;
+        }else{
+            remainedDataLen = len - newHeaderPosInTempBuf;//上次遗留数据长度
+        }
         if(m_bufTailPos + remainedDataLen >= MAX_CMD_PARSER_BUF_LENGTH){ //数据总长超过了缓冲区长度,把最后命令
             resetParserBuf(buf,len,newHeaderPosInTempBuf);
         }else{
             appendToParserBuf(buf,remainedDataLen);//处理上次遗留数据
-            processParserBuf();
-            resetParserBuf(buf,len,newHeaderPosInTempBuf);//处理后续指令
+            if(remainedDataLen < len){
+                //这里测试不充分，需要注意
+                processParserBuf();
+                resetParserBuf(buf,len,newHeaderPosInTempBuf);//处理后续指令，resetParserBuf会对数据进行有效复制
+            }
         }
     }
 

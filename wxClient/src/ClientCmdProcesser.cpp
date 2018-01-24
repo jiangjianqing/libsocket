@@ -7,6 +7,7 @@
 #include "tcp_msg.package.pb.h"
 #include "tcp_msg.cmd.file.pb.h"
 #include "ProtobufUtils.h"
+#include "commonutils/FileUtils.h"
 
 ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler),m_CurrFileNameListIndex(-1)
 {
@@ -39,8 +40,8 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
             assert("未识别的指令类型");
             return;
         }
-        const string& str = pkg.data();
-        if(msg->ParseFromArray(str.data(),str.length())){
+        const string& strData = pkg.data();
+        if(msg->ParseFromArray(strData.data(),strData.length())){
             string a = pkg.type_name();
             if(strcmp(a.c_str(),"tcp_msg.global.IdentifyRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpIdentifyResponse);
@@ -56,6 +57,13 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 }
                 m_CurrFileNameListIndex = -1;
                 callCmdEventCb(CmdEventType::TcpSendFileRequest);
+            }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
+                tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
+                string filename = FileUtils::currentPath();
+                filename = filename + fileRespMsg->filename();
+                const string& content = fileRespMsg->content();
+
+                FileUtils::saveDataAsFile(filename,content.data(),content.length());
             }
 
 
