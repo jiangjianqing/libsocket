@@ -5,7 +5,7 @@
 #include "CmdBufParser.h"
 
 enum class CmdEventType{
-    UNKNOW,TcpIdentifyResponse,TcpFileListResponse
+    UNKNOW,TcpIdentifyResponse,TcpFileListResponse,TcpSendFileResponse
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30
@@ -19,6 +19,7 @@ public:
 
     int clientId(){return m_clientId;}
     int identifyResponseId(){return m_identifyResponseId;}
+    string currRequestFilename(){return m_currRequestFilename;}
 protected:
     void onRecvCmd(const unsigned char* buf,const unsigned len) override;
 private:
@@ -27,6 +28,8 @@ private:
     int m_identifyResponseId;//客户端发回的ID，用于Server根据ID来区分发送内容
 
     bool m_isRecvingFilePartData;
+
+    string m_currRequestFilename;
 
     void callCmdEventCb(const CmdEventType& event);
 

@@ -19,10 +19,16 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
     tcp_msg::ProtoPackage pkg;
     if(pkg.ParseFromArray(cmd->payload,cmd->header.length)){//解析成功
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
-        if(msg != nullptr){
-            string a = pkg.type_name();
-            if(strcmp(a.c_str(),"tcp_msg.global.IdentifyResponse") == 0){
-                const string& str = pkg.data();
+        if(msg == nullptr){
+            assert("无法识别的消息类型");
+            return;
+        }
+        const string& str = pkg.data();
+        string typeName = pkg.type_name();
+        if(msg->ParseFromArray(str.data(),str.length()))
+        {
+            if(strcmp(typeName.c_str(),"tcp_msg.global.IdentifyResponse") == 0){
+
                 if(msg->ParseFromArray(str.data(),str.length()))
                 {
                     tcp_msg::global::IdentifyResponse* idMsg= dynamic_cast<tcp_msg::global::IdentifyResponse*>(msg);
@@ -31,10 +37,13 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 }
             }else if(dynamic_cast<tcp_msg::file::FileListRequest*>(msg) != nullptr){
                 callCmdEventCb(CmdEventType::TcpFileListResponse);
+            }else if(dynamic_cast<tcp_msg::file::SendFileRequest*>(msg) != nullptr){
+                tcp_msg::file::SendFileRequest* fileRequestMsg = dynamic_cast<tcp_msg::file::SendFileRequest*>(msg);
+                m_currRequestFilename = fileRequestMsg->filename();
+                callCmdEventCb(CmdEventType::TcpSendFileResponse);
             }
-
-            delete msg;
         }
+        delete msg;
 
     }else{//解析失败
 

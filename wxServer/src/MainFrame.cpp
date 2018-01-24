@@ -176,6 +176,16 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
+        case (int)CmdEventType::TcpSendFileResponse:{
+            thread t1{[this,cmdProcesser,clientId](){
+                string filename = cmdProcesser->currRequestFilename();
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
+                ///todu:文件名收到，准备发送
+            }};
+            t1.detach();
+            }
+            break;
         }
         return;
     }
