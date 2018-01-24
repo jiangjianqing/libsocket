@@ -20,7 +20,7 @@
 const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
 const unsigned short kTcpServerPort = 11212;
-static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
+static const string kFileRepoPath = "/home/cz_jjq/Desktop/Test";
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 {
@@ -186,6 +186,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                 if(file_data_size< 6e4){
                     file_data = (unsigned char*)malloc(file_data_size);
                     FileUtils::ReadFileData(fullFilename,0,(char*)file_data,file_data_size);
+                    FileUtils::saveDataAsFile("/home/cz_jjq/1.xml",(const char*)file_data,file_data_size);
                 }else{
                     file_data_size = 20;
                     file_data = (unsigned char*)malloc(file_data_size);

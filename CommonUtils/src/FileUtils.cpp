@@ -160,6 +160,14 @@ int FileUtils::saveStringToFile(const std::string & filePath, const std::string&
    return 0;
 }
 
+int FileUtils::saveDataAsFile(const string& filePath,const char* data, const unsigned len)
+{
+    std::ofstream   out(filePath,std::ofstream::out);
+    out.write(data,len);
+    out.close();
+    return 0;
+}
+
 void FileUtils::foreachLine(const std::string& textFilePath, std::function<void (const std::string& line)> callback)
 {
     // 最好对file1和file2进行判断
@@ -243,17 +251,19 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
 
 int FileUtils::ReadFileData(const string &filename,int startPos,char * buf,unsigned buf_len)
 {
-    std::ifstream fin (filename, ios::in|ios::binary|ios::ate);
+    //std::ifstream fin (filename, ios::in|ios::binary|ios::ate);
+    std::ifstream fin (filename, ios::in|ios::binary);
     if (!fin.is_open())  {
         cout << "Error opening file";
         return -1;
-    }
+    }/*
     int size = fin.tellg();
     if(size > 6e4){//暂时处理60k以下的文件
         fin.close();
         return -1;
     }
     fin.seekg (0, ios::beg);//文件指针回到开头
+    */
     fin.read(buf,buf_len);
     int readCount = fin.gcount();
     fin.close();
