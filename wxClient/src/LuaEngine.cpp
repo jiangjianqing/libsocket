@@ -180,7 +180,7 @@ void LuaEngine::executeTask(const string& taskname)
         }
     };
 
-    exec((fn));
+    exec(fn);
 }
 
 void LuaEngine::testLua()

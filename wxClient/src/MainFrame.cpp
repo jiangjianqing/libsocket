@@ -262,6 +262,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             break;
         case (int)CmdEventType::TcpFileListRequest:{
+            appendInfo(wxT("ready to download file list."));
             thread t1{[this](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
@@ -273,11 +274,12 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             break;
         case (int)CmdEventType::TcpSendFileRequest_NextFile:{
-            thread t1{[this](){
+            string filename = "";
+            thread t1{[this,&filename](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
                 if(m_cmdProcesser.toNextFilename()){
-                    string filename = m_cmdProcesser.getCurrFilename();
+                    filename = m_cmdProcesser.getCurrFilename();
                     CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
                 }else{
                     ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
@@ -287,8 +289,12 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                 free(buf);
             }};
             t1.detach();
-
+            if(filename != ""){
+                appendInfo(wxT("downloading file :") + filename);
+            }else{
+                appendInfo(wxT("all file download."));
             }
+            }//end of case
             break;
         case (int)CmdEventType::TcpSendFileRequest_CurrentFile:{
             thread t1{[this](){
@@ -321,7 +327,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
   */
 }
 
-void MainFrame::appendInfo(const string& info)
+void MainFrame::appendInfo(const wxString& info)
 {
     m_txtInfo->AppendText(info+ "\r\n");
     SetStatusText(info);
