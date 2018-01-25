@@ -18,6 +18,7 @@
 #endif
 
 const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
+const int kFilePartSize = 60*1024;//文件分包大小
 
 const unsigned short kTcpServerPort = 11212;
 static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
@@ -196,9 +197,31 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         case (int)CmdEventType::TcpSendFileResponse:{
             thread t1{[this,cmdProcesser,clientId](){
                 string relativeFilename = cmdProcesser->currRequestFilename();
+                uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
                 string fullFilename = kFileRepoPath + relativeFilename;
-                unsigned char* file_data = nullptr;
-                unsigned file_data_size = FileUtils::getFileSize(fullFilename);
+
+                unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
+                unsigned file_size = FileUtils::getFileSize(fullFilename);
+
+                unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
+
+
+                int read_count = FileUtils::ReadFileData(fullFilename,start_pos,(char*)file_data,kFilePartSize);
+
+                if(read_count >= 0){
+                    unsigned len = 0;
+                    uint64_t residue_length = file_size  - start_pos - read_count;
+                    if(residue_length > 0){
+                        int i = 0;
+                        i = i + 1;
+                    }
+                    CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,read_count,start_pos,residue_length,buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                }else{//让异常状态给客户端，让其进行标记,并开始获取下一个文件
+                    assert("没有读到文件");
+                }
+                //测试代码
+                /*
                 if(file_data_size< 6e4){
                     file_data = (unsigned char*)malloc(file_data_size);
                     FileUtils::ReadFileData(fullFilename,0,(char*)file_data,file_data_size);
@@ -207,12 +230,9 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     file_data = (unsigned char*)malloc(file_data_size);
                     char* hint = "FILE TOO LARGE!!!";
                     memcpy(file_data,hint,strlen(hint)+1);
-                }
-                unsigned char* buf = nullptr;
-                unsigned len = 0;
-                CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,file_data_size,buf,len);
-                m_tcpServer.send((const char*)buf,len,clientId);
-                free(buf);
+                }*/
+
+                free(buf);//注意：任何情况下都需要给客户端一个回应
                 free(file_data);
             }};
             t1.detach();

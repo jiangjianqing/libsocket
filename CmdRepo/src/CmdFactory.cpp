@@ -107,13 +107,17 @@ bool CmdFactory::makeSendFileRequest(const string& filename,uint64 startpos,unsi
     return true;
 }
 
-bool CmdFactory::makeSendFileResponseMsg(const string& file_name,const char* file_data,const unsigned file_len,unsigned char*& buf,unsigned& len)
+bool CmdFactory::makeSendFileResponseMsg(const string& file_name,const char* file_data,const unsigned file_len,uint64_t start_pos,uint64_t residue_length,unsigned char*& buf,unsigned& len)
 {
     tcp_msg::file::SendFileResponse msg;
     msg.set_filename(file_name);
     msg.set_result(tcp_msg::file::SendFileResponse_SendFileResult_WHOLE);
     msg.set_content(file_data,file_len);
-    msg.set_type(tcp_msg::file::SendFileResponse_FileType_UNKNOW_FILE_TYPE);
+    if(residue_length > 0 || start_pos > 0){//如果有剩余内容，或者客户端发送过来的start_pos不 > 0(说明上次请求过同一个文件)
+        msg.set_result(tcp_msg::file::SendFileResponse_SendFileResult_PART);
+    }
+    msg.set_residue_length(residue_length);
+    msg.set_type(tcp_msg::file::SendFileResponse_FileType_UNKNOW_FILE_TYPE);//尚未使用
     packageMsg(msg,buf,len);
     return true;
 }

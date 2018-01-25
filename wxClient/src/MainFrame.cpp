@@ -300,6 +300,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
+            t1.detach();
             }//end of case;
             break;
         }

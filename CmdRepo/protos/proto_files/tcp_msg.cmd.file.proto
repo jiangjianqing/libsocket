@@ -48,7 +48,7 @@ message SendFileResponse
     FileType        type        =   3;  // ID 
     string          filename    =   4;  // server's ip ( tcp )
     bytes           content     =   5;  //server's port ( tcp )
-    int64           residue_length  =   6;//剩余待发送长度
+    uint64           residue_length  =   6;//剩余待发送长度
 }
 
 

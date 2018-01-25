@@ -20,6 +20,7 @@ public:
     int clientId(){return m_clientId;}
     int identifyResponseId(){return m_identifyResponseId;}
     string currRequestFilename(){return m_currRequestFilename;}
+    uint64_t currRequestFileStartPos(){return m_currStartPos;}
 protected:
     void onRecvCmd(const unsigned char* buf,const unsigned len) override;
 private:

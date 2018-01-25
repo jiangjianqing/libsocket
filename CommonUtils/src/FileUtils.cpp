@@ -267,20 +267,20 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
 
 int FileUtils::ReadFileData(const string &filename,int startPos,char * buf,unsigned buf_len)
 {
-    //std::ifstream fin (filename, ios::in|ios::binary|ios::ate);
-    std::ifstream fin (filename, ios::in|ios::binary);
+    std::ifstream fin (filename, ios::in|ios::binary|ios::ate);//移动到文件尾，方便获取文件大小
+    //std::ifstream fin (filename, ios::in|ios::binary);
     if (!fin.is_open())  {
         cout << "Error opening file";
         return -1;
-    }/*
-    int size = fin.tellg();
-    if(size > 6e4){//暂时处理60k以下的文件
-        fin.close();
-        return -1;
     }
-    fin.seekg (0, ios::beg);//文件指针回到开头
-    */
-    fin.read(buf,buf_len);
+    int file_size = fin.tellg();
+    if(startPos >= file_size){//读的位置大于文件大小
+        fin.close();
+        return 0;
+    }
+    //int residue_length = file_size - startPos; //文件剩余可读大小
+    fin.seekg(startPos, ios::beg);//文件指针从开头进行offset
+    fin.read(buf,buf_len);//从当前位置读取
     int readCount = fin.gcount();
     fin.close();
 
