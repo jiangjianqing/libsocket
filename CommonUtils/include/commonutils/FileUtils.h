@@ -69,7 +69,7 @@ public:
     //是否为普通文件
     static bool isRegularFile(const string& filename);
     //获得文件大小
-    static int getFileSize(const string& filename);
+    static uint64_t getFileSize(const string& filename);
 
     static bool isSubDirectory(const string& parentFullpath, const string& childFullpath);
 

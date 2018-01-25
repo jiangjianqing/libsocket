@@ -98,10 +98,11 @@ bool CmdFactory::makeFileListResponse(const vector<file_brief_info_t*>& files,un
     return true;
 }
 
-bool CmdFactory::makeSendFileRequest(const string& filename,unsigned char*& buf,unsigned& len)
+bool CmdFactory::makeSendFileRequest(const string& filename,uint64 startpos,unsigned char*& buf,unsigned& len)
 {
     tcp_msg::file::SendFileRequest msg;
     msg.set_filename(filename);
+    msg.set_start_pos(startpos);
     packageMsg(msg,buf,len);
     return true;
 }

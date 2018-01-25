@@ -40,6 +40,8 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
             }else if(dynamic_cast<tcp_msg::file::SendFileRequest*>(msg) != nullptr){
                 tcp_msg::file::SendFileRequest* fileRequestMsg = dynamic_cast<tcp_msg::file::SendFileRequest*>(msg);
                 m_currRequestFilename = fileRequestMsg->filename();
+                m_currStartPos =fileRequestMsg->start_pos();
+                //从这里开始取指定文件大小
                 callCmdEventCb(CmdEventType::TcpSendFileResponse);
             }
         }

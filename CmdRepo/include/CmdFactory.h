@@ -36,7 +36,7 @@ public:
     static bool makeFileListRequest(unsigned id,unsigned char*& buf,unsigned& len);
     static bool makeFileListResponse(const vector<file_brief_info_t*>& fileinfos,unsigned char*& buf,unsigned& len);
 
-    static bool makeSendFileRequest(const string& filename,unsigned char*& buf,unsigned& len);
+    static bool makeSendFileRequest(const string& filename,uint64_t startpos,unsigned char*& buf,unsigned& len);
     static bool makeSendFileResponseMsg(const string& filename,const char* file_data,const unsigned file_len,unsigned char*& buf,unsigned& len);
 
     //生成文件的摘要信息

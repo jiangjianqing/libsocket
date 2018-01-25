@@ -92,6 +92,11 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                         FileUtils::mkdirp(parentPath);
                     }
                     FileUtils::appendDataToFile(filename,content.data(),content.length());
+                    if(fileRespMsg->residue_length() == 0){//文件全部收完
+                        callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
+                    }else{//取文件的下一个part
+                        callCmdEventCb(CmdEventType::TcpSendFileRequest_CurrentFile);
+                    }
                     }//end of case
                     break;
                 default:
@@ -142,6 +147,21 @@ string ClientCmdProcesser::getCurrFilename()
     }
     file_brief_info_t* fileBriefInfo = m_fileBriefInfoList.at(m_CurrFileNameListIndex);
     return fileBriefInfo->filename;
+}
+
+int64_t ClientCmdProcesser::getCurrFileStartPos()
+{
+    if(m_CurrFileNameListIndex < 0){
+        return -1;
+    }
+    if(m_CurrFileNameListIndex >= m_fileBriefInfoList.size()){
+        return -2;
+    }
+    file_brief_info_t* fileBriefInfo = m_fileBriefInfoList.at(m_CurrFileNameListIndex);
+    char buf[strlen(fileBriefInfo->filename)+1] = {0};
+    strcpy(buf,fileBriefInfo->filename);
+    string fullpath = m_recvFilePath + buf;
+    return FileUtils::getFileSize(fullpath);
 }
 
 bool ClientCmdProcesser::toNextFilename()

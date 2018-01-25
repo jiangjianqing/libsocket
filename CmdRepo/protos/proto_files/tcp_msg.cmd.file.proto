@@ -26,7 +26,7 @@ message SendFileRequest
 {
     CommonHeader    header      =   1;
     string          filename    =   2;
-    string          start_pos   =   3;//重要：文件读取的开始位置
+    uint64          start_pos   =   3;//重要：文件读取的开始位置
 }
 
 message SendFileResponse

@@ -12,7 +12,7 @@
 using namespace std;
 
 enum class CmdEventType{
-    UNKNOW,UdpDiscover,TcpIdentifyResponse,TcpFileListRequest,TcpSendFileRequest_NextFile
+    UNKNOW,UdpDiscover,TcpIdentifyResponse,TcpFileListRequest,TcpSendFileRequest_NextFile,TcpSendFileRequest_CurrentFile
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30
@@ -34,6 +34,8 @@ public:
     //const vector<string>& filenameList(){return m_filenameList;}
     string getCurrFilename();
     bool toNextFilename();
+    //取得当前文件的StartPos，服务器会从该位置开始读取
+    int64_t getCurrFileStartPos();
 
     void protobuf_test(const char* msg_type_name,const char* buf,size_t len);
 

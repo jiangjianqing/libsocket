@@ -278,7 +278,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                     string filename = m_cmdProcesser.getCurrFilename();
                     unsigned char* buf = nullptr;
                     unsigned len = 0;
-                    CmdFactory::makeSendFileRequest(filename,buf,len);
+                    CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
                     m_tcpClient.send((const char*)buf,len);
                     free(buf);
                 }else{
@@ -289,6 +289,18 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
 
             }
+            break;
+        case (int)CmdEventType::TcpSendFileRequest_CurrentFile:{
+            thread t1{[this](){
+                string filename = m_cmdProcesser.getCurrFilename();
+                uint64_t startpos = m_cmdProcesser.getCurrFileStartPos();
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
+                CmdFactory::makeSendFileRequest(filename,startpos,buf,len);//根据startpos获取文件部分数据
+                m_tcpClient.send((const char*)buf,len);
+                free(buf);
+            }};
+            }//end of case;
             break;
         }
 

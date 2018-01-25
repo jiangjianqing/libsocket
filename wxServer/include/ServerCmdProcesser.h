@@ -30,6 +30,7 @@ private:
     bool m_isRecvingFilePartData;
 
     string m_currRequestFilename;
+    uint64_t m_currStartPos;
 
     void callCmdEventCb(const CmdEventType& event);
 

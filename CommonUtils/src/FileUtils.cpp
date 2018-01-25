@@ -84,7 +84,7 @@ bool FileUtils::mkdir(const std::string& dirname)
 }
 
 
-int FileUtils::getFileSize(const string& filename)
+uint64_t FileUtils::getFileSize(const string& filename)
 {
 #if defined(__linux__)
 // Linux系统
