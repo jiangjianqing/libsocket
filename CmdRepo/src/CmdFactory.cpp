@@ -142,7 +142,9 @@ file_brief_info_t* CmdFactory::generateFileBriefInfoFromProtobufFileInfo(const v
     const string& checksum = fileInfo->checksum();
     int brief_info_size = sizeof(file_brief_info_t)+checksum.length();
     file_brief_info_t* briefInfo = (file_brief_info_t*)malloc(brief_info_size);
-    memcpy(briefInfo->filename,fileInfo->filename().data(),fileInfo->filename().length());
+    memset(briefInfo,0,brief_info_size);
+    const string& file_name = fileInfo->filename();
+    memcpy(briefInfo->filename,file_name.data(),file_name.length());
     //strcpy(briefInfo->filename,fileInfo.filename().data());//注意：strcpy复制的不够精确，会复制多余数据
     briefInfo->filesize = fileInfo->filesize();
     briefInfo->checksum_len = checksum.length();
