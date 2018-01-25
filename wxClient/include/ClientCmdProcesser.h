@@ -7,6 +7,7 @@
 #include "wx/event.h"
 #include "LuaEngine.h"
 #include "CmdBufParser.h"
+#include "CmdFactory.h"
 
 using namespace std;
 
@@ -22,6 +23,7 @@ class ClientCmdProcesser : public CmdBufParser
 {
 public:
     explicit ClientCmdProcesser(wxEvtHandler* evtHandler);
+    ~ClientCmdProcesser();
 
     void callCmdEventCb(const CmdEventType& event);
 
@@ -45,8 +47,11 @@ private:
     //特别注意，该路径一定要是某个子目录，因为后续会对其进行删除清空
     string m_recvFilePath;
 
-    vector<string> m_filenameList;
+    vector<file_brief_info_t*> m_fileBriefInfoList;
     int m_CurrFileNameListIndex;//当前待获取文件名的index
+
+    void clearFileBriefInfoList();
+    void pushFileBriefInfoToList(file_brief_info_t* fileBriefInfo);
 };
 
 #endif // CMDPROCESSER_H

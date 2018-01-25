@@ -18,6 +18,11 @@ ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(
     //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
+ClientCmdProcesser::~ClientCmdProcesser()
+{
+    clearFileBriefInfoList();
+}
+
 void ClientCmdProcesser::recvUdpData(const char* buf,int nread)
 {
     //只识别一个discover命令,而且为可见字符集
@@ -56,12 +61,21 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 FileUtils::rm_rf(m_recvFilePath);
                 tcp_msg::file::FileListResponse* filelistMsg= dynamic_cast<tcp_msg::file::FileListResponse*>(msg);
 
-                m_filenameList.clear();;
+                clearFileBriefInfoList();
                 for(int i = 0;i < filelistMsg->fileinfo_size();i++){
                     const tcp_msg::file::FileInfo& fileInfo = filelistMsg->fileinfo(i);
-                    m_filenameList.push_back(fileInfo.filename());
+                    const string& checksum = fileInfo.checksum();
+                    int brief_info_size = sizeof(file_brief_info_t)+checksum.length();
+                    file_brief_info_t* briefInfo = (file_brief_info_t*)malloc(brief_info_size);
+                    memcpy(briefInfo->filename,fileInfo.filename().data(),fileInfo.filename().length());
+                    //strcpy(briefInfo->filename,fileInfo.filename().data());
+                    briefInfo->filesize = fileInfo.filesize();
+                    briefInfo->checksum_len = checksum.length();
+                    if(briefInfo->checksum_len > 0){
+                        memcpy(briefInfo->checksum,checksum.data(),briefInfo->checksum_len);
+                    }
+                    pushFileBriefInfoToList(briefInfo);
                 }
-                m_CurrFileNameListIndex = -1;
                 callCmdEventCb(CmdEventType::TcpSendFileRequest);
             }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
                 tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
@@ -89,22 +103,37 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
     //CmdFactory::makeIdentifyResponseMsg(1,buf,len);
 }
 
+void ClientCmdProcesser::clearFileBriefInfoList()
+{
+    for(auto it = m_fileBriefInfoList.begin(); it != m_fileBriefInfoList.end();it++){
+        file_brief_info_t* info = *it;
+        free(info);
+    }
+    m_fileBriefInfoList.clear();
+    m_CurrFileNameListIndex = -1;
+}
+
+void ClientCmdProcesser::pushFileBriefInfoToList(file_brief_info_t* fileBriefInfo)
+{
+    m_fileBriefInfoList.push_back(fileBriefInfo);
+}
+
 string ClientCmdProcesser::getCurrFilename()
 {
     if(m_CurrFileNameListIndex < 0){
         return "";
     }
-    if(m_CurrFileNameListIndex >= m_filenameList.size()){
+    if(m_CurrFileNameListIndex >= m_fileBriefInfoList.size()){
         return "";
     }
-
-    return m_filenameList.at(m_CurrFileNameListIndex);
+    file_brief_info_t* fileBriefInfo = m_fileBriefInfoList.at(m_CurrFileNameListIndex);
+    return fileBriefInfo->filename;
 }
 
 bool ClientCmdProcesser::toNextFilename()
 {
     //注意跨线程访问的问题
-    int len = m_filenameList.size();
+    int len = m_fileBriefInfoList.size();
     if(m_CurrFileNameListIndex < len){
         m_CurrFileNameListIndex++;
     }
