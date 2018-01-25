@@ -167,6 +167,14 @@ int FileUtils::saveDataAsFile(const string& filePath,const char* data, const uns
     return 0;
 }
 
+int FileUtils::appendDataToFile(const string& filePath,const char* data, const unsigned len)
+{
+    std::ofstream   out(filePath,ios::app);
+    out.write(data,len);
+    out.close();
+    return 0;
+}
+
 void FileUtils::foreachLine(const std::string& textFilePath, std::function<void (const std::string& line)> callback)
 {
     // 最好对file1和file2进行判断

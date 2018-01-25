@@ -8,7 +8,7 @@ SUBDIRS += \
     Socket  \
     CmdRepo \
     CommonUtils \
-    #wxServer    \
+    wxServer    \
     wxClient    \
     UvSocket
 

@@ -26,6 +26,7 @@ message SendFileRequest
 {
     CommonHeader    header      =   1;
     string          filename    =   2;
+    string          start_pos   =   3;//重要：文件读取的开始位置
 }
 
 message SendFileResponse
@@ -47,6 +48,7 @@ message SendFileResponse
     FileType        type        =   3;  // ID 
     string          filename    =   4;  // server's ip ( tcp )
     bytes           content     =   5;  //server's port ( tcp )
+    int64           residue_length  =   6;//剩余待发送长度
 }
 
 

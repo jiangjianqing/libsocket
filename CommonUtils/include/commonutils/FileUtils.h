@@ -74,8 +74,10 @@ public:
     static bool isSubDirectory(const string& parentFullpath, const string& childFullpath);
 
     static int saveStringToFile(const string & filePath, const string & str);
-
+    //将数据保存为文件，覆盖模式
     static int saveDataAsFile(const string& filePath,const char* data, const unsigned len);
+    //将数据保添加到文件尾
+    static int appendDataToFile(const string& filePath,const char* data, const unsigned len);
 
     static void foreachLine(const string& textFilePath, function<void (const string& line)> callback);
 

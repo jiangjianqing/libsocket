@@ -192,6 +192,7 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileRequest, header_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileRequest, filename_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileRequest, start_pos_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -202,13 +203,14 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileResponse, type_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileResponse, filename_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileResponse, content_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::SendFileResponse, residue_length_),
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tcp_msg::file::FileListRequest)},
   { 7, -1, sizeof(::tcp_msg::file::FileInfo)},
   { 15, -1, sizeof(::tcp_msg::file::FileListResponse)},
   { 22, -1, sizeof(::tcp_msg::file::SendFileRequest)},
-  { 29, -1, sizeof(::tcp_msg::file::SendFileResponse)},
+  { 30, -1, sizeof(::tcp_msg::file::SendFileResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -248,21 +250,22 @@ void AddDescriptorsImpl() {
       " \001(\t\022\020\n\010filesize\030\002 \001(\003\022\020\n\010checksum\030\003 \001(\014"
       "\"c\n\020FileListResponse\022%\n\006header\030\001 \001(\0132\025.t"
       "cp_msg.CommonHeader\022(\n\010fileinfo\030\002 \003(\0132\026."
-      "tcp_msg.file.FileInfo\"J\n\017SendFileRequest"
+      "tcp_msg.file.FileInfo\"]\n\017SendFileRequest"
       "\022%\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHeader\022"
-      "\020\n\010filename\030\002 \001(\t\"\334\002\n\020SendFileResponse\022%"
-      "\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHeader\022=\n"
-      "\006result\030\002 \001(\0162-.tcp_msg.file.SendFileRes"
-      "ponse.SendFileResult\0225\n\004type\030\003 \001(\0162\'.tcp"
-      "_msg.file.SendFileResponse.FileType\022\020\n\010f"
-      "ilename\030\004 \001(\t\022\017\n\007content\030\005 \001(\014\"6\n\010FileTy"
-      "pe\022\024\n\020UNKNOW_FILE_TYPE\020\000\022\n\n\006SYSTEM\020\001\022\010\n\004"
-      "TEMP\020\002\"P\n\016SendFileResult\022\033\n\027UNKNOW_SEND_"
-      "FILE_RESULT\020\000\022\014\n\010NOTFOUND\020\001\022\t\n\005WHOLE\020\002\022\010"
-      "\n\004PART\020\003b\006proto3"
+      "\020\n\010filename\030\002 \001(\t\022\021\n\tstart_pos\030\003 \001(\t\"\364\002\n"
+      "\020SendFileResponse\022%\n\006header\030\001 \001(\0132\025.tcp_"
+      "msg.CommonHeader\022=\n\006result\030\002 \001(\0162-.tcp_m"
+      "sg.file.SendFileResponse.SendFileResult\022"
+      "5\n\004type\030\003 \001(\0162\'.tcp_msg.file.SendFileRes"
+      "ponse.FileType\022\020\n\010filename\030\004 \001(\t\022\017\n\007cont"
+      "ent\030\005 \001(\014\022\026\n\016residue_length\030\006 \001(\003\"6\n\010Fil"
+      "eType\022\024\n\020UNKNOW_FILE_TYPE\020\000\022\n\n\006SYSTEM\020\001\022"
+      "\010\n\004TEMP\020\002\"P\n\016SendFileResult\022\033\n\027UNKNOW_SE"
+      "ND_FILE_RESULT\020\000\022\014\n\010NOTFOUND\020\001\022\t\n\005WHOLE\020"
+      "\002\022\010\n\004PART\020\003b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 736);
+      descriptor, 779);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "tcp_msg.cmd.file.proto", &protobuf_RegisterTypes);
   ::protobuf_tcp_5fmsg_2ecmd_2ecommon_2eproto::AddDescriptors();
@@ -1277,6 +1280,7 @@ void SendFileRequest::clear_header() {
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int SendFileRequest::kHeaderFieldNumber;
 const int SendFileRequest::kFilenameFieldNumber;
+const int SendFileRequest::kStartPosFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 SendFileRequest::SendFileRequest()
@@ -1296,6 +1300,10 @@ SendFileRequest::SendFileRequest(const SendFileRequest& from)
   if (from.filename().size() > 0) {
     filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
+  start_pos_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.start_pos().size() > 0) {
+    start_pos_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.start_pos_);
+  }
   if (from.has_header()) {
     header_ = new ::tcp_msg::CommonHeader(*from.header_);
   } else {
@@ -1306,6 +1314,7 @@ SendFileRequest::SendFileRequest(const SendFileRequest& from)
 
 void SendFileRequest::SharedCtor() {
   filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  start_pos_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   header_ = NULL;
   _cached_size_ = 0;
 }
@@ -1317,6 +1326,7 @@ SendFileRequest::~SendFileRequest() {
 
 void SendFileRequest::SharedDtor() {
   filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  start_pos_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (this != internal_default_instance()) delete header_;
 }
 
@@ -1350,6 +1360,7 @@ void SendFileRequest::Clear() {
   (void) cached_has_bits;
 
   filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  start_pos_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   if (GetArenaNoVirtual() == NULL && header_ != NULL) {
     delete header_;
   }
@@ -1389,6 +1400,22 @@ bool SendFileRequest::MergePartialFromCodedStream(
             this->filename().data(), static_cast<int>(this->filename().length()),
             ::google::protobuf::internal::WireFormatLite::PARSE,
             "tcp_msg.file.SendFileRequest.filename"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string start_pos = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_start_pos()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->start_pos().data(), static_cast<int>(this->start_pos().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "tcp_msg.file.SendFileRequest.start_pos"));
         } else {
           goto handle_unusual;
         }
@@ -1437,6 +1464,16 @@ void SendFileRequest::SerializeWithCachedSizes(
       2, this->filename(), output);
   }
 
+  // string start_pos = 3;
+  if (this->start_pos().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->start_pos().data(), static_cast<int>(this->start_pos().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "tcp_msg.file.SendFileRequest.start_pos");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->start_pos(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -1469,6 +1506,17 @@ void SendFileRequest::SerializeWithCachedSizes(
         2, this->filename(), target);
   }
 
+  // string start_pos = 3;
+  if (this->start_pos().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->start_pos().data(), static_cast<int>(this->start_pos().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "tcp_msg.file.SendFileRequest.start_pos");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->start_pos(), target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -1491,6 +1539,13 @@ size_t SendFileRequest::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->filename());
+  }
+
+  // string start_pos = 3;
+  if (this->start_pos().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->start_pos());
   }
 
   // .tcp_msg.CommonHeader header = 1;
@@ -1533,6 +1588,10 @@ void SendFileRequest::MergeFrom(const SendFileRequest& from) {
 
     filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
+  if (from.start_pos().size() > 0) {
+
+    start_pos_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.start_pos_);
+  }
   if (from.has_header()) {
     mutable_header()->::tcp_msg::CommonHeader::MergeFrom(from.header());
   }
@@ -1563,6 +1622,7 @@ void SendFileRequest::Swap(SendFileRequest* other) {
 void SendFileRequest::InternalSwap(SendFileRequest* other) {
   using std::swap;
   filename_.Swap(&other->filename_);
+  start_pos_.Swap(&other->start_pos_);
   swap(header_, other->header_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
@@ -1592,6 +1652,7 @@ const int SendFileResponse::kResultFieldNumber;
 const int SendFileResponse::kTypeFieldNumber;
 const int SendFileResponse::kFilenameFieldNumber;
 const int SendFileResponse::kContentFieldNumber;
+const int SendFileResponse::kResidueLengthFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 SendFileResponse::SendFileResponse()
@@ -1621,8 +1682,8 @@ SendFileResponse::SendFileResponse(const SendFileResponse& from)
     header_ = NULL;
   }
   ::memcpy(&result_, &from.result_,
-    static_cast<size_t>(reinterpret_cast<char*>(&type_) -
-    reinterpret_cast<char*>(&result_)) + sizeof(type_));
+    static_cast<size_t>(reinterpret_cast<char*>(&residue_length_) -
+    reinterpret_cast<char*>(&result_)) + sizeof(residue_length_));
   // @@protoc_insertion_point(copy_constructor:tcp_msg.file.SendFileResponse)
 }
 
@@ -1630,8 +1691,8 @@ void SendFileResponse::SharedCtor() {
   filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   content_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(&header_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&type_) -
-      reinterpret_cast<char*>(&header_)) + sizeof(type_));
+      reinterpret_cast<char*>(&residue_length_) -
+      reinterpret_cast<char*>(&header_)) + sizeof(residue_length_));
   _cached_size_ = 0;
 }
 
@@ -1682,8 +1743,8 @@ void SendFileResponse::Clear() {
   }
   header_ = NULL;
   ::memset(&result_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&type_) -
-      reinterpret_cast<char*>(&result_)) + sizeof(type_));
+      reinterpret_cast<char*>(&residue_length_) -
+      reinterpret_cast<char*>(&result_)) + sizeof(residue_length_));
   _internal_metadata_.Clear();
 }
 
@@ -1767,6 +1828,20 @@ bool SendFileResponse::MergePartialFromCodedStream(
         break;
       }
 
+      // int64 residue_length = 6;
+      case 6: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(48u /* 48 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, &residue_length_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -1827,6 +1902,11 @@ void SendFileResponse::SerializeWithCachedSizes(
       5, this->content(), output);
   }
 
+  // int64 residue_length = 6;
+  if (this->residue_length() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(6, this->residue_length(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -1876,6 +1956,11 @@ void SendFileResponse::SerializeWithCachedSizes(
     target =
       ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
         5, this->content(), target);
+  }
+
+  // int64 residue_length = 6;
+  if (this->residue_length() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(6, this->residue_length(), target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -1928,6 +2013,13 @@ size_t SendFileResponse::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
   }
 
+  // int64 residue_length = 6;
+  if (this->residue_length() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int64Size(
+        this->residue_length());
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -1974,6 +2066,9 @@ void SendFileResponse::MergeFrom(const SendFileResponse& from) {
   if (from.type() != 0) {
     set_type(from.type());
   }
+  if (from.residue_length() != 0) {
+    set_residue_length(from.residue_length());
+  }
 }
 
 void SendFileResponse::CopyFrom(const ::google::protobuf::Message& from) {
@@ -2005,6 +2100,7 @@ void SendFileResponse::InternalSwap(SendFileResponse* other) {
   swap(header_, other->header_);
   swap(result_, other->result_);
   swap(type_, other->type_);
+  swap(residue_length_, other->residue_length_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

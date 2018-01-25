@@ -580,6 +580,20 @@ class SendFileRequest : public ::google::protobuf::Message /* @@protoc_insertion
   ::std::string* release_filename();
   void set_allocated_filename(::std::string* filename);
 
+  // string start_pos = 3;
+  void clear_start_pos();
+  static const int kStartPosFieldNumber = 3;
+  const ::std::string& start_pos() const;
+  void set_start_pos(const ::std::string& value);
+  #if LANG_CXX11
+  void set_start_pos(::std::string&& value);
+  #endif
+  void set_start_pos(const char* value);
+  void set_start_pos(const char* value, size_t size);
+  ::std::string* mutable_start_pos();
+  ::std::string* release_start_pos();
+  void set_allocated_start_pos(::std::string* start_pos);
+
   // .tcp_msg.CommonHeader header = 1;
   bool has_header() const;
   void clear_header();
@@ -594,6 +608,7 @@ class SendFileRequest : public ::google::protobuf::Message /* @@protoc_insertion
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::ArenaStringPtr filename_;
+  ::google::protobuf::internal::ArenaStringPtr start_pos_;
   ::tcp_msg::CommonHeader* header_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
@@ -790,6 +805,12 @@ class SendFileResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::tcp_msg::file::SendFileResponse_FileType type() const;
   void set_type(::tcp_msg::file::SendFileResponse_FileType value);
 
+  // int64 residue_length = 6;
+  void clear_residue_length();
+  static const int kResidueLengthFieldNumber = 6;
+  ::google::protobuf::int64 residue_length() const;
+  void set_residue_length(::google::protobuf::int64 value);
+
   // @@protoc_insertion_point(class_scope:tcp_msg.file.SendFileResponse)
  private:
 
@@ -799,6 +820,7 @@ class SendFileResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::tcp_msg::CommonHeader* header_;
   int result_;
   int type_;
+  ::google::protobuf::int64 residue_length_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
   friend void ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::InitDefaultsSendFileResponseImpl();
@@ -1175,6 +1197,59 @@ inline void SendFileRequest::set_allocated_filename(::std::string* filename) {
   // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.SendFileRequest.filename)
 }
 
+// string start_pos = 3;
+inline void SendFileRequest::clear_start_pos() {
+  start_pos_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& SendFileRequest::start_pos() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.SendFileRequest.start_pos)
+  return start_pos_.GetNoArena();
+}
+inline void SendFileRequest::set_start_pos(const ::std::string& value) {
+  
+  start_pos_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tcp_msg.file.SendFileRequest.start_pos)
+}
+#if LANG_CXX11
+inline void SendFileRequest::set_start_pos(::std::string&& value) {
+  
+  start_pos_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tcp_msg.file.SendFileRequest.start_pos)
+}
+#endif
+inline void SendFileRequest::set_start_pos(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  start_pos_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tcp_msg.file.SendFileRequest.start_pos)
+}
+inline void SendFileRequest::set_start_pos(const char* value, size_t size) {
+  
+  start_pos_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tcp_msg.file.SendFileRequest.start_pos)
+}
+inline ::std::string* SendFileRequest::mutable_start_pos() {
+  
+  // @@protoc_insertion_point(field_mutable:tcp_msg.file.SendFileRequest.start_pos)
+  return start_pos_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* SendFileRequest::release_start_pos() {
+  // @@protoc_insertion_point(field_release:tcp_msg.file.SendFileRequest.start_pos)
+  
+  return start_pos_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void SendFileRequest::set_allocated_start_pos(::std::string* start_pos) {
+  if (start_pos != NULL) {
+    
+  } else {
+    
+  }
+  start_pos_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), start_pos);
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.SendFileRequest.start_pos)
+}
+
 // -------------------------------------------------------------------
 
 // SendFileResponse
@@ -1355,6 +1430,20 @@ inline void SendFileResponse::set_allocated_content(::std::string* content) {
   }
   content_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), content);
   // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.SendFileResponse.content)
+}
+
+// int64 residue_length = 6;
+inline void SendFileResponse::clear_residue_length() {
+  residue_length_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 SendFileResponse::residue_length() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.SendFileResponse.residue_length)
+  return residue_length_;
+}
+inline void SendFileResponse::set_residue_length(::google::protobuf::int64 value) {
+  
+  residue_length_ = value;
+  // @@protoc_insertion_point(field_set:tcp_msg.file.SendFileResponse.residue_length)
 }
 
 #ifdef __GNUC__

@@ -67,18 +67,41 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                     file_brief_info_t* briefInfo = CmdFactory::generateFileBriefInfoFromProtobufFileInfo(&fileInfo);
                     pushFileBriefInfoToList(briefInfo);
                 }
-                callCmdEventCb(CmdEventType::TcpSendFileRequest);
+                callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
             }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
                 tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
-                //将文件保存到指定目录
-                string filename = m_recvFilePath + fileRespMsg->filename();
-                const string& content = fileRespMsg->content();
-                string parentPath = FileUtils::parentPath(filename);
-                if(!FileUtils::exists(parentPath)){
-                    FileUtils::mkdirp(parentPath);
+
+                switch(fileRespMsg->result()){
+                case tcp_msg::file::SendFileResponse_SendFileResult_WHOLE:{
+                    //将文件保存到指定目录
+                    string filename = m_recvFilePath + fileRespMsg->filename();
+                    const string& content = fileRespMsg->content();
+                    string parentPath = FileUtils::parentPath(filename);
+                    if(!FileUtils::exists(parentPath)){
+                        FileUtils::mkdirp(parentPath);
+                    }
+                    FileUtils::saveDataAsFile(filename,content.data(),content.length());
+                    callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
+                    }//end of case
+                    break;
+                case tcp_msg::file::SendFileResponse_SendFileResult_PART:{//PART，将文件追加到已有文件中
+                    string filename = m_recvFilePath + fileRespMsg->filename();
+                    const string& content = fileRespMsg->content();
+                    string parentPath = FileUtils::parentPath(filename);
+                    if(!FileUtils::exists(parentPath)){
+                        FileUtils::mkdirp(parentPath);
+                    }
+                    FileUtils::appendDataToFile(filename,content.data(),content.length());
+                    }//end of case
+                    break;
+                default:
+                    assert("未处理的tcp_msg::file::SendFileResponse_SendFileResult type");
+                    break;
+                //SendFileResponse_SendFileResult_UNKNOW_SEND_FILE_RESULT,
+                //SendFileResponse_SendFileResult_NOTFOUND = 1,
+
                 }
-                FileUtils::saveDataAsFile(filename,content.data(),content.length());
-                callCmdEventCb(CmdEventType::TcpSendFileRequest);
+
             }
 
 

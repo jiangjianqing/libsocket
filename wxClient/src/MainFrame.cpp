@@ -272,7 +272,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpSendFileRequest:{
+        case (int)CmdEventType::TcpSendFileRequest_NextFile:{
             thread t1{[this](){
                 if(m_cmdProcesser.toNextFilename()){
                     string filename = m_cmdProcesser.getCurrFilename();
@@ -283,7 +283,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                     free(buf);
                 }else{
                     ///todo:如果没有文件需要发送
-                    fprintf(stdout,"如果没有文件需要发送");
+                    fprintf(stdout,"如果没有文件需要接收，开始执行更新操作");
                 }
             }};
             t1.detach();
