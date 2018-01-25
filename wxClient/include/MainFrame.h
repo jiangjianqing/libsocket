@@ -76,6 +76,7 @@ private:
     ClientCmdProcesser m_cmdProcesser;
 
     void initSocket();
+    void appendInfo(const string& info);
 protected:
     friend void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
     friend void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);

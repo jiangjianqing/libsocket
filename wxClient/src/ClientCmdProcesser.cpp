@@ -6,6 +6,7 @@
 #include "CmdProcesserThreadEvent.h"
 #include "tcp_msg.package.pb.h"
 #include "tcp_msg.cmd.file.pb.h"
+#include "tcp_msg.cmd.task.pb.h"
 #include "ProtobufUtils.h"
 #include "commonutils/FileUtils.h"
 
@@ -55,6 +56,10 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 callCmdEventCb(CmdEventType::TcpIdentifyResponse);
             }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpFileListRequest);
+            }else if(dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg) != nullptr){
+                ::tcp_msg::task::ExecuteTaskRequest* taskRequestMsg = dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg);
+                m_currTaskname = taskRequestMsg->taskname();
+                callCmdEventCb(CmdEventType::TcpExecuteTaskRequest);
             }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
 
                 //清空指定目录，接收文件清单

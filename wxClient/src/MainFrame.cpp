@@ -303,7 +303,11 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }//end of case;
             break;
-        }
+        case (int)CmdEventType::TcpExecuteTaskRequest:
+            string taskname = m_cmdProcesser.currTaskname();
+            appendInfo("doing task :" + taskname);
+            break;
+        }//end of switch
 
 
         return;
@@ -315,4 +319,10 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
     e.SetString(_T("Some string"));
     wxTheApp->QueueEvent(e.Clone());
   */
+}
+
+void MainFrame::appendInfo(const string& info)
+{
+    m_txtInfo->AppendText(info+ "\r\n");
+    SetStatusText(info);
 }

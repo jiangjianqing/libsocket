@@ -12,7 +12,9 @@
 using namespace std;
 
 enum class CmdEventType{
-    UNKNOW,UdpDiscover,TcpIdentifyResponse,TcpFileListRequest,TcpSendFileRequest_NextFile,TcpSendFileRequest_CurrentFile
+    UNKNOW,UdpDiscover,TcpIdentifyResponse,
+    TcpFileListRequest,TcpSendFileRequest_NextFile,TcpSendFileRequest_CurrentFile,
+    TcpExecuteTaskRequest
 };
 
 #define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30
@@ -37,6 +39,8 @@ public:
     //取得当前文件的StartPos，服务器会从该位置开始读取
     int64_t getCurrFileStartPos();
 
+    string currTaskname(){return m_currTaskname;}
+
     void protobuf_test(const char* msg_type_name,const char* buf,size_t len);
 
 protected:
@@ -51,6 +55,8 @@ private:
 
     vector<file_brief_info_t*> m_fileBriefInfoList;
     int m_CurrFileNameListIndex;//当前待获取文件名的index
+
+    string m_currTaskname;
 
     void clearFileBriefInfoList();
     void pushFileBriefInfoToList(file_brief_info_t* fileBriefInfo);
