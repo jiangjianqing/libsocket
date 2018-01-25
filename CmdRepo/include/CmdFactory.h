@@ -6,8 +6,12 @@
 
 using namespace std;
 
+#ifndef MAX_PATH
+#define MAX_PATH 255
+#endif
+
 typedef struct file_brief_info_s{
-    char filename[255];//MAX_PATH
+    char filename[MAX_PATH];//MAX_PATH
     uint64_t filesize;
     int checksum_len;
     unsigned char checksum[];
@@ -37,6 +41,8 @@ public:
 
     //生成文件的摘要信息
     static file_brief_info_t* generateFileBriefInfo(const string& filename);
+    //从protobuf 的 FileInfo结构生成file_brief_info, 输入参数为 tcp_msg::file::FileInfo 的指针
+    static file_brief_info_t* generateFileBriefInfoFromProtobufFileInfo(const void* data);
 
     static string buf2Str(const char* buf,int len);
 

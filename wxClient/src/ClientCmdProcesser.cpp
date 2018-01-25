@@ -64,16 +64,7 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 clearFileBriefInfoList();
                 for(int i = 0;i < filelistMsg->fileinfo_size();i++){
                     const tcp_msg::file::FileInfo& fileInfo = filelistMsg->fileinfo(i);
-                    const string& checksum = fileInfo.checksum();
-                    int brief_info_size = sizeof(file_brief_info_t)+checksum.length();
-                    file_brief_info_t* briefInfo = (file_brief_info_t*)malloc(brief_info_size);
-                    memcpy(briefInfo->filename,fileInfo.filename().data(),fileInfo.filename().length());
-                    //strcpy(briefInfo->filename,fileInfo.filename().data());
-                    briefInfo->filesize = fileInfo.filesize();
-                    briefInfo->checksum_len = checksum.length();
-                    if(briefInfo->checksum_len > 0){
-                        memcpy(briefInfo->checksum,checksum.data(),briefInfo->checksum_len);
-                    }
+                    file_brief_info_t* briefInfo = CmdFactory::generateFileBriefInfoFromProtobufFileInfo(&fileInfo);
                     pushFileBriefInfoToList(briefInfo);
                 }
                 callCmdEventCb(CmdEventType::TcpSendFileRequest);

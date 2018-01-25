@@ -126,12 +126,30 @@ file_brief_info_t* CmdFactory::generateFileBriefInfo(const string& filename)
     int file_size = FileUtils::getFileSize(filename);
 
     //注意：此处还没有考虑生成文件校验码
-    file_brief_info_t* fileinfo = (file_brief_info_t*)malloc(sizeof(*fileinfo));
-    fileinfo->filesize = file_size;
-    fileinfo->checksum_len = 0;
-    strcpy(fileinfo->filename,filename.data());
+    file_brief_info_t* briefInfo = (file_brief_info_t*)malloc(sizeof(*briefInfo));
+    memset(briefInfo->filename,0,MAX_PATH);
+    briefInfo->filesize = file_size;
+    briefInfo->checksum_len = 0;
+    strcpy(briefInfo->filename,filename.data());
 
-    return fileinfo;
+    return briefInfo;
+}
+
+//从protobuf 的 FileInfo结构生成file_brief_info, 输入参数为 tcp_msg::file::FileInfo 的指针
+file_brief_info_t* CmdFactory::generateFileBriefInfoFromProtobufFileInfo(const void* data)
+{
+    tcp_msg::file::FileInfo* fileInfo = (tcp_msg::file::FileInfo*)data;
+    const string& checksum = fileInfo->checksum();
+    int brief_info_size = sizeof(file_brief_info_t)+checksum.length();
+    file_brief_info_t* briefInfo = (file_brief_info_t*)malloc(brief_info_size);
+    memcpy(briefInfo->filename,fileInfo->filename().data(),fileInfo->filename().length());
+    //strcpy(briefInfo->filename,fileInfo.filename().data());//注意：strcpy复制的不够精确，会复制多余数据
+    briefInfo->filesize = fileInfo->filesize();
+    briefInfo->checksum_len = checksum.length();
+    if(briefInfo->checksum_len > 0){
+        memcpy(briefInfo->checksum,checksum.data(),briefInfo->checksum_len);
+    }
+    return briefInfo;
 }
 
 string CmdFactory::buf2Str(const char* buf,int len)
