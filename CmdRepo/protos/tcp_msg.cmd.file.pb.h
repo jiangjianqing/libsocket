@@ -336,11 +336,33 @@ class FileInfo : public ::google::protobuf::Message /* @@protoc_insertion_point(
   ::std::string* release_filename();
   void set_allocated_filename(::std::string* filename);
 
+  // bytes checksum = 3;
+  void clear_checksum();
+  static const int kChecksumFieldNumber = 3;
+  const ::std::string& checksum() const;
+  void set_checksum(const ::std::string& value);
+  #if LANG_CXX11
+  void set_checksum(::std::string&& value);
+  #endif
+  void set_checksum(const char* value);
+  void set_checksum(const void* value, size_t size);
+  ::std::string* mutable_checksum();
+  ::std::string* release_checksum();
+  void set_allocated_checksum(::std::string* checksum);
+
+  // int64 filesize = 2;
+  void clear_filesize();
+  static const int kFilesizeFieldNumber = 2;
+  ::google::protobuf::int64 filesize() const;
+  void set_filesize(::google::protobuf::int64 value);
+
   // @@protoc_insertion_point(class_scope:tcp_msg.file.FileInfo)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::ArenaStringPtr filename_;
+  ::google::protobuf::internal::ArenaStringPtr checksum_;
+  ::google::protobuf::int64 filesize_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
   friend void ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::InitDefaultsFileInfoImpl();
@@ -905,6 +927,73 @@ inline void FileInfo::set_allocated_filename(::std::string* filename) {
   }
   filename_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), filename);
   // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.FileInfo.filename)
+}
+
+// int64 filesize = 2;
+inline void FileInfo::clear_filesize() {
+  filesize_ = GOOGLE_LONGLONG(0);
+}
+inline ::google::protobuf::int64 FileInfo::filesize() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileInfo.filesize)
+  return filesize_;
+}
+inline void FileInfo::set_filesize(::google::protobuf::int64 value) {
+  
+  filesize_ = value;
+  // @@protoc_insertion_point(field_set:tcp_msg.file.FileInfo.filesize)
+}
+
+// bytes checksum = 3;
+inline void FileInfo::clear_checksum() {
+  checksum_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& FileInfo::checksum() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileInfo.checksum)
+  return checksum_.GetNoArena();
+}
+inline void FileInfo::set_checksum(const ::std::string& value) {
+  
+  checksum_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:tcp_msg.file.FileInfo.checksum)
+}
+#if LANG_CXX11
+inline void FileInfo::set_checksum(::std::string&& value) {
+  
+  checksum_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:tcp_msg.file.FileInfo.checksum)
+}
+#endif
+inline void FileInfo::set_checksum(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  checksum_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:tcp_msg.file.FileInfo.checksum)
+}
+inline void FileInfo::set_checksum(const void* value, size_t size) {
+  
+  checksum_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:tcp_msg.file.FileInfo.checksum)
+}
+inline ::std::string* FileInfo::mutable_checksum() {
+  
+  // @@protoc_insertion_point(field_mutable:tcp_msg.file.FileInfo.checksum)
+  return checksum_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* FileInfo::release_checksum() {
+  // @@protoc_insertion_point(field_release:tcp_msg.file.FileInfo.checksum)
+  
+  return checksum_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void FileInfo::set_allocated_checksum(::std::string* checksum) {
+  if (checksum != NULL) {
+    
+  } else {
+    
+  }
+  checksum_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), checksum);
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.FileInfo.checksum)
 }
 
 // -------------------------------------------------------------------

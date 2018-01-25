@@ -118,6 +118,9 @@ win32: {
 
 linux: {
 
+    INCLUDEPATH += $$PWD/../_lib/boost_1_66_0/include
+    LIBS += -L$$PWD/../_lib/boost_1_66_0/lib -lboost_system -lboost_filesystem
+
     LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -lprotobuf
 }
 
@@ -147,6 +150,9 @@ INCLUDEPATH += $$PWD/../_lib/protobuf/include
 
 LIBS += -L$$PWD/../_bin/CryptoUtils/$$CONFIGURATION/$$PLATFORM -lCryptoUtils
 INCLUDEPATH += $$PWD/../CryptoUtils/include
+
+LIBS += -L$$PWD/../_bin/CommonUtils/$$CONFIGURATION/$$PLATFORM -lCommonUtils
+INCLUDEPATH += $$PWD/../CommonUtils/include
 
 message("Defines:")
 message($$DEFINES)

@@ -163,16 +163,32 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpFileListResponse:{
             thread t1{[this,clientId](){
-                    vector<string> list = FileUtils::ls_R(kFileRepoPath,true,[](const string& filename){
+                    vector<string> relativeFilenameList = FileUtils::ls_R(kFileRepoPath,true,[](const string& filename){
                         return true;
                     });
+                    //生成文件摘要信息列表，这里使用智能指针更好
+                    vector<file_brief_info_t*> files;
+                    for(auto it = relativeFilenameList.begin(); it != relativeFilenameList.end(); it++){
+                        string relativeFilename = *it;
+                        string fullFilename = kFileRepoPath + relativeFilename;
+                        file_brief_info_t* info = CmdFactory::generateFileBriefInfo(fullFilename);
+                        if(info != nullptr){
+                            strcpy(info->filename,relativeFilename.data());
+                            files.push_back(info);
+                        }
+                    }
                     unsigned char* buf = nullptr;
                     unsigned len = 0;
-                    CmdFactory::makeFileListResponse(list,buf,len);
+                    CmdFactory::makeFileListResponse(files,buf,len);
                     unsigned char buf111[len];
                     memcpy(buf111,buf,len);
                     m_tcpServer.send((const char*)buf,len,clientId);
                     free(buf);
+                    //释放文件摘要资源
+                    for(auto it = files.begin(); it != files.end(); it++){
+                        file_brief_info_t* info = *it;
+                        free(info);
+                    }
             }};
             t1.detach();
             }

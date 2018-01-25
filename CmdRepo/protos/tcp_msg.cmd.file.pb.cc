@@ -176,6 +176,8 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::FileInfo, filename_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::FileInfo, filesize_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::FileInfo, checksum_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::tcp_msg::file::FileListResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -204,9 +206,9 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tcp_msg::file::FileListRequest)},
   { 7, -1, sizeof(::tcp_msg::file::FileInfo)},
-  { 13, -1, sizeof(::tcp_msg::file::FileListResponse)},
-  { 20, -1, sizeof(::tcp_msg::file::SendFileRequest)},
-  { 27, -1, sizeof(::tcp_msg::file::SendFileResponse)},
+  { 15, -1, sizeof(::tcp_msg::file::FileListResponse)},
+  { 22, -1, sizeof(::tcp_msg::file::SendFileRequest)},
+  { 29, -1, sizeof(::tcp_msg::file::SendFileResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -242,24 +244,25 @@ void AddDescriptorsImpl() {
       "\n\026tcp_msg.cmd.file.proto\022\014tcp_msg.file\032\030"
       "tcp_msg.cmd.common.proto\"D\n\017FileListRequ"
       "est\022%\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHead"
-      "er\022\n\n\002id\030\002 \001(\005\"\034\n\010FileInfo\022\020\n\010filename\030\001"
-      " \001(\t\"c\n\020FileListResponse\022%\n\006header\030\001 \001(\013"
-      "2\025.tcp_msg.CommonHeader\022(\n\010fileinfo\030\002 \003("
-      "\0132\026.tcp_msg.file.FileInfo\"J\n\017SendFileReq"
-      "uest\022%\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHea"
-      "der\022\020\n\010filename\030\002 \001(\t\"\334\002\n\020SendFileRespon"
-      "se\022%\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHeade"
-      "r\022=\n\006result\030\002 \001(\0162-.tcp_msg.file.SendFil"
-      "eResponse.SendFileResult\0225\n\004type\030\003 \001(\0162\'"
-      ".tcp_msg.file.SendFileResponse.FileType\022"
-      "\020\n\010filename\030\004 \001(\t\022\017\n\007content\030\005 \001(\014\"6\n\010Fi"
-      "leType\022\024\n\020UNKNOW_FILE_TYPE\020\000\022\n\n\006SYSTEM\020\001"
-      "\022\010\n\004TEMP\020\002\"P\n\016SendFileResult\022\033\n\027UNKNOW_S"
-      "END_FILE_RESULT\020\000\022\014\n\010NOTFOUND\020\001\022\t\n\005WHOLE"
-      "\020\002\022\010\n\004PART\020\003b\006proto3"
+      "er\022\n\n\002id\030\002 \001(\005\"@\n\010FileInfo\022\020\n\010filename\030\001"
+      " \001(\t\022\020\n\010filesize\030\002 \001(\003\022\020\n\010checksum\030\003 \001(\014"
+      "\"c\n\020FileListResponse\022%\n\006header\030\001 \001(\0132\025.t"
+      "cp_msg.CommonHeader\022(\n\010fileinfo\030\002 \003(\0132\026."
+      "tcp_msg.file.FileInfo\"J\n\017SendFileRequest"
+      "\022%\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHeader\022"
+      "\020\n\010filename\030\002 \001(\t\"\334\002\n\020SendFileResponse\022%"
+      "\n\006header\030\001 \001(\0132\025.tcp_msg.CommonHeader\022=\n"
+      "\006result\030\002 \001(\0162-.tcp_msg.file.SendFileRes"
+      "ponse.SendFileResult\0225\n\004type\030\003 \001(\0162\'.tcp"
+      "_msg.file.SendFileResponse.FileType\022\020\n\010f"
+      "ilename\030\004 \001(\t\022\017\n\007content\030\005 \001(\014\"6\n\010FileTy"
+      "pe\022\024\n\020UNKNOW_FILE_TYPE\020\000\022\n\n\006SYSTEM\020\001\022\010\n\004"
+      "TEMP\020\002\"P\n\016SendFileResult\022\033\n\027UNKNOW_SEND_"
+      "FILE_RESULT\020\000\022\014\n\010NOTFOUND\020\001\022\t\n\005WHOLE\020\002\022\010"
+      "\n\004PART\020\003b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 700);
+      descriptor, 736);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "tcp_msg.cmd.file.proto", &protobuf_RegisterTypes);
   ::protobuf_tcp_5fmsg_2ecmd_2ecommon_2eproto::AddDescriptors();
@@ -628,6 +631,8 @@ void FileInfo::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int FileInfo::kFilenameFieldNumber;
+const int FileInfo::kFilesizeFieldNumber;
+const int FileInfo::kChecksumFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 FileInfo::FileInfo()
@@ -647,11 +652,18 @@ FileInfo::FileInfo(const FileInfo& from)
   if (from.filename().size() > 0) {
     filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
+  checksum_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.checksum().size() > 0) {
+    checksum_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.checksum_);
+  }
+  filesize_ = from.filesize_;
   // @@protoc_insertion_point(copy_constructor:tcp_msg.file.FileInfo)
 }
 
 void FileInfo::SharedCtor() {
   filename_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  checksum_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filesize_ = GOOGLE_LONGLONG(0);
   _cached_size_ = 0;
 }
 
@@ -662,6 +674,7 @@ FileInfo::~FileInfo() {
 
 void FileInfo::SharedDtor() {
   filename_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  checksum_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 
 void FileInfo::SetCachedSize(int size) const {
@@ -694,6 +707,8 @@ void FileInfo::Clear() {
   (void) cached_has_bits;
 
   filename_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  checksum_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  filesize_ = GOOGLE_LONGLONG(0);
   _internal_metadata_.Clear();
 }
 
@@ -717,6 +732,32 @@ bool FileInfo::MergePartialFromCodedStream(
             this->filename().data(), static_cast<int>(this->filename().length()),
             ::google::protobuf::internal::WireFormatLite::PARSE,
             "tcp_msg.file.FileInfo.filename"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int64 filesize = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int64, ::google::protobuf::internal::WireFormatLite::TYPE_INT64>(
+                 input, &filesize_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // bytes checksum = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_checksum()));
         } else {
           goto handle_unusual;
         }
@@ -759,6 +800,17 @@ void FileInfo::SerializeWithCachedSizes(
       1, this->filename(), output);
   }
 
+  // int64 filesize = 2;
+  if (this->filesize() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt64(2, this->filesize(), output);
+  }
+
+  // bytes checksum = 3;
+  if (this->checksum().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+      3, this->checksum(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -784,6 +836,18 @@ void FileInfo::SerializeWithCachedSizes(
         1, this->filename(), target);
   }
 
+  // int64 filesize = 2;
+  if (this->filesize() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt64ToArray(2, this->filesize(), target);
+  }
+
+  // bytes checksum = 3;
+  if (this->checksum().size() > 0) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        3, this->checksum(), target);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
@@ -806,6 +870,20 @@ size_t FileInfo::ByteSizeLong() const {
     total_size += 1 +
       ::google::protobuf::internal::WireFormatLite::StringSize(
         this->filename());
+  }
+
+  // bytes checksum = 3;
+  if (this->checksum().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::BytesSize(
+        this->checksum());
+  }
+
+  // int64 filesize = 2;
+  if (this->filesize() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int64Size(
+        this->filesize());
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -841,6 +919,13 @@ void FileInfo::MergeFrom(const FileInfo& from) {
 
     filename_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.filename_);
   }
+  if (from.checksum().size() > 0) {
+
+    checksum_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.checksum_);
+  }
+  if (from.filesize() != 0) {
+    set_filesize(from.filesize());
+  }
 }
 
 void FileInfo::CopyFrom(const ::google::protobuf::Message& from) {
@@ -868,6 +953,8 @@ void FileInfo::Swap(FileInfo* other) {
 void FileInfo::InternalSwap(FileInfo* other) {
   using std::swap;
   filename_.Swap(&other->filename_);
+  checksum_.Swap(&other->checksum_);
+  swap(filesize_, other->filesize_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
 }

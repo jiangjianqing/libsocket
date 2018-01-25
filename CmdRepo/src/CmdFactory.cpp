@@ -9,6 +9,8 @@
 #include "protos/tcp_msg.cmd.file.pb.h"
 #include "protos/tcp_msg.cmd.global.pb.h"
 
+#include "commonutils/FileUtils.h"
+
 using namespace google::protobuf;
 
 void packageMsg(const Message& msg,unsigned char*& buf,unsigned& len)
@@ -78,14 +80,19 @@ bool CmdFactory::makeFileListRequest(unsigned id,unsigned char*& buf,unsigned& l
     return true;
 }
 
-bool CmdFactory::makeFileListResponse(const vector<string>& filenames,unsigned char*& buf,unsigned& len)
+bool CmdFactory::makeFileListResponse(const vector<file_brief_info_t*>& files,unsigned char*& buf,unsigned& len)
 {
     tcp_msg::file::FileListResponse msg;
     tcp_msg::file::FileInfo* fileinfo;
-    for(auto it = filenames.begin();it != filenames.end(); it++){
+    for(auto it = files.begin();it != files.end(); it++){
+        file_brief_info_t* file = *it;
+
         fileinfo = msg.add_fileinfo();
-        string filename =*it;
-        fileinfo->set_filename(filename);
+        fileinfo->set_filename(file->filename,strlen(file->filename)+1);//连最后一个null一起copy
+        fileinfo->set_filesize(file->filesize);
+        if(file->checksum_len>0){
+            fileinfo->set_checksum(file->checksum,file->checksum_len);
+        }
     }
     packageMsg(msg,buf,len);
     return true;
@@ -108,6 +115,23 @@ bool CmdFactory::makeSendFileResponseMsg(const string& file_name,const char* fil
     msg.set_type(tcp_msg::file::SendFileResponse_FileType_UNKNOW_FILE_TYPE);
     packageMsg(msg,buf,len);
     return true;
+}
+
+file_brief_info_t* CmdFactory::generateFileBriefInfo(const string& filename)
+{
+    if(FileUtils::exists(filename) == false){
+        return nullptr;
+    }
+
+    int file_size = FileUtils::getFileSize(filename);
+
+    //注意：此处还没有考虑生成文件校验码
+    file_brief_info_t* fileinfo = (file_brief_info_t*)malloc(sizeof(*fileinfo));
+    fileinfo->filesize = file_size;
+    fileinfo->checksum_len = 0;
+    strcpy(fileinfo->filename,filename.data());
+
+    return fileinfo;
 }
 
 string CmdFactory::buf2Str(const char* buf,int len)

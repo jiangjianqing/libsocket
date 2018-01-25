@@ -12,6 +12,8 @@ message FileListRequest
 message FileInfo
 {
     string          filename    =   1;
+    int64           filesize    =   2;
+    bytes           checksum    =   3;
 }
 
 message FileListResponse
