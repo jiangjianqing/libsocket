@@ -274,17 +274,17 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpSendFileRequest_NextFile:{
             thread t1{[this](){
+                unsigned char* buf = nullptr;
+                unsigned len = 0;
                 if(m_cmdProcesser.toNextFilename()){
                     string filename = m_cmdProcesser.getCurrFilename();
-                    unsigned char* buf = nullptr;
-                    unsigned len = 0;
                     CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
-                    m_tcpClient.send((const char*)buf,len);
-                    free(buf);
                 }else{
-                    ///todo:如果没有文件需要发送
-                    fprintf(stdout,"如果没有文件需要接收，开始执行更新操作");
+                    ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
+                    CmdFactory::makeFileListSendResultResponse(true,vector<string>(),buf,len);
                 }
+                m_tcpClient.send((const char*)buf,len);
+                free(buf);
             }};
             t1.detach();
 

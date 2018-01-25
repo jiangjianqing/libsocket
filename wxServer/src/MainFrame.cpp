@@ -220,25 +220,28 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                 }else{//让异常状态给客户端，让其进行标记,并开始获取下一个文件
                     assert("没有读到文件");
                 }
-                //测试代码
-                /*
-                if(file_data_size< 6e4){
-                    file_data = (unsigned char*)malloc(file_data_size);
-                    FileUtils::ReadFileData(fullFilename,0,(char*)file_data,file_data_size);
-                }else{
-                    file_data_size = 20;
-                    file_data = (unsigned char*)malloc(file_data_size);
-                    char* hint = "FILE TOO LARGE!!!";
-                    memcpy(file_data,hint,strlen(hint)+1);
-                }*/
-
                 free(buf);//注意：任何情况下都需要给客户端一个回应
                 free(file_data);
             }};
             t1.detach();
             }
             break;
-        }
+        case (int)CmdEventType::TcpAllFilesSendResult:{
+            thread t1{[this,cmdProcesser,clientId](){
+                if(cmdProcesser->isAllFilesSendOk()){
+                    unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
+                    unsigned len = 0;
+                    CmdFactory::makeExecuteTaskRequest("upgrade",buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                    free(buf);
+                }else{//isAllFilesSendOk() == false
+                    assert("文件接收不完整");
+                }
+            }};
+            t1.detach();
+            }
+            break;
+        }//end of switch
         return;
     }
     wxString msg = event.GetString();

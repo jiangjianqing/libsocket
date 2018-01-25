@@ -43,6 +43,16 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 m_currStartPos =fileRequestMsg->start_pos();
                 //从这里开始取指定文件大小
                 callCmdEventCb(CmdEventType::TcpSendFileResponse);
+            }else if(dynamic_cast<::tcp_msg::file::FileListSendResultResponse*>(msg) != nullptr){
+                ::tcp_msg::file::FileListSendResultResponse* sendResultMsg = dynamic_cast<::tcp_msg::file::FileListSendResultResponse*>(msg);
+                m_isAllFilesSendOk = sendResultMsg->result_type() == ::tcp_msg::SUCCESS;
+                vector<string> feedbacks;
+                for(int i = 0;i < sendResultMsg->result_info_size();i++){
+                    const ::tcp_msg::FeedbackInfo& fb = sendResultMsg->result_info(i);
+                    feedbacks.push_back(fb.info());
+                }
+                resetFeedbackInfos(feedbacks);
+                callCmdEventCb(CmdEventType::TcpAllFilesSendResult);
             }
         }
         delete msg;
@@ -50,6 +60,12 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
     }else{//解析失败
 
     }
+}
+
+void ServerCmdProcesser::resetFeedbackInfos(const vector<string>& feedbacks)
+{
+    m_feedbackInfos.clear();
+    m_feedbackInfos.insert(m_feedbackInfos.end(),feedbacks.begin(),feedbacks.end());
 }
 
 void ServerCmdProcesser::callCmdEventCb(const CmdEventType& eventType)

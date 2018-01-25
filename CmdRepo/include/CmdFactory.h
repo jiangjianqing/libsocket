@@ -39,6 +39,10 @@ public:
     static bool makeSendFileRequest(const string& filename,uint64_t startpos,unsigned char*& buf,unsigned& len);
     static bool makeSendFileResponseMsg(const string& filename,const char* file_data,const unsigned file_len,uint64_t start_pos,uint64_t residue_length,unsigned char*& buf,unsigned& len);
 
+    static bool makeFileListSendResultResponse(bool is_ok,vector<string> feedbacks,unsigned char*& buf,unsigned& len);
+
+    static bool makeExecuteTaskRequest(const string& taskname,unsigned char*& buf,unsigned& len);
+
     //生成文件的摘要信息
     static file_brief_info_t* generateFileBriefInfo(const string& filename);
     //从protobuf 的 FileInfo结构生成file_brief_info, 输入参数为 tcp_msg::file::FileInfo 的指针

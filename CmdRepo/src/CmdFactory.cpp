@@ -8,6 +8,7 @@
 #include "CmdBufParser.h"
 #include "protos/tcp_msg.cmd.file.pb.h"
 #include "protos/tcp_msg.cmd.global.pb.h"
+#include "protos/tcp_msg.cmd.task.pb.h"
 
 #include "commonutils/FileUtils.h"
 
@@ -70,6 +71,14 @@ bool CmdFactory::makeStartUpdateRequestMsg(unsigned char*& buf,unsigned& len)
     return true;
 }
 
+bool CmdFactory::makeExecuteTaskRequest(const string& taskname,unsigned char*& buf,unsigned& len)
+{
+    ::tcp_msg::task::ExecuteTaskRequest msg;
+    msg.set_taskname(taskname);
+    packageMsg(msg,buf,len);
+    return true;
+}
+
 //--------------------以下为client request   server response------------------------
 
 bool CmdFactory::makeFileListRequest(unsigned id,unsigned char*& buf,unsigned& len)
@@ -118,6 +127,19 @@ bool CmdFactory::makeSendFileResponseMsg(const string& file_name,const char* fil
     }
     msg.set_residue_length(residue_length);
     msg.set_type(tcp_msg::file::SendFileResponse_FileType_UNKNOW_FILE_TYPE);//尚未使用
+    packageMsg(msg,buf,len);
+    return true;
+}
+
+bool CmdFactory::makeFileListSendResultResponse(bool is_ok,vector<string> feedbacks,unsigned char*& buf,unsigned& len)
+{
+    tcp_msg::file::FileListSendResultResponse msg;
+    msg.set_result_type(is_ok?::tcp_msg::SUCCESS : ::tcp_msg::FAILED);
+    for(auto it = feedbacks.begin();it != feedbacks.end(); it++){
+        string info = *it;
+        ::tcp_msg::FeedbackInfo* feedback = msg.add_result_info();
+        feedback->set_info(info);
+    }
     packageMsg(msg,buf,len);
     return true;
 }

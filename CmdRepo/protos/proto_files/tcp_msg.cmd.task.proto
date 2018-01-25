@@ -1,0 +1,20 @@
+syntax = "proto3";
+package tcp_msg.task;
+ 
+import "tcp_msg.cmd.common.proto";
+
+message ExecuteTaskRequest
+{
+    CommonHeader    header      =   1;
+    string          taskname    =   2;//任务名称位于脚本中
+}
+
+message ExecuteTaskResponse
+{
+    CommonHeader    header      =   1;
+    string          taskname    =   2;//任务名称位于脚本中
+    FeedbackType    result_type =   3;
+    repeated FeedbackInfo result_info   =   4;
+}
+
+
