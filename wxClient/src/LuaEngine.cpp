@@ -128,6 +128,60 @@ void LuaEngine::addLuaPackagePath(lua_State *ls, const char *name, const char *v
     lua_pop(ls, 2);
 }
 
+void LuaEngine::executeTask(const string& taskname)
+{
+    auto fn = [&taskname,this](lua_State* L){
+
+        if(L == nullptr){
+            return;
+        }
+
+        lua_pushcfunction(L, pcall_callback_err_fun);
+        int pos_err_fun = lua_gettop(L);
+
+        /* 注册函数 */
+        lua_register(L, "average", average);
+
+        //2、加载lua文件
+        int iret = luaL_loadfile(L,"lua/task.lua");
+        if(iret){
+            cout<<"load file error"<<endl;
+            return;
+        }
+
+        //3、运行lua文件
+        iret = lua_pcall(L,0,0,pos_err_fun);
+        if(iret){
+
+            int t = lua_type(L, -1);
+            const char* err = lua_tostring(L,-1);
+            cout<<"pcall error :"<<err<<endl;
+            //printf("Error: %s\n", err);
+            lua_pop(L, 1);
+            return;
+        }
+
+        lua_pushstring(L,m_sourceDir.c_str());
+        lua_setglobal(L,"source");
+
+        //6、读取函数
+        lua_getglobal(L,"execute_task");// 获取函数，压入栈中
+        lua_pushstring(L,taskname.c_str());//压入第一个参数
+        iret = lua_pcall(L,1/*参数个数*/,1/*结果个数*/,0);// 调用函数，调用完成以后，会将返回值压入栈中，2表示参数个数，1表示返回结果个数。
+        if(iret){// 调用出错
+            const char* errmsg = lua_tostring(L,-1);
+            cout<<errmsg<<endl;
+            lua_close(L);
+            return;
+        }
+        if(lua_isnumber(L,-1)){
+            double fValue = lua_tonumber(L,-1);
+            cout<<"Result is "<<fValue<<endl;
+        }
+    };
+
+    exec((fn));
+}
 
 void LuaEngine::testLua()
 {
@@ -216,6 +270,7 @@ void LuaEngine::testLua()
                 cout<<lua_tonumber(L,2)<<endl;
         }*/
     };
+
 
     exec((fn));
 

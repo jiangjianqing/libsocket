@@ -13,12 +13,19 @@ public:
     virtual ~LuaEngine();
 
     void testLua();
+    void executeTask(const string& taskname);
 
     static LuaEngine* getInstance();
     static void destroyInstance();
 
+    void setSourceDir(const string& dirname){m_sourceDir = dirname;};
+    void setDestDir(const string& dirname){m_destDir = dirname;}
+
 private:
     lua_State* m_luaState;
+
+    string m_sourceDir;
+    string m_destDir;
 
     bool init();
 

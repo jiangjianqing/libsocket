@@ -16,6 +16,8 @@ ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(
     m_luaEngine.testLua();
     //特别注意，该路径一定要是某个子目录，因为后续会对其进行删除清空
     m_recvFilePath = FileUtils::currentPath()+"/recv";
+
+    m_luaEngine.setSourceDir(m_recvFilePath);
     //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
@@ -58,8 +60,10 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 callCmdEventCb(CmdEventType::TcpFileListRequest);
             }else if(dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg) != nullptr){
                 ::tcp_msg::task::ExecuteTaskRequest* taskRequestMsg = dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg);
-                m_currTaskname = taskRequestMsg->taskname();
+                const string& taskname = taskRequestMsg->taskname();
+                m_currTaskname = taskname;
                 callCmdEventCb(CmdEventType::TcpExecuteTaskRequest);
+                m_luaEngine.executeTask(taskname);
             }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
 
                 //清空指定目录，接收文件清单
