@@ -51,4 +51,14 @@ message SendFileResponse
     uint64           residue_length  =   6;//剩余待发送长度
 }
 
+message FileListSendResultRequest
+{
+    CommonHeader    header      =   1;
+}
 
+message FileListSendResultResponse
+{      
+    CommonHeader    header      =   1;
+    FeedbackType    result_type =   2;
+    repeated FeedbackInfo result_info   =   3;
+}

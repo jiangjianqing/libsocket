@@ -38,7 +38,7 @@ namespace protobuf_tcp_5fmsg_2ecmd_2efile_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[5];
+  static const ::google::protobuf::internal::ParseTable schema[7];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -54,12 +54,18 @@ void InitDefaultsSendFileRequestImpl();
 void InitDefaultsSendFileRequest();
 void InitDefaultsSendFileResponseImpl();
 void InitDefaultsSendFileResponse();
+void InitDefaultsFileListSendResultRequestImpl();
+void InitDefaultsFileListSendResultRequest();
+void InitDefaultsFileListSendResultResponseImpl();
+void InitDefaultsFileListSendResultResponse();
 inline void InitDefaults() {
   InitDefaultsFileListRequest();
   InitDefaultsFileInfo();
   InitDefaultsFileListResponse();
   InitDefaultsSendFileRequest();
   InitDefaultsSendFileResponse();
+  InitDefaultsFileListSendResultRequest();
+  InitDefaultsFileListSendResultResponse();
 }
 }  // namespace protobuf_tcp_5fmsg_2ecmd_2efile_2eproto
 namespace tcp_msg {
@@ -73,6 +79,12 @@ extern FileListRequestDefaultTypeInternal _FileListRequest_default_instance_;
 class FileListResponse;
 class FileListResponseDefaultTypeInternal;
 extern FileListResponseDefaultTypeInternal _FileListResponse_default_instance_;
+class FileListSendResultRequest;
+class FileListSendResultRequestDefaultTypeInternal;
+extern FileListSendResultRequestDefaultTypeInternal _FileListSendResultRequest_default_instance_;
+class FileListSendResultResponse;
+class FileListSendResultResponseDefaultTypeInternal;
+extern FileListSendResultResponseDefaultTypeInternal _FileListSendResultResponse_default_instance_;
 class SendFileRequest;
 class SendFileRequestDefaultTypeInternal;
 extern SendFileRequestDefaultTypeInternal _SendFileRequest_default_instance_;
@@ -797,11 +809,11 @@ class SendFileResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::tcp_msg::file::SendFileResponse_FileType type() const;
   void set_type(::tcp_msg::file::SendFileResponse_FileType value);
 
-  // int64 residue_length = 6;
+  // uint64 residue_length = 6;
   void clear_residue_length();
   static const int kResidueLengthFieldNumber = 6;
-  ::google::protobuf::int64 residue_length() const;
-  void set_residue_length(::google::protobuf::int64 value);
+  ::google::protobuf::uint64 residue_length() const;
+  void set_residue_length(::google::protobuf::uint64 value);
 
   // @@protoc_insertion_point(class_scope:tcp_msg.file.SendFileResponse)
  private:
@@ -812,10 +824,234 @@ class SendFileResponse : public ::google::protobuf::Message /* @@protoc_insertio
   ::tcp_msg::CommonHeader* header_;
   int result_;
   int type_;
-  ::google::protobuf::int64 residue_length_;
+  ::google::protobuf::uint64 residue_length_;
   mutable int _cached_size_;
   friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
   friend void ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::InitDefaultsSendFileResponseImpl();
+};
+// -------------------------------------------------------------------
+
+class FileListSendResultRequest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tcp_msg.file.FileListSendResultRequest) */ {
+ public:
+  FileListSendResultRequest();
+  virtual ~FileListSendResultRequest();
+
+  FileListSendResultRequest(const FileListSendResultRequest& from);
+
+  inline FileListSendResultRequest& operator=(const FileListSendResultRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  FileListSendResultRequest(FileListSendResultRequest&& from) noexcept
+    : FileListSendResultRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline FileListSendResultRequest& operator=(FileListSendResultRequest&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FileListSendResultRequest& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const FileListSendResultRequest* internal_default_instance() {
+    return reinterpret_cast<const FileListSendResultRequest*>(
+               &_FileListSendResultRequest_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    5;
+
+  void Swap(FileListSendResultRequest* other);
+  friend void swap(FileListSendResultRequest& a, FileListSendResultRequest& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline FileListSendResultRequest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  FileListSendResultRequest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const FileListSendResultRequest& from);
+  void MergeFrom(const FileListSendResultRequest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(FileListSendResultRequest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // .tcp_msg.CommonHeader header = 1;
+  bool has_header() const;
+  void clear_header();
+  static const int kHeaderFieldNumber = 1;
+  const ::tcp_msg::CommonHeader& header() const;
+  ::tcp_msg::CommonHeader* release_header();
+  ::tcp_msg::CommonHeader* mutable_header();
+  void set_allocated_header(::tcp_msg::CommonHeader* header);
+
+  // @@protoc_insertion_point(class_scope:tcp_msg.file.FileListSendResultRequest)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::tcp_msg::CommonHeader* header_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
+  friend void ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::InitDefaultsFileListSendResultRequestImpl();
+};
+// -------------------------------------------------------------------
+
+class FileListSendResultResponse : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:tcp_msg.file.FileListSendResultResponse) */ {
+ public:
+  FileListSendResultResponse();
+  virtual ~FileListSendResultResponse();
+
+  FileListSendResultResponse(const FileListSendResultResponse& from);
+
+  inline FileListSendResultResponse& operator=(const FileListSendResultResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  FileListSendResultResponse(FileListSendResultResponse&& from) noexcept
+    : FileListSendResultResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline FileListSendResultResponse& operator=(FileListSendResultResponse&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FileListSendResultResponse& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const FileListSendResultResponse* internal_default_instance() {
+    return reinterpret_cast<const FileListSendResultResponse*>(
+               &_FileListSendResultResponse_default_instance_);
+  }
+  static PROTOBUF_CONSTEXPR int const kIndexInFileMessages =
+    6;
+
+  void Swap(FileListSendResultResponse* other);
+  friend void swap(FileListSendResultResponse& a, FileListSendResultResponse& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline FileListSendResultResponse* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  FileListSendResultResponse* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const FileListSendResultResponse& from);
+  void MergeFrom(const FileListSendResultResponse& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(FileListSendResultResponse* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .tcp_msg.FeedbackInfo result_info = 3;
+  int result_info_size() const;
+  void clear_result_info();
+  static const int kResultInfoFieldNumber = 3;
+  const ::tcp_msg::FeedbackInfo& result_info(int index) const;
+  ::tcp_msg::FeedbackInfo* mutable_result_info(int index);
+  ::tcp_msg::FeedbackInfo* add_result_info();
+  ::google::protobuf::RepeatedPtrField< ::tcp_msg::FeedbackInfo >*
+      mutable_result_info();
+  const ::google::protobuf::RepeatedPtrField< ::tcp_msg::FeedbackInfo >&
+      result_info() const;
+
+  // .tcp_msg.CommonHeader header = 1;
+  bool has_header() const;
+  void clear_header();
+  static const int kHeaderFieldNumber = 1;
+  const ::tcp_msg::CommonHeader& header() const;
+  ::tcp_msg::CommonHeader* release_header();
+  ::tcp_msg::CommonHeader* mutable_header();
+  void set_allocated_header(::tcp_msg::CommonHeader* header);
+
+  // .tcp_msg.FeedbackType result_type = 2;
+  void clear_result_type();
+  static const int kResultTypeFieldNumber = 2;
+  ::tcp_msg::FeedbackType result_type() const;
+  void set_result_type(::tcp_msg::FeedbackType value);
+
+  // @@protoc_insertion_point(class_scope:tcp_msg.file.FileListSendResultResponse)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::RepeatedPtrField< ::tcp_msg::FeedbackInfo > result_info_;
+  ::tcp_msg::CommonHeader* header_;
+  int result_type_;
+  mutable int _cached_size_;
+  friend struct ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::TableStruct;
+  friend void ::protobuf_tcp_5fmsg_2ecmd_2efile_2eproto::InitDefaultsFileListSendResultResponseImpl();
 };
 // ===================================================================
 
@@ -1385,23 +1621,164 @@ inline void SendFileResponse::set_allocated_content(::std::string* content) {
   // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.SendFileResponse.content)
 }
 
-// int64 residue_length = 6;
+// uint64 residue_length = 6;
 inline void SendFileResponse::clear_residue_length() {
-  residue_length_ = GOOGLE_LONGLONG(0);
+  residue_length_ = GOOGLE_ULONGLONG(0);
 }
-inline ::google::protobuf::int64 SendFileResponse::residue_length() const {
+inline ::google::protobuf::uint64 SendFileResponse::residue_length() const {
   // @@protoc_insertion_point(field_get:tcp_msg.file.SendFileResponse.residue_length)
   return residue_length_;
 }
-inline void SendFileResponse::set_residue_length(::google::protobuf::int64 value) {
+inline void SendFileResponse::set_residue_length(::google::protobuf::uint64 value) {
   
   residue_length_ = value;
   // @@protoc_insertion_point(field_set:tcp_msg.file.SendFileResponse.residue_length)
 }
 
+// -------------------------------------------------------------------
+
+// FileListSendResultRequest
+
+// .tcp_msg.CommonHeader header = 1;
+inline bool FileListSendResultRequest::has_header() const {
+  return this != internal_default_instance() && header_ != NULL;
+}
+inline const ::tcp_msg::CommonHeader& FileListSendResultRequest::header() const {
+  const ::tcp_msg::CommonHeader* p = header_;
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileListSendResultRequest.header)
+  return p != NULL ? *p : *reinterpret_cast<const ::tcp_msg::CommonHeader*>(
+      &::tcp_msg::_CommonHeader_default_instance_);
+}
+inline ::tcp_msg::CommonHeader* FileListSendResultRequest::release_header() {
+  // @@protoc_insertion_point(field_release:tcp_msg.file.FileListSendResultRequest.header)
+  
+  ::tcp_msg::CommonHeader* temp = header_;
+  header_ = NULL;
+  return temp;
+}
+inline ::tcp_msg::CommonHeader* FileListSendResultRequest::mutable_header() {
+  
+  if (header_ == NULL) {
+    header_ = new ::tcp_msg::CommonHeader;
+  }
+  // @@protoc_insertion_point(field_mutable:tcp_msg.file.FileListSendResultRequest.header)
+  return header_;
+}
+inline void FileListSendResultRequest::set_allocated_header(::tcp_msg::CommonHeader* header) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete reinterpret_cast< ::google::protobuf::MessageLite*>(header_);
+  }
+  if (header) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      header = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.FileListSendResultRequest.header)
+}
+
+// -------------------------------------------------------------------
+
+// FileListSendResultResponse
+
+// .tcp_msg.CommonHeader header = 1;
+inline bool FileListSendResultResponse::has_header() const {
+  return this != internal_default_instance() && header_ != NULL;
+}
+inline const ::tcp_msg::CommonHeader& FileListSendResultResponse::header() const {
+  const ::tcp_msg::CommonHeader* p = header_;
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileListSendResultResponse.header)
+  return p != NULL ? *p : *reinterpret_cast<const ::tcp_msg::CommonHeader*>(
+      &::tcp_msg::_CommonHeader_default_instance_);
+}
+inline ::tcp_msg::CommonHeader* FileListSendResultResponse::release_header() {
+  // @@protoc_insertion_point(field_release:tcp_msg.file.FileListSendResultResponse.header)
+  
+  ::tcp_msg::CommonHeader* temp = header_;
+  header_ = NULL;
+  return temp;
+}
+inline ::tcp_msg::CommonHeader* FileListSendResultResponse::mutable_header() {
+  
+  if (header_ == NULL) {
+    header_ = new ::tcp_msg::CommonHeader;
+  }
+  // @@protoc_insertion_point(field_mutable:tcp_msg.file.FileListSendResultResponse.header)
+  return header_;
+}
+inline void FileListSendResultResponse::set_allocated_header(::tcp_msg::CommonHeader* header) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete reinterpret_cast< ::google::protobuf::MessageLite*>(header_);
+  }
+  if (header) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      header = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, header, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  header_ = header;
+  // @@protoc_insertion_point(field_set_allocated:tcp_msg.file.FileListSendResultResponse.header)
+}
+
+// .tcp_msg.FeedbackType result_type = 2;
+inline void FileListSendResultResponse::clear_result_type() {
+  result_type_ = 0;
+}
+inline ::tcp_msg::FeedbackType FileListSendResultResponse::result_type() const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileListSendResultResponse.result_type)
+  return static_cast< ::tcp_msg::FeedbackType >(result_type_);
+}
+inline void FileListSendResultResponse::set_result_type(::tcp_msg::FeedbackType value) {
+  
+  result_type_ = value;
+  // @@protoc_insertion_point(field_set:tcp_msg.file.FileListSendResultResponse.result_type)
+}
+
+// repeated .tcp_msg.FeedbackInfo result_info = 3;
+inline int FileListSendResultResponse::result_info_size() const {
+  return result_info_.size();
+}
+inline const ::tcp_msg::FeedbackInfo& FileListSendResultResponse::result_info(int index) const {
+  // @@protoc_insertion_point(field_get:tcp_msg.file.FileListSendResultResponse.result_info)
+  return result_info_.Get(index);
+}
+inline ::tcp_msg::FeedbackInfo* FileListSendResultResponse::mutable_result_info(int index) {
+  // @@protoc_insertion_point(field_mutable:tcp_msg.file.FileListSendResultResponse.result_info)
+  return result_info_.Mutable(index);
+}
+inline ::tcp_msg::FeedbackInfo* FileListSendResultResponse::add_result_info() {
+  // @@protoc_insertion_point(field_add:tcp_msg.file.FileListSendResultResponse.result_info)
+  return result_info_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::tcp_msg::FeedbackInfo >*
+FileListSendResultResponse::mutable_result_info() {
+  // @@protoc_insertion_point(field_mutable_list:tcp_msg.file.FileListSendResultResponse.result_info)
+  return &result_info_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::tcp_msg::FeedbackInfo >&
+FileListSendResultResponse::result_info() const {
+  // @@protoc_insertion_point(field_list:tcp_msg.file.FileListSendResultResponse.result_info)
+  return result_info_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
