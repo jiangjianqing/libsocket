@@ -8,6 +8,7 @@
 // Linux系统
 #include "boost/filesystem.hpp"
 using namespace boost::filesystem;
+namespace fs = boost::filesystem;
 #elif defined(_WIN32)
 
 // Windows系统

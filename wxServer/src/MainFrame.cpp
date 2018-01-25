@@ -20,7 +20,7 @@
 const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 
 const unsigned short kTcpServerPort = 11212;
-static const string kFileRepoPath = "/home/cz_jjq/Desktop/Test";
+static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 {

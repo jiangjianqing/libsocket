@@ -273,18 +273,20 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             break;
         case (int)CmdEventType::TcpSendFileRequest:{
-            if(m_cmdProcesser.toNextFilename()){
-                string filename = m_cmdProcesser.getCurrFilename();
-                unsigned char* buf = nullptr;
-                unsigned len = 0;
-                CmdFactory::makeSendFileRequest(filename,buf,len);
-                m_tcpClient.send((const char*)buf,len);
-                free(buf);
-            }else{
-                ///todo:如果没有文件需要发送
-                fprintf(stdout,"如果没有文件需要发送");
-            }
-
+            thread t1{[this](){
+                if(m_cmdProcesser.toNextFilename()){
+                    string filename = m_cmdProcesser.getCurrFilename();
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeSendFileRequest(filename,buf,len);
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+                }else{
+                    ///todo:如果没有文件需要发送
+                    fprintf(stdout,"如果没有文件需要发送");
+                }
+            }};
+            t1.detach();
 
             }
             break;

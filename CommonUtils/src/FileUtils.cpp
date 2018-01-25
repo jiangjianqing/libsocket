@@ -17,8 +17,7 @@ std::tr2::sys::path p3;
 
 bool FileUtils::exists(const std::string& filename)
 {
-    return exists(filename);
-
+    return fs::exists(filename);
     //fstream file;
     //file.open(filename,ios::out);
     //return !file ? false : true;
@@ -233,8 +232,17 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
         std::string fullpathname = fp.string();
 
         if(is_directory(fullpathname)){
-            vector<string> subList = ls_R(fullpathname,saveRelativePath,filterCb);
-            //todo: 附加
+            vector<string> subList = ls_R(fullpathname,false,filterCb);
+            //递归生成文件列表，vector中插入另一个vector的范例,但是此处没有用上
+            //list.insert(list.end(),subList.begin(),subList.end());
+            for(auto it = subList.begin();it != subList.end(); it++){
+                string tmpFullpath =  *it;
+                if(saveRelativePath){
+                    list.push_back(replace_all_str(tmpFullpath,dirname,""));
+                }else{
+                    list.push_back(tmpFullpath);
+                }
+            }
         }else{
             if(!filterCb || filterCb(fullpathname)){
                 if(saveRelativePath){

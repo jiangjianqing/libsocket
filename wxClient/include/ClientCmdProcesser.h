@@ -42,6 +42,8 @@ private:
     string m_serverIp;
     int m_serverPort;
     LuaEngine m_luaEngine;
+    //特别注意，该路径一定要是某个子目录，因为后续会对其进行删除清空
+    string m_recvFilePath;
 
     vector<string> m_filenameList;
     int m_CurrFileNameListIndex;//当前待获取文件名的index

@@ -9,9 +9,12 @@
 #include "ProtobufUtils.h"
 #include "commonutils/FileUtils.h"
 
+
 ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler),m_CurrFileNameListIndex(-1)
 {
     m_luaEngine.testLua();
+    //特别注意，该路径一定要是某个子目录，因为后续会对其进行删除清空
+    m_recvFilePath = FileUtils::currentPath()+"/recv";
     //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
@@ -48,6 +51,9 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
             }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
                 callCmdEventCb(CmdEventType::TcpFileListRequest);
             }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
+
+                //清空指定目录，接收文件清单
+                FileUtils::rm_rf(m_recvFilePath);
                 tcp_msg::file::FileListResponse* filelistMsg= dynamic_cast<tcp_msg::file::FileListResponse*>(msg);
 
                 m_filenameList.clear();;
@@ -59,11 +65,15 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                 callCmdEventCb(CmdEventType::TcpSendFileRequest);
             }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
                 tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
-                string filename = FileUtils::currentPath();
-                filename = filename + fileRespMsg->filename();
+                //将文件保存到指定目录
+                string filename = m_recvFilePath + fileRespMsg->filename();
                 const string& content = fileRespMsg->content();
-
+                string parentPath = FileUtils::parentPath(filename);
+                if(!FileUtils::exists(parentPath)){
+                    FileUtils::mkdirp(parentPath);
+                }
                 FileUtils::saveDataAsFile(filename,content.data(),content.length());
+                callCmdEventCb(CmdEventType::TcpSendFileRequest);
             }
 
 
