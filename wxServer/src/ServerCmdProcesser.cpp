@@ -20,7 +20,7 @@ void ServerCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
     if(pkg.ParseFromArray(cmd->payload,cmd->header.length)){//解析成功
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
         if(msg == nullptr){
-            assert("无法识别的消息类型");
+            //assert("无法识别的消息类型");
             return;
         }
         const string& str = pkg.data();

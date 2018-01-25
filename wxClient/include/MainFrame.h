@@ -1,4 +1,4 @@
-#ifndef MainFrame_H
+﻿#ifndef MainFrame_H
 #define MainFrame_H
 
 #include "wx/frame.h"

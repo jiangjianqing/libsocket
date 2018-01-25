@@ -21,7 +21,15 @@ const string kTitle = string("wxServer (  ") + string(BUILD_DATE) + "  )";
 const int kFilePartSize = 60*1024;//文件分包大小
 
 const unsigned short kTcpServerPort = 11212;
+
+#if defined(__linux__)
+// Linux系统
 static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
+#elif defined(_WIN32)
+// Windows系统
+static const string kFileRepoPath = "D:\\algrepo_test";
+#endif
+
 
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 {
@@ -181,8 +189,6 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     unsigned char* buf = nullptr;
                     unsigned len = 0;
                     CmdFactory::makeFileListResponse(files,buf,len);
-                    unsigned char buf111[len];
-                    memcpy(buf111,buf,len);
                     m_tcpServer.send((const char*)buf,len,clientId);
                     free(buf);
                     //释放文件摘要资源
@@ -235,7 +241,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     m_tcpServer.send((const char*)buf,len,clientId);
                     free(buf);
                 }else{//isAllFilesSendOk() == false
-                    assert("文件接收不完整");
+                    //assert("文件接收不完整");
                 }
             }};
             t1.detach();
