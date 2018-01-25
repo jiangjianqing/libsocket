@@ -167,8 +167,13 @@ int64_t ClientCmdProcesser::getCurrFileStartPos()
         return -2;
     }
     file_brief_info_t* fileBriefInfo = m_fileBriefInfoList.at(m_CurrFileNameListIndex);
+#ifdef __GNUC__
+    //vc编译器不支持 常量表达式。。。。。。。
     char buf[strlen(fileBriefInfo->filename)+1] = {0};
     strcpy(buf,fileBriefInfo->filename);
+#else
+    string buf(fileBriefInfo->filename);
+#endif
     string fullpath = m_recvFilePath + buf;
     return FileUtils::getFileSize(fullpath);
 }
