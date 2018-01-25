@@ -27,7 +27,7 @@ const unsigned short kTcpServerPort = 11212;
 static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
 #elif defined(_WIN32)
 // Windows系统
-static const string kFileRepoPath = "D:\\algrepo_test";
+static const string kFileRepoPath = "D:\\git\\cpp\\libsocket\\qtServer";
 #endif
 
 
