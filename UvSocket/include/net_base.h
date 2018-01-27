@@ -75,6 +75,13 @@ typedef struct _udp_send_param{//param of uv_udp_send
 udp_send_param * AllocUdpSendParam(void);
 void FreeUdpSendParam(udp_send_param* param);
 
+typedef struct remote_info_s{
+    char ip4[16];
+    unsigned short port;
+}remote_info_t;
+
+remote_info_t* GetRemoteInfo(const sockaddr* addr);
+
 class PacketSync
 {
 public:

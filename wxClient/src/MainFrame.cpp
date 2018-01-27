@@ -121,9 +121,11 @@ void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
     mainFrame->m_cmdProcessor.recvData((const char*)buf,len);
 }
 
-void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
+void Udp_ReadCB(int remoteId,const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
+    remote_info_t* info = mainFrame->m_udpClient.getRemoteInfoById(remoteId);
+    mainFrame->m_remoteServerIp = info->ip4;
     mainFrame->m_cmdProcessor.recvUdpData((const char*)buf,len);
 }
 
@@ -243,8 +245,9 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
     if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
         switch(event.GetId()){
         case (int)CmdEventType::UdpDiscover:{
-            thread t1{[this](){
-                 m_tcpClient.connect(m_cmdProcessor.serverIp().c_str(),m_cmdProcessor.serverPort());
+            string remoteIp = m_remoteServerIp;
+            thread t1{[this,&remoteIp](){
+                 m_tcpClient.connect(remoteIp.c_str(),m_cmdProcessor.serverPort());
             }};
             t1.detach();
             }

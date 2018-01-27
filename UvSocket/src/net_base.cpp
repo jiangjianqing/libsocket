@@ -1,4 +1,14 @@
 #include "net_base.h"
+
+remote_info_t* GetRemoteInfo(const sockaddr* addr)
+{
+    remote_info_t* remoteInfo = (remote_info_t*)malloc(sizeof(*remoteInfo));
+    strcpy(remoteInfo->ip4,inet_ntoa(((sockaddr_in *)addr)->sin_addr));
+    remoteInfo->port = ntohs(((sockaddr_in *)addr)->sin_port);
+    return remoteInfo;
+}
+
+
 TcpClientCtx* AllocTcpClientCtx(void* parentserver)
 {
     TcpClientCtx* ctx = (TcpClientCtx*)malloc(sizeof(*ctx));

@@ -5,6 +5,13 @@
 
 namespace uv
 {
+//专用于UdpClient的数据包，在收到数据后会按照此结构进行封装，然后再GetPackage函数中进行解包操作
+typedef struct udp_data_package_s{
+    int remote_id;
+    unsigned length;  //payload的长度
+    unsigned char payload[];    //实际数据
+}udp_data_package_t;
+
 UdpClient::UdpClient()
     : recvcb_(nullptr), recvcb_userdata_(nullptr), closedcb_(nullptr), closedcb_userdata_(nullptr)
     , write_circularbuf_(BUFFER_SIZE)
@@ -79,7 +86,7 @@ void UdpClient::close()
         FreeUdpSendParam(*it);
     }
     writeparam_list_.clear();
-
+    clearRemoteList();
     LOGI("udpbroadcaster(" << this << ")exit");
 }
 
@@ -161,6 +168,58 @@ bool UdpClient::connect(const char* ip, int port)
     }
 }
 
+remote_info_t* UdpClient::getRemoteInfoById(int remoteId)
+{
+    shared_lock<shared_mutex> lock1(mutex_remote_list_);
+    remote_info_t* ret = nullptr;
+    for(auto it = remote_list_.begin();it != remote_list_.end();it++){
+        int id = it->first;
+        if(id == remoteId){
+            ret = it->second;
+        }
+    }
+    return ret;
+}
+
+int UdpClient::getRemoteInfoIdById(remote_info_t* info)
+{
+    int iret = -1;
+    shared_lock<shared_mutex> lock1(mutex_remote_list_);
+    for(auto it = remote_list_.begin(); it != remote_list_.end(); it++){
+        remote_info_t* info_in_list = it->second;
+        if(info_in_list->port == info->port && strcmp(info_in_list->ip4,info->ip4) == 0){
+            iret = it->first;
+        }
+    }
+    return iret;
+}
+
+void UdpClient::clearRemoteList()
+{
+    unique_lock<shared_mutex> lock1(mutex_remote_list_);
+    for(auto it = remote_list_.begin();it != remote_list_.end();it++){
+        remote_info_t* info = it->second;
+        free(info);
+    }
+    remote_list_.clear();
+}
+
+int UdpClient::allocRemoteInfoId(const sockaddr* addr)
+{
+    static int remoteId = 0;
+    int iret = 0;
+    remote_info_t* remote_info = GetRemoteInfo(addr);
+    iret = getRemoteInfoIdById(remote_info);
+    if(iret < 0){//需要添加一个
+        unique_lock<shared_mutex> lock1(mutex_remote_list_);
+        iret = remoteId++;
+        remote_list_.insert(make_pair(iret,remote_info));
+    }else{
+        free(remote_info);
+    }
+    return iret;;
+}
+
 void UdpClient::AllocBufferForRecv(uv_handle_t* handle, size_t suggested_size, uv_buf_t* buf)
 {
     UdpClientCtx* theclass = (UdpClientCtx*)handle->data;
@@ -196,7 +255,12 @@ void UdpClient::AfterRecv(uv_udp_t* handle
     }
     parent->send_inl(NULL);
     if (nread > 0) {
-        theclass->packet_->recvdata((const unsigned char*)buf->base, nread);
+        int pkg_length = sizeof(udp_data_package_t) + nread;
+        udp_data_package_t* pkg = (udp_data_package_t*)malloc(pkg_length);
+        pkg->length = nread;
+        pkg->remote_id = parent->allocRemoteInfoId(addr);
+        memcpy(pkg->payload,buf->base,pkg->length);
+        theclass->packet_->recvdata((const unsigned char*)pkg, pkg_length);
     }
 }
 
@@ -297,8 +361,9 @@ void UdpClient::GetPacket(const unsigned char* packetdata, const unsigned packet
     assert(userdata);
     UdpClientCtx* theclass = (UdpClientCtx*)userdata;
     UdpClient* parent = (UdpClient*)theclass->parent_server;
+    udp_data_package_t* pkg =(udp_data_package_t*)packetdata;
     if (parent->recvcb_) {//cb the data to user
-        parent->recvcb_(packetdata,packetlen, parent->recvcb_userdata_);
+        parent->recvcb_(pkg->remote_id,pkg->payload,pkg->length, parent->recvcb_userdata_);
     }
 }
 
@@ -322,7 +387,7 @@ void UdpClient::CloseWalkCB(uv_handle_t* handle, void* arg)
     }
 }
 
-void UdpClient::setRecvCB(ClientRecvCB pfun, void* userdata)
+void UdpClient::setRecvCB(ServerRecvCB pfun, void* userdata)
 {
     recvcb_ = pfun;
     recvcb_userdata_ = userdata;

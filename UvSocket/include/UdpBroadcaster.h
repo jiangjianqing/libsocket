@@ -3,6 +3,8 @@
 #include "uv.h"
 #include "net_base.h"
 #include <list>
+#include <map>
+#include <shared_mutex>
 #include "pod_circularbuffer.h"
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE (1024*10)
@@ -10,8 +12,8 @@
 
 namespace uv
 {
-
 using namespace  std;
+
 class UdpClient
 {
 public:
@@ -21,7 +23,7 @@ public:
     static void StartLog(const char* logpath = nullptr);
     static void StopLog();
 public:
-    void setRecvCB(ClientRecvCB pfun, void* userdata);//set recv cb
+    void setRecvCB(ServerRecvCB pfun, void* userdata);//set recv cb
     void setClosedCB(TcpCloseCB pfun, void* userdata);//set close cb.
     bool connect(const char* ip, int port);//connect the server, ipv4
     bool connect6(const char* ip, int port);//connect the server, ipv6
@@ -34,6 +36,9 @@ public:
     const char* getLastErrMsg() const {
         return errmsg_.c_str();
     };
+
+    remote_info_t* getRemoteInfoById(int remoteId);
+    int getRemoteInfoIdById(remote_info_t* info);
 
 protected:
     bool init();
@@ -59,6 +64,8 @@ private:
     };
     bool isBroadcast_;
 
+    shared_mutex mutex_remote_list_;
+    map<int,remote_info_t*> remote_list_;
     UdpClientCtx *client_handle_;
     uv_async_t async_handle_;
     uv_loop_t loop_;
@@ -73,7 +80,7 @@ private:
     list<udp_send_param*> writeparam_list_;//Availa write_t
     PodCircularBuffer<char> write_circularbuf_;//the data prepare to send
 
-    ClientRecvCB recvcb_;
+    ServerRecvCB recvcb_;
     void* recvcb_userdata_;
 
     TcpCloseCB closedcb_;
@@ -86,6 +93,9 @@ private:
     bool isIPv6_;
     std::string errmsg_;
 
+    //分配一个remote_id，如果addr已经在列表中，则返回已有的remote_id
+    int allocRemoteInfoId(const sockaddr* addr);
+    void clearRemoteList();
 };
 
 }//end of namespace uv

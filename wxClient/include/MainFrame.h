@@ -19,7 +19,7 @@ class MyTray;
 //这种方式定义ID更好
 #define OKBTNID   wxID_HIGHEST+21
 
-static void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
+static void Udp_ReadCB(int remoteId,const unsigned char* buf,const unsigned len, void* userdata);
 static void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
 
 class MainFrame : public wxFrame
@@ -78,8 +78,10 @@ private:
     void initSocket();
     void appendInfo(const wxString& info);
 protected:
-    friend void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
+    friend void Udp_ReadCB(int remoteId,const unsigned char* buf,const unsigned len, void* userdata);
     friend void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata);
+private:
+    string m_remoteServerIp;
 };
 
 #endif // MainFrame_H
