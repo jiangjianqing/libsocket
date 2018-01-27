@@ -18,7 +18,7 @@
 #include "CmdProcesserThreadEvent.h"
 #include <thread>
 
-MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
+MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcessor(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
     Bind(wxEVT_MENU, &MainFrame::OnExit, this, wxID_EXIT);
@@ -118,13 +118,13 @@ MainFrame::~MainFrame()
 void Tcp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
-    mainFrame->m_cmdProcesser.recvData((const char*)buf,len);
+    mainFrame->m_cmdProcessor.recvData((const char*)buf,len);
 }
 
 void Udp_ReadCB(const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame* mainFrame = reinterpret_cast<MainFrame*>(userdata);
-    mainFrame->m_cmdProcesser.recvUdpData((const char*)buf,len);
+    mainFrame->m_cmdProcessor.recvUdpData((const char*)buf,len);
 }
 
 void MainFrame::initSocket()
@@ -244,13 +244,13 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
         switch(event.GetId()){
         case (int)CmdEventType::UdpDiscover:{
             thread t1{[this](){
-                 m_tcpClient.connect(m_cmdProcesser.serverIp().c_str(),m_cmdProcesser.serverPort());
+                 m_tcpClient.connect(m_cmdProcessor.serverIp().c_str(),m_cmdProcessor.serverPort());
             }};
             t1.detach();
             }
             break;
         case (int)CmdEventType::TcpIdentifyResponse:{
-            int id = m_cmdProcesser.identifyResponseId();
+            int id = m_cmdProcessor.identifyResponseId();
             appendInfo("identifyResponseId = " + std::to_string(id));
             thread t1{[this,id](){
                 unsigned char* buf = nullptr;
@@ -267,7 +267,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             thread t1{[this](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                CmdFactory::makeFileListRequest(m_cmdProcesser.identifyResponseId(),buf,len);
+                CmdFactory::makeFileListRequest(m_cmdProcessor.identifyResponseId(),buf,len);
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
@@ -279,8 +279,8 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             thread t1{[this,&filename](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                if(m_cmdProcesser.toNextFilename()){
-                    filename = m_cmdProcesser.getCurrFilename();
+                if(m_cmdProcessor.toNextFilename()){
+                    filename = m_cmdProcessor.getCurrFilename();
                     CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
                 }else{
                     ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
@@ -299,8 +299,8 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)CmdEventType::TcpSendFileRequest_CurrentFile:{
             thread t1{[this](){
-                string filename = m_cmdProcesser.getCurrFilename();
-                uint64_t startpos = m_cmdProcesser.getCurrFileStartPos();
+                string filename = m_cmdProcessor.getCurrFilename();
+                uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
                 CmdFactory::makeSendFileRequest(filename,startpos,buf,len);//根据startpos获取文件部分数据
@@ -311,7 +311,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }//end of case;
             break;
         case (int)CmdEventType::TcpExecuteTaskRequest:
-            string taskname = m_cmdProcesser.currTaskname();
+            string taskname = m_cmdProcessor.currTaskname();
             appendInfo("doing task :" + taskname);
             break;
         }//end of switch

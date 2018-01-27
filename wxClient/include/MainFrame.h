@@ -11,7 +11,7 @@
 #define BUFFER_SIZE (1024*512) //重要：在#include "tcpclient.h"之前设置缓冲区参数
 #include "tcpclient.h"
 #include "UdpBroadcaster.h"
-#include "ClientCmdProcesser.h"
+#include "ClientCmdProcessor.h"
 #include "CmdBufParser.h"
 
 class MyTray;
@@ -73,7 +73,7 @@ private:
     uv::TcpClient m_tcpClient;
     uv::UdpClient m_udpClient;
 
-    ClientCmdProcesser m_cmdProcesser;
+    ClientCmdProcessor m_cmdProcessor;
 
     void initSocket();
     void appendInfo(const wxString& info);

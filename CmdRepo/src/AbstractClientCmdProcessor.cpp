@@ -1,33 +1,28 @@
-#include "ClientCmdProcesser.h"
+#include "AbstractClientCmdProcessor.h"
 #include "CmdFactory.h"
-#include "udp_msg.discover.pb.h"
+#include "protos/udp_msg.discover.pb.h"
 #include "cmd_def.h"
 #include "ProtobufUtils.h"
-#include "CmdProcesserThreadEvent.h"
-#include "tcp_msg.package.pb.h"
-#include "tcp_msg.cmd.file.pb.h"
-#include "tcp_msg.cmd.task.pb.h"
+#include "protos/tcp_msg.package.pb.h"
+#include "protos/tcp_msg.cmd.file.pb.h"
+#include "protos/tcp_msg.cmd.task.pb.h"
 #include "ProtobufUtils.h"
 #include "commonutils/FileUtils.h"
 
 
-ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(evtHandler),m_CurrFileNameListIndex(-1)
+AbstractClientCmdProcessor::AbstractClientCmdProcessor()
+    :m_CurrFileNameListIndex(-1),m_identifyResponseId(-1)
 {
-    m_luaEngine.testLua();
     //特别注意，该路径一定要是某个子目录，因为后续会对其进行删除清空
     m_recvFilePath = FileUtils::currentPath()+"/recv";
-
-    m_luaEngine.setSourceDir(m_recvFilePath);
-    m_luaEngine.loadParamFromLuaScript();
-    //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 
-ClientCmdProcesser::~ClientCmdProcesser()
+AbstractClientCmdProcessor::~AbstractClientCmdProcessor()
 {
     clearFileBriefInfoList();
 }
 
-void ClientCmdProcesser::recvUdpData(const char* buf,int nread)
+void AbstractClientCmdProcessor::recvUdpData(const char* buf,int nread)
 {
     //只识别一个discover命令,而且为可见字符集
     udp_msg::discover msg;
@@ -36,35 +31,34 @@ void ClientCmdProcesser::recvUdpData(const char* buf,int nread)
         m_serverIp = msg.server_ip();
         m_serverPort = msg.server_port();
 
-        callCmdEventCb(CmdEventType::UdpDiscover);
+        callCmdEventCb((int)CmdEventType::UdpDiscover);
     }
 }
 
-void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
+void AbstractClientCmdProcessor::onRecvCmd(const unsigned char* buf,const unsigned len)
 {
     //注意线程间通讯
-    cmd_message_s* cmd = (cmd_message_s*)buf;
+    cmd_message_t* cmd = (cmd_message_t*)buf;
     tcp_msg::ProtoPackage pkg;
     if(pkg.ParseFromArray(cmd->payload,cmd->header.length)){//解析成功
         Message* msg = ProtobufUtils::createMessage(pkg.type_name());
         if(msg == nullptr){
             //未识别的指令类型
-            assert("未识别的指令类型");
+            onRecvUnknowProtoPackage(cmd->payload,cmd->header.length);
             return;
         }
         const string& strData = pkg.data();
         if(msg->ParseFromArray(strData.data(),strData.length())){
             string a = pkg.type_name();
             if(strcmp(a.c_str(),"tcp_msg.global.IdentifyRequest") == 0){
-                callCmdEventCb(CmdEventType::TcpIdentifyResponse);
+                callCmdEventCb((int)CmdEventType::TcpIdentifyResponse);
             }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
-                callCmdEventCb(CmdEventType::TcpFileListRequest);
+                callCmdEventCb((int)CmdEventType::TcpFileListRequest);
             }else if(dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg) != nullptr){
                 ::tcp_msg::task::ExecuteTaskRequest* taskRequestMsg = dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg);
                 const string& taskname = taskRequestMsg->taskname();
                 m_currTaskname = taskname;
-                callCmdEventCb(CmdEventType::TcpExecuteTaskRequest);
-                m_luaEngine.executeTask(taskname);
+                callCmdEventCb((int)CmdEventType::TcpExecuteTaskRequest);
             }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
 
                 //清空指定目录，接收文件清单
@@ -77,7 +71,7 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                     file_brief_info_t* briefInfo = CmdFactory::generateFileBriefInfoFromProtobufFileInfo(&fileInfo);
                     pushFileBriefInfoToList(briefInfo);
                 }
-                callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
+                callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
             }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
                 tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
 
@@ -91,7 +85,7 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                         FileUtils::mkdirp(parentPath);
                     }
                     FileUtils::saveDataAsFile(filename,content.data(),content.length());
-                    callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
+                    callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
                     }//end of case
                     break;
                 case tcp_msg::file::SendFileResponse_SendFileResult_PART:{//PART，将文件追加到已有文件中
@@ -103,9 +97,9 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
                     }
                     FileUtils::appendDataToFile(filename,content.data(),content.length());
                     if(fileRespMsg->residue_length() == 0){//文件全部收完
-                        callCmdEventCb(CmdEventType::TcpSendFileRequest_NextFile);
+                        callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
                     }else{//取文件的下一个part
-                        callCmdEventCb(CmdEventType::TcpSendFileRequest_CurrentFile);
+                        callCmdEventCb((int)CmdEventType::TcpSendFileRequest_CurrentFile);
                     }
                     }//end of case
                     break;
@@ -120,19 +114,20 @@ void ClientCmdProcesser::onRecvCmd(const unsigned char* buf,const unsigned len)
             }
 
 
-        }else{
+        }else{//end of if(msg->ParseFromArray(...
             //解析失败
-            //assert("解析失败");
+            onRecvErrorProtoPackage(buf,len);
         }
         delete msg;
-    }else{//解析失败
-
+    }else{//end of if(pkg.ParseFromArray(...
+        //解析失败
+        onRecvUnknowMessage(buf,len);
     }
 
     //CmdFactory::makeIdentifyResponseMsg(1,buf,len);
 }
 
-void ClientCmdProcesser::clearFileBriefInfoList()
+void AbstractClientCmdProcessor::clearFileBriefInfoList()
 {
     for(auto it = m_fileBriefInfoList.begin(); it != m_fileBriefInfoList.end();it++){
         file_brief_info_t* info = *it;
@@ -142,12 +137,12 @@ void ClientCmdProcesser::clearFileBriefInfoList()
     m_CurrFileNameListIndex = -1;
 }
 
-void ClientCmdProcesser::pushFileBriefInfoToList(file_brief_info_t* fileBriefInfo)
+void AbstractClientCmdProcessor::pushFileBriefInfoToList(file_brief_info_t* fileBriefInfo)
 {
     m_fileBriefInfoList.push_back(fileBriefInfo);
 }
 
-string ClientCmdProcesser::getCurrFilename()
+string AbstractClientCmdProcessor::getCurrFilename()
 {
     if(m_CurrFileNameListIndex < 0){
         return "";
@@ -159,7 +154,7 @@ string ClientCmdProcesser::getCurrFilename()
     return fileBriefInfo->filename;
 }
 
-int64_t ClientCmdProcesser::getCurrFileStartPos()
+int64_t AbstractClientCmdProcessor::getCurrFileStartPos()
 {
     if(m_CurrFileNameListIndex < 0){
         return -1;
@@ -179,7 +174,7 @@ int64_t ClientCmdProcesser::getCurrFileStartPos()
     return FileUtils::getFileSize(fullpath);
 }
 
-bool ClientCmdProcesser::toNextFilename()
+bool AbstractClientCmdProcessor::toNextFilename()
 {
     //注意跨线程访问的问题
     int len = m_fileBriefInfoList.size();
@@ -187,43 +182,4 @@ bool ClientCmdProcesser::toNextFilename()
         m_CurrFileNameListIndex++;
     }
     return m_CurrFileNameListIndex < len;
-}
-
-void ClientCmdProcesser::protobuf_test(const char* msg_type_name,const char* buf,size_t len)
-{
-    //string msg_type_name = "udp_msg.discover";//以package的命名方式
-    const Descriptor* descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(msg_type_name);
-    const Message* prototype = MessageFactory::generated_factory()->GetPrototype(descriptor);
-    Message* msg = prototype->New();
-    if(msg->ParseFromArray(buf,len)){
-        int i = 0;
-        i = i + 1;
-    }
-    //assert(prototype == &T::default_instance());
-    cout << "GetPrototype()        = " << prototype << endl;
-    //cout << "T::default_instance() = " << &T::default_instance() << endl;
-    cout << endl;
-    //assert(descriptor == T::descriptor());
-    cout << "FindMessageTypeByName() = " << descriptor << endl;
-    //cout << "T::descriptor()         = " << T::descriptor() << endl;
-    cout << endl;
-
-    delete msg;
-}
-
-void ClientCmdProcesser::callCmdEventCb(const CmdEventType& eventType)
-{
-
-    //wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    //wxThreadEvent e;
-    //wxThreadEvent e(wxEVT_COMMAND_THREAD, wxID_ANY);
-    CmdProcesserThreadEvent event(wxEVT_COMMAND_THREAD);
-    event.SetId((int)eventType);
-    //event.SetId((int)socket_event_type::ConnectionAccept);
-    //ostringstream ostr;
-    //ostr<<ip<<":"<<port;
-    //string info = std::to_string(port);
-    //event.SetString(ostr.str());
-    wxQueueEvent(m_wxEvtHandler,event.Clone());
-    //wxTheApp->QueueEvent(e.Clone());
 }
