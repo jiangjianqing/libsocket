@@ -39,6 +39,8 @@ public:
     //取得当前文件的StartPos，服务器会从该位置开始读取
     int64_t getCurrFileStartPos();
 
+    int identifyResponseId(){return m_luaEngine.identifyResponseId();}
+
     string currTaskname(){return m_currTaskname;}
 
     void protobuf_test(const char* msg_type_name,const char* buf,size_t len);

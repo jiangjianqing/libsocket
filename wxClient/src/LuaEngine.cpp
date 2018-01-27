@@ -5,7 +5,7 @@
 
 static LuaEngine* LuaEngine_instance = nullptr;
 
-LuaEngine::LuaEngine():m_luaState(nullptr)
+LuaEngine::LuaEngine():m_luaState(nullptr),m_identifyResponseId(-1)
 {
     init();
 }
@@ -126,6 +126,49 @@ void LuaEngine::addLuaPackagePath(lua_State *ls, const char *name, const char *v
     lua_pushstring(ls, v.c_str());
     lua_setfield(ls, -3, name);
     lua_pop(ls, 2);
+}
+
+void LuaEngine::loadParamFromLuaScript()
+{
+    auto fn = [this](lua_State* L){
+
+        if(L == nullptr){
+            return;
+        }
+
+        lua_pushcfunction(L, pcall_callback_err_fun);
+        int pos_err_fun = lua_gettop(L);
+
+        /* 注册函数 */
+        lua_register(L, "average", average);
+
+        //2、加载lua文件
+        int iret = luaL_loadfile(L,"lua/task.lua");
+        if(iret){
+            cout<<"load file error"<<endl;
+            return;
+        }
+
+        //3、运行lua文件
+        iret = lua_pcall(L,0,0,pos_err_fun);
+        if(iret){
+
+            int t = lua_type(L, -1);
+            const char* err = lua_tostring(L,-1);
+            cout<<"pcall error :"<<err<<endl;
+            //printf("Error: %s\n", err);
+            lua_pop(L, 1);
+            return;
+        }
+
+        //4、读取变量
+        lua_getglobal(L,"identifyResponseId");
+        m_identifyResponseId = lua_tointeger(L,-1);
+        //cout<<"str = "<<str<<endl;
+
+    };
+
+    exec(fn);
 }
 
 void LuaEngine::executeTask(const string& taskname)

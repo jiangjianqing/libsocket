@@ -18,6 +18,7 @@ ClientCmdProcesser::ClientCmdProcesser(wxEvtHandler* evtHandler):m_wxEvtHandler(
     m_recvFilePath = FileUtils::currentPath()+"/recv";
 
     m_luaEngine.setSourceDir(m_recvFilePath);
+    m_luaEngine.loadParamFromLuaScript();
     //m_cmdParser.setCmdBufParserCb(std::bind(&ClientCmdProcesser::onRecvTcpCmd,this,placeholders::_1,placeholders::_2));
 }
 

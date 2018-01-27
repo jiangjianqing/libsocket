@@ -18,14 +18,19 @@ public:
     static LuaEngine* getInstance();
     static void destroyInstance();
 
-    void setSourceDir(const string& dirname){m_sourceDir = dirname;};
+    void setSourceDir(const string& dirname){m_sourceDir = dirname;}
     void setDestDir(const string& dirname){m_destDir = dirname;}
+
+    int identifyResponseId(){return m_identifyResponseId;}
+    void loadParamFromLuaScript();
 
 private:
     lua_State* m_luaState;
 
     string m_sourceDir;
     string m_destDir;
+
+    int m_identifyResponseId;
 
     bool init();
 

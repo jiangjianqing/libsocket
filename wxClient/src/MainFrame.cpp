@@ -18,8 +18,6 @@
 #include "CmdProcesserThreadEvent.h"
 #include <thread>
 
-static int sIdentifyId = 1;
-
 MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
 {
     //Bind(wxEVT_MENU, [=](wxCommandEvent&) { Close(true); }, wxID_EXIT);//c++11 lambda
@@ -62,7 +60,7 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
     SetMenuBar( menuBar );
     */
     statusbar = CreateStatusBar();
-    SetStatusText("Welcome to wxWidgets!");
+    //SetStatusText("Welcome to wxWidgets!");
     Bind(wxEVT_MENU, &MainFrame::OnHello, this, ID_Hello);
     Bind(wxEVT_MENU, &MainFrame::OnAbout, this, wxID_ABOUT);
 
@@ -77,12 +75,13 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcesser(this)
     wxBoxSizer* centerSizer = new wxBoxSizer(wxVERTICAL);
     m_centerPanel->SetSizer(centerSizer);
     centerSizer->Add(m_txtInfo,1,wxEXPAND|wxALL,10);
-
+/*
     btnTest = new wxButton(bottomPanel,ID_GetName,"Test",wxPoint(30,50));
     Bind(wxEVT_BUTTON,&MainFrame::OnButtonClick,this,ID_GetName);
 
     btnClose = new wxButton(bottomPanel,ID_STOP,"stop");
     Bind(wxEVT_BUTTON,&MainFrame::OnStopButtonClick,this,ID_STOP);
+    */
 
     Centre();
 
@@ -251,10 +250,12 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             break;
         case (int)CmdEventType::TcpIdentifyResponse:{
-            thread t1{[this](){
+            int id = m_cmdProcesser.identifyResponseId();
+            appendInfo("identifyResponseId = " + std::to_string(id));
+            thread t1{[this,id](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                CmdFactory::makeIdentifyResponseMsg(sIdentifyId,buf,len);
+                CmdFactory::makeIdentifyResponseMsg(id,buf,len);
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
@@ -266,7 +267,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             thread t1{[this](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                CmdFactory::makeFileListRequest(sIdentifyId,buf,len);
+                CmdFactory::makeFileListRequest(m_cmdProcesser.identifyResponseId(),buf,len);
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
