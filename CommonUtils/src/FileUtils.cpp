@@ -43,9 +43,13 @@ uintmax_t FileUtils::rm_rf(const std::string& dirname)
     return remove_all(dirname);
 }
 
-void FileUtils::cp_rf(const std::string& source,const std::string& dest)
+void FileUtils::cp(const std::string& source,const std::string& dest)
 {
-    copy(source, dest);
+#if defined(__linux__)
+            copy_file(source,dest,copy_option::overwrite_if_exists);
+#elif defined(_WIN32)
+            copy_file(source,dest,copy_options::overwrite_existing);
+#endif
 }
 
 void FileUtils::cp_rf(const std::string &source, const std::string &dest,const std::string& regx)
@@ -225,15 +229,18 @@ string  replace_all_str(const string&   source,const   string&   old_value,const
     return   std::move(newStr);
 }
 
-vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,function<bool (const string& filename)> filterCb)
+vector<string> FileUtils::ls_R(const string &source_dirname,bool saveRelativePath,function<bool (const string& filename)> filterCb)
 {
     vector<string> list;
 
+    //为了防止系统不同导致的分割字符串不同，所以进行一次转换
+    string local_dirname = path(source_dirname).string();
+
 #if defined(__linux__)
-    for(auto& fe: directory_iterator(dirname.c_str())){
+    for(auto& fe: directory_iterator(local_dirname.c_str())){
 #elif defined(_WIN32)
     //复制文件
-    for(auto& fe: fs::directory_iterator(dirname.c_str())){
+    for(auto& fe: fs::directory_iterator(local_dirname.c_str())){
 #endif
         path fp = fe.path();
         std::string filename = fp.filename().string() ;
@@ -246,7 +253,7 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
             for(auto it = subList.begin();it != subList.end(); it++){
                 string tmpFullpath =  *it;
                 if(saveRelativePath){
-                    list.push_back(replace_all_str(tmpFullpath,dirname,""));
+                    list.push_back(replace_all_str(tmpFullpath,local_dirname,""));
                 }else{
                     list.push_back(tmpFullpath);
                 }
@@ -254,7 +261,7 @@ vector<string> FileUtils::ls_R(const string &dirname,bool saveRelativePath,funct
         }else{
             if(!filterCb || filterCb(fullpathname)){
                 if(saveRelativePath){
-                    list.push_back(replace_all_str(fullpathname,dirname,""));
+                    list.push_back(replace_all_str(fullpathname,local_dirname,""));
                 }else{
                     list.push_back(fullpathname);
                 }

@@ -55,7 +55,7 @@ public:
     static uintmax_t rm_rf(const string& dirname);
 
     //复制文件或目录
-    static void cp_rf(const string& source,const string& dest);
+    static void cp(const string& source,const string& dest);
 
     static void cp_rf(const string &source, const string &dest,const string& regx);
 
