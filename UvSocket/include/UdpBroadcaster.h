@@ -64,7 +64,8 @@ private:
     };
     bool isBroadcast_;
 
-    shared_mutex mutex_remote_list_;
+    shared_timed_mutex mutex_remote_list_;//shared_mutex在vc2015中有，gcc中没有
+    //shared_mutex mutex_remote_list_;
     map<int,remote_info_t*> remote_list_;
     UdpClientCtx *client_handle_;
     uv_async_t async_handle_;

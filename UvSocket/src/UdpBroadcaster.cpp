@@ -170,7 +170,7 @@ bool UdpClient::connect(const char* ip, int port)
 
 remote_info_t* UdpClient::getRemoteInfoById(int remoteId)
 {
-    shared_lock<shared_mutex> lock1(mutex_remote_list_);
+    shared_lock<shared_timed_mutex> lock1(mutex_remote_list_);
     remote_info_t* ret = nullptr;
     for(auto it = remote_list_.begin();it != remote_list_.end();it++){
         int id = it->first;
@@ -184,7 +184,7 @@ remote_info_t* UdpClient::getRemoteInfoById(int remoteId)
 int UdpClient::getRemoteInfoIdById(remote_info_t* info)
 {
     int iret = -1;
-    shared_lock<shared_mutex> lock1(mutex_remote_list_);
+    shared_lock<shared_timed_mutex> lock1(mutex_remote_list_);
     for(auto it = remote_list_.begin(); it != remote_list_.end(); it++){
         remote_info_t* info_in_list = it->second;
         if(info_in_list->port == info->port && strcmp(info_in_list->ip4,info->ip4) == 0){
@@ -196,7 +196,7 @@ int UdpClient::getRemoteInfoIdById(remote_info_t* info)
 
 void UdpClient::clearRemoteList()
 {
-    unique_lock<shared_mutex> lock1(mutex_remote_list_);
+    unique_lock<shared_timed_mutex> lock1(mutex_remote_list_);
     for(auto it = remote_list_.begin();it != remote_list_.end();it++){
         remote_info_t* info = it->second;
         free(info);
@@ -211,7 +211,7 @@ int UdpClient::allocRemoteInfoId(const sockaddr* addr)
     remote_info_t* remote_info = GetRemoteInfo(addr);
     iret = getRemoteInfoIdById(remote_info);
     if(iret < 0){//需要添加一个
-        unique_lock<shared_mutex> lock1(mutex_remote_list_);
+        unique_lock<shared_timed_mutex> lock1(mutex_remote_list_);
         iret = remoteId++;
         remote_list_.insert(make_pair(iret,remote_info));
     }else{
