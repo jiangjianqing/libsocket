@@ -24,7 +24,6 @@ public:
 
 protected:
     virtual void callCmdEventCb(const int& eventTypeId) = 0;
-    void onRecvCmd(const unsigned char* buf,const unsigned len) override;
 private:
     int m_clientId;//tcp通讯时使用的ID
     int m_identifyResponseId;//客户端发回的ID，用于Server根据ID来区分发送内容
@@ -38,7 +37,7 @@ private:
     uint64_t m_currStartPos;
 
     void resetFeedbackInfos(const vector<string>& feedbacks);
-
+    void onRecvCmd(const unsigned char* buf,const unsigned len) override;
 };
 
 #endif // ABSTRACTSERVERCMDPROCESSER_H

@@ -158,7 +158,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
         int clientId = cmdProcesser->clientId();
         switch(event.GetId()){
-        case (int)CmdEventType::TcpIdentifyResponse:
+        case (int)ServerCmdEventType::TcpIdentifyResponse:
         {
             string temp = "client online , clientIdd = " + std::to_string(clientId) + " , identifyId = " + std::to_string(cmdProcesser->identifyResponseId());
             appendInfo(temp);
@@ -170,7 +170,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             free(buf);
         }
             break;
-        case (int)CmdEventType::TcpFileListResponse:{
+        case (int)ServerCmdEventType::TcpFileListResponse:{
             thread t1{[this,clientId](){
                     vector<string> relativeFilenameList = FileUtils::ls_R(kFileRepoPath,true,[](const string& filename){
                         return true;
@@ -200,7 +200,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpSendFileResponse:{
+        case (int)ServerCmdEventType::TcpSendFileResponse:{
             thread t1{[this,cmdProcesser,clientId](){
                 string relativeFilename = cmdProcesser->currRequestFilename();
                 uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
@@ -232,7 +232,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpAllFilesSendResult:{
+        case (int)ServerCmdEventType::TcpAllFilesSendResult:{
             thread t1{[this,cmdProcesser,clientId](){
                 if(cmdProcesser->isAllFilesSendOk()){
                     unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
