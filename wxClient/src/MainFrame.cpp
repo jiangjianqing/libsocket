@@ -26,7 +26,16 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, "Updater"),m_cmdProcessor(this)
     Bind(wxEVT_CLOSE_WINDOW,&MainFrame::OnClose,this);
 
     m_tray = new MyTray(this);
-    m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Tray!");
+
+#if defined (WIN32) || defined(_WIN32)
+#include <windows.h>
+    //windows下使用资源ID
+    m_tray->SetIcon(wxIcon("IDI_ICON1"),"Hello Updater!");
+    //m_tray->SetIcon(wxIcon("d:\\Delete.png"),"Hello Tray!");
+#elif defined __linux__
+    //linux下可以使用路径
+    m_tray->SetIcon(wxIcon("./icons/lighting-integrate.png"),"Hello Updater!");
+#endif
 
     //创建最低层面板,垂直布局
     //wxPanel *topPanel=new wxPanel(this);
