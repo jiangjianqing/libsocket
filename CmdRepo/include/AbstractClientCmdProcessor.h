@@ -12,7 +12,7 @@ using namespace std;
 //CMD_EVENT_TYPE_USERID指定了用户可以自定义消息ID的起始序号
 #define CMD_EVENT_TYPE_ID_HIGEST 1024
 //#define ID_CMDPROCESSER_THREADEVENT   wxID_HIGHEST+30
-enum class CmdEventType{
+enum class ClientCmdEventType{
     UNKNOW,UdpDiscover,TcpIdentifyResponse,
     TcpFileListRequest,TcpSendFileRequest_NextFile,TcpSendFileRequest_CurrentFile,
     TcpExecuteTaskRequest

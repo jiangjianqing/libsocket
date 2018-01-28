@@ -31,7 +31,7 @@ void AbstractClientCmdProcessor::recvUdpData(const char* buf,int nread)
         m_serverIp = msg.server_ip();
         m_serverPort = msg.server_port();
 
-        callCmdEventCb((int)CmdEventType::UdpDiscover);
+        callCmdEventCb((int)ClientCmdEventType::UdpDiscover);
     }
 }
 
@@ -51,14 +51,14 @@ void AbstractClientCmdProcessor::onRecvCmd(const unsigned char* buf,const unsign
         if(msg->ParseFromArray(strData.data(),strData.length())){
             string a = pkg.type_name();
             if(strcmp(a.c_str(),"tcp_msg.global.IdentifyRequest") == 0){
-                callCmdEventCb((int)CmdEventType::TcpIdentifyResponse);
+                callCmdEventCb((int)ClientCmdEventType::TcpIdentifyResponse);
             }else if(strcmp(a.c_str(),"tcp_msg.global.StartUpdateRequest") == 0){
-                callCmdEventCb((int)CmdEventType::TcpFileListRequest);
+                callCmdEventCb((int)ClientCmdEventType::TcpFileListRequest);
             }else if(dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg) != nullptr){
                 ::tcp_msg::task::ExecuteTaskRequest* taskRequestMsg = dynamic_cast<::tcp_msg::task::ExecuteTaskRequest*>(msg);
                 const string& taskname = taskRequestMsg->taskname();
                 m_currTaskname = taskname;
-                callCmdEventCb((int)CmdEventType::TcpExecuteTaskRequest);
+                callCmdEventCb((int)ClientCmdEventType::TcpExecuteTaskRequest);
             }else if(dynamic_cast<tcp_msg::file::FileListResponse*>(msg) != nullptr){
 
                 //清空指定目录，接收文件清单
@@ -71,7 +71,7 @@ void AbstractClientCmdProcessor::onRecvCmd(const unsigned char* buf,const unsign
                     file_brief_info_t* briefInfo = CmdFactory::generateFileBriefInfoFromProtobufFileInfo(&fileInfo);
                     pushFileBriefInfoToList(briefInfo);
                 }
-                callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
+                callCmdEventCb((int)ClientCmdEventType::TcpSendFileRequest_NextFile);
             }else if(dynamic_cast<tcp_msg::file::SendFileResponse*>(msg) != nullptr){
                 tcp_msg::file::SendFileResponse* fileRespMsg = dynamic_cast<tcp_msg::file::SendFileResponse*>(msg);
 
@@ -85,7 +85,7 @@ void AbstractClientCmdProcessor::onRecvCmd(const unsigned char* buf,const unsign
                         FileUtils::mkdirp(parentPath);
                     }
                     FileUtils::saveDataAsFile(filename,content.data(),content.length());
-                    callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
+                    callCmdEventCb((int)ClientCmdEventType::TcpSendFileRequest_NextFile);
                     }//end of case
                     break;
                 case tcp_msg::file::SendFileResponse_SendFileResult_PART:{//PART，将文件追加到已有文件中
@@ -97,9 +97,9 @@ void AbstractClientCmdProcessor::onRecvCmd(const unsigned char* buf,const unsign
                     }
                     FileUtils::appendDataToFile(filename,content.data(),content.length());
                     if(fileRespMsg->residue_length() == 0){//文件全部收完
-                        callCmdEventCb((int)CmdEventType::TcpSendFileRequest_NextFile);
+                        callCmdEventCb((int)ClientCmdEventType::TcpSendFileRequest_NextFile);
                     }else{//取文件的下一个part
-                        callCmdEventCb((int)CmdEventType::TcpSendFileRequest_CurrentFile);
+                        callCmdEventCb((int)ClientCmdEventType::TcpSendFileRequest_CurrentFile);
                     }
                     }//end of case
                     break;

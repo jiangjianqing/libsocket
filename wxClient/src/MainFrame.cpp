@@ -253,7 +253,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
 
     if(dynamic_cast<CmdProcesserThreadEvent*>(&event) != nullptr){
         switch(event.GetId()){
-        case (int)CmdEventType::UdpDiscover:{
+        case (int)ClientCmdEventType::UdpDiscover:{
             string remoteIp = m_remoteServerIp;
             thread t1{[this,remoteIp](){
                  m_tcpClient.connect(remoteIp.c_str(),m_cmdProcessor.serverPort());
@@ -261,7 +261,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpIdentifyResponse:{
+        case (int)ClientCmdEventType::TcpIdentifyResponse:{
             int id = m_cmdProcessor.identifyResponseId();
             appendInfo("identifyResponseId = " + std::to_string(id));
             thread t1{[this,id](){
@@ -274,7 +274,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpFileListRequest:{
+        case (int)ClientCmdEventType::TcpFileListRequest:{
             appendInfo(wxT("ready to download file list."));
             thread t1{[this](){
                 unsigned char* buf = nullptr;
@@ -286,7 +286,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }
             break;
-        case (int)CmdEventType::TcpSendFileRequest_NextFile:{
+        case (int)ClientCmdEventType::TcpSendFileRequest_NextFile:{
             string filename = "";
             thread t1{[this,&filename](){
                 unsigned char* buf = nullptr;
@@ -309,7 +309,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             }//end of case
             break;
-        case (int)CmdEventType::TcpSendFileRequest_CurrentFile:{
+        case (int)ClientCmdEventType::TcpSendFileRequest_CurrentFile:{
             thread t1{[this](){
                 string filename = m_cmdProcessor.getCurrFilename();
                 uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
@@ -322,7 +322,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             t1.detach();
             }//end of case;
             break;
-        case (int)CmdEventType::TcpExecuteTaskRequest:
+        case (int)ClientCmdEventType::TcpExecuteTaskRequest:
             string taskname = m_cmdProcessor.currTaskname();
             appendInfo("doing task :" + taskname);
             break;
