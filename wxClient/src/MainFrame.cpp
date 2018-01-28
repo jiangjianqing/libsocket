@@ -255,7 +255,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
         switch(event.GetId()){
         case (int)CmdEventType::UdpDiscover:{
             string remoteIp = m_remoteServerIp;
-            thread t1{[this,&remoteIp](){
+            thread t1{[this,remoteIp](){
                  m_tcpClient.connect(remoteIp.c_str(),m_cmdProcessor.serverPort());
             }};
             t1.detach();
