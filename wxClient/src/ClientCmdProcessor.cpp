@@ -8,7 +8,6 @@
 #include "tcp_msg.cmd.file.pb.h"
 #include "tcp_msg.cmd.task.pb.h"
 #include "ProtobufUtils.h"
-#include "commonutils/FileUtils.h"
 
 
 ClientCmdProcessor::ClientCmdProcessor(wxEvtHandler* evtHandler)

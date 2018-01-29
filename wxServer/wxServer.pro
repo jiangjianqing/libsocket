@@ -204,8 +204,8 @@ linux: {
     LIBS +=-ldl  #显式加载动态库的动态函数库,解决 undefined reference to symbol 'dlclose@@GLIBC_2.2.5'
 }
 
-LIBS += -L$$PWD/../_bin/CommonUtils/$$CONFIGURATION/$$PLATFORM -lCommonUtils
-INCLUDEPATH += $$PWD/../CommonUtils/include
+LIBS += -L$$PWD/../_bin/FileUtils/$$CONFIGURATION/$$PLATFORM -lFileUtils
+INCLUDEPATH += $$PWD/../FileUtils/include
 
 INCLUDEPATH += $$PWD/include/
 

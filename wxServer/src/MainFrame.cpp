@@ -6,7 +6,7 @@
 #include "wx/msgdlg.h"
 #include <sstream>
 #include "CmdProcesserThreadEvent.h"
-#include "commonutils/FileUtils.h"
+#include "FileUtils.h"
 #include <thread>
 
 #ifndef BUILD_DATE
