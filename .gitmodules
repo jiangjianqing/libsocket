@@ -1,0 +1,3 @@
+[submodule "UvSocket"]
+	path = UvSocket
+	url = https://gitee.com/jjq_git/UvSocket
