@@ -1,8 +1,0 @@
-syntax = "proto3";
-package udp_msg; 
-message discover 
-{ 
-   string     cmd_type = 1;  // ID 
-   string    server_ip = 2;  // server's ip ( tcp )
-   int32     server_port = 3;  //server's port ( tcp )
-}
