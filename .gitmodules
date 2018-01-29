@@ -1,3 +1,6 @@
 [submodule "UvSocket"]
 	path = UvSocket
 	url = https://gitee.com/jjq_git/UvSocket
+[submodule "CmdRepo"]
+	path = CmdRepo
+	url = https://gitee.com/jjq_git/CmdRepo
