@@ -7,3 +7,6 @@
 [submodule "CryptoUtils"]
 	path = CryptoUtils
 	url = https://gitee.com/jjq_git/CryptoUtils
+[submodule "FileUtils"]
+	path = FileUtils
+	url = https://gitee.com/jjq_git/FileUtils
