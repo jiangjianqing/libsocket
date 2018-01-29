@@ -4,3 +4,6 @@
 [submodule "CmdRepo"]
 	path = CmdRepo
 	url = https://gitee.com/jjq_git/CmdRepo
+[submodule "CryptoUtils"]
+	path = CryptoUtils
+	url = https://gitee.com/jjq_git/CryptoUtils
