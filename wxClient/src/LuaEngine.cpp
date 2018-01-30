@@ -204,8 +204,8 @@ void LuaEngine::executeTask(const string& taskname)
             return;
         }
 
-        lua_pushstring(L,m_sourceDir.c_str());
-        lua_setglobal(L,"source");
+        //lua_pushstring(L,m_sourceDir.c_str());
+        //lua_setglobal(L,"source");
 
         //6、读取函数
         lua_getglobal(L,"execute_task");// 获取函数，压入栈中

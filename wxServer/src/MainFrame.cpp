@@ -27,7 +27,7 @@ const unsigned short kTcpServerPort = 11212;
 static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
 #elif defined(_WIN32)
 // Windows系统
-static const string kFileRepoPath = "D:\\git\\cpp\\libsocket\\qtServer";
+static const string kFileRepoPath = "D:\\测试图片样张";
 #endif
 
 
@@ -172,17 +172,20 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)ServerCmdEventType::TcpFileListResponse:{
             thread t1{[this,clientId](){
-                    vector<string> relativeFilenameList = FileUtils::ls_R(kFileRepoPath,true,[](const string& filename){
+                    int len11111 = strlen(kFileRepoPath.c_str());
+                    vector<wstring> relativeFilenameList = FileUtils::ls_R(FileUtils::stow(kFileRepoPath),true,[](const wstring& filename){
                         return true;
                     });
                     //生成文件摘要信息列表，这里使用智能指针更好
                     vector<file_brief_info_t*> files;
                     for(auto it = relativeFilenameList.begin(); it != relativeFilenameList.end(); it++){
-                        string relativeFilename = *it;
-                        string fullFilename = kFileRepoPath + relativeFilename;
+                        wstring relativeFilename = *it;
+                        wstring fullFilename = FileUtils::stow(kFileRepoPath) + relativeFilename;
                         file_brief_info_t* info = CmdFactory::generateFileBriefInfo(fullFilename);
                         if(info != nullptr){
-                            strcpy(info->filename,relativeFilename.data());
+                            int lenggg = relativeFilename.length();
+                            wcscpy(info->filename,relativeFilename.data());
+                            //memcpy(info->filename,relativeFilename.data(),relativeFilename.length());
                             files.push_back(info);
                         }
                     }
@@ -202,9 +205,9 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)ServerCmdEventType::TcpSendFileResponse:{
             thread t1{[this,cmdProcesser,clientId](){
-                string relativeFilename = cmdProcesser->currRequestFilename();
+                wstring relativeFilename = cmdProcesser->currRequestFilename();
                 uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
-                string fullFilename = kFileRepoPath + relativeFilename;
+                wstring fullFilename = FileUtils::stow(kFileRepoPath) + relativeFilename;
 
                 unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
                 unsigned file_size = FileUtils::getFileSize(fullFilename);
@@ -285,8 +288,6 @@ void MainFrame::onBtnSelectFileClick(wxCommandEvent& event)
 void MainFrame::onBtnSendFileClick(wxCommandEvent& event)
 {
     string filename = m_txtFilename->GetLineText(0).ToStdString();
-
-
 
 }
 

@@ -287,7 +287,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_NextFile:{
-            string filename = "";
+            wstring filename = L"";
             thread t1{[this,&filename](){
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
@@ -301,7 +301,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
-            t1.detach();
+            t1.join();
             if(filename != ""){
                 appendInfo(wxT("downloading file :") + filename);
             }else{
@@ -311,7 +311,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_CurrentFile:{
             thread t1{[this](){
-                string filename = m_cmdProcessor.getCurrFilename();
+                wstring filename = m_cmdProcessor.getCurrFilename();
                 uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
