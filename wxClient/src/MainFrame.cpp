@@ -288,11 +288,13 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_NextFile:{
             wstring filename = L"";
-            thread t1{[this,&filename](){
+            if(m_cmdProcessor.toNextFilename()){
+                filename = m_cmdProcessor.getCurrFilename();
+            }
+            thread t1{[this,filename](){//使用复制避免冲突
                 unsigned char* buf = nullptr;
                 unsigned len = 0;
-                if(m_cmdProcessor.toNextFilename()){
-                    filename = m_cmdProcessor.getCurrFilename();
+                if(filename.empty() == false){
                     CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
                 }else{
                     ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
@@ -301,7 +303,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                 m_tcpClient.send((const char*)buf,len);
                 free(buf);
             }};
-            t1.join();
+            t1.detach();
             if(!filename.empty()){
                 appendInfo(wxT("downloading file :") + filename);
             }else{
