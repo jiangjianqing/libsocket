@@ -24,7 +24,7 @@ const unsigned short kTcpServerPort = 11212;
 
 #if defined(__linux__)
 // Linux系统
-static const string kFileRepoPath = "/home/cz_jjq/git/cpp/libsocket/qtServer";
+static const string kFileRepoPath = "/home/cz_jjq/测试图片样张";
 #elif defined(_WIN32)
 // Windows系统
 static const string kFileRepoPath = "D:\\测试图片样张";
@@ -172,15 +172,14 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)ServerCmdEventType::TcpFileListResponse:{
             thread t1{[this,clientId](){
-                    int len11111 = strlen(kFileRepoPath.c_str());
-                    vector<wstring> relativeFilenameList = FileUtils::ls_R(FileUtils::stow(kFileRepoPath),true,[](const wstring& filename){
+                    vector<wstring> relativeFilenameList = FileUtils::ls_R(FileUtils::s2ws(kFileRepoPath),true,[](const wstring& filename){
                         return true;
                     });
                     //生成文件摘要信息列表，这里使用智能指针更好
                     vector<file_brief_info_t*> files;
                     for(auto it = relativeFilenameList.begin(); it != relativeFilenameList.end(); it++){
                         wstring relativeFilename = *it;
-                        wstring fullFilename = FileUtils::stow(kFileRepoPath) + relativeFilename;
+                        wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
                         file_brief_info_t* info = CmdFactory::generateFileBriefInfo(fullFilename);
                         if(info != nullptr){
                             int lenggg = relativeFilename.length();
@@ -207,7 +206,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             thread t1{[this,cmdProcesser,clientId](){
                 wstring relativeFilename = cmdProcesser->currRequestFilename();
                 uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
-                wstring fullFilename = FileUtils::stow(kFileRepoPath) + relativeFilename;
+                wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
 
                 unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
                 unsigned file_size = FileUtils::getFileSize(fullFilename);

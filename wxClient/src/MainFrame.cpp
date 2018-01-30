@@ -302,7 +302,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
                 free(buf);
             }};
             t1.join();
-            if(filename != ""){
+            if(!filename.empty()){
                 appendInfo(wxT("downloading file :") + filename);
             }else{
                 appendInfo(wxT("all file download."));
