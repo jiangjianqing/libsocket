@@ -8,8 +8,8 @@ SUBDIRS += \
     Socket  \
     CmdRepo \
     FileUtils \
-    #wxServer    \
-    wxClient    \
+    wxServer    \
+    #wxClient    \
     UvSocket
 
 wxClient.depends = CmdRepo Socket CryptoUtils
