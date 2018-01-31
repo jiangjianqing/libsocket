@@ -288,11 +288,12 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_NextFile:{
             wstring filename = L"";
+            uint64_t startpos = -1;
             if(m_cmdProcessor.toNextFilename()){
-                filename = m_cmdProcessor.getCurrFilename();
+                m_cmdProcessor.getCurrRequestFileInfo(filename,startpos);
             }
             if(!filename.empty()){
-                appendInfo(wxT("downloading file :") + filename);
+                appendInfo(wxT("starting download file :") + filename);
             }else{
                 appendInfo(wxT("all file download."));
             }
@@ -313,10 +314,12 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             }//end of case
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_CurrentFile:{
+            wstring filename = L"";
+            uint64_t startpos = -1;
+            m_cmdProcessor.getCurrRequestFileInfo(filename,startpos);
+            appendInfo("continue downloading file :" + filename + " ,startpos = " + std::to_string(startpos));
+            thread t1{[this,filename,startpos](){
 
-            thread t1{[this](){
-                    wstring filename = m_cmdProcessor.getCurrFilename();
-                    uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
                     unsigned char* buf = nullptr;
                     unsigned len = 0;
                     CmdFactory::makeSendFileRequest(filename,startpos,buf,len);//根据startpos获取文件部分数据

@@ -207,8 +207,9 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
             break;
         case (int)ServerCmdEventType::TcpSendFileResponse:{
             thread t1 {[this,cmdProcesser,clientId](){
-                    wstring relativeFilename = cmdProcesser->currRequestFilename();
-                    uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
+                    wstring relativeFilename = L"";
+                    uint64_t start_pos = -1;
+                    cmdProcesser->getCurrRequestFileInfo(relativeFilename,start_pos);
                     wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
 
                     unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
