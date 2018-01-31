@@ -1,14 +1,17 @@
-// wxWidgets "Hello World" Program
-// For compilers that support precompilation, includes "wx/wx.h".
+//简单内存泄漏检测方法 解决 Detected memory leaks! 问题
+//http://blog.csdn.net/u012816020/article/details/46364719
+
+//#include <crtdbg.h>
+//long ikkk = _CrtSetBreakAlloc((long)9316);
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
-    #include <wx/debugrpt.h>
 #endif
 
+#include <iostream>
 #include "MainFrame.h"
 
-#include <iostream>
 
 using namespace std;
 /*
@@ -17,7 +20,6 @@ int main()
     cout << "Hello World!" << endl;
     return 0;
 }*/
-
 
 
 class MyApp: public wxApp
@@ -53,18 +55,24 @@ class MyApp: public wxApp
           //init
         }
 
-    void OnFatalException()
+    void OnUnhandledException() override
+    {
+        int i = 0;
+        i =i + 1;
+    }
+    bool OnExceptionInMainLoop() override
 
     {
+        int i = 0;
+        i =i + 1;
 
+        return true;
+/*
          wxDebugReport* p = new wxDebugReport;
-
          p->AddAll(wxDebugReport::Context_Exception);
-
          p->Process();
-
          delete p;
-
+*/
     }
 };
 

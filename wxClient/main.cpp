@@ -1,5 +1,10 @@
-// wxWidgets "Hello World" Program
-// For compilers that support precompilation, includes "wx/wx.h".
+//简单内存泄漏检测方法 解决 Detected memory leaks! 问题
+//http://blog.csdn.net/u012816020/article/details/46364719
+
+//#include <crtdbg.h>
+//long ikkk = _CrtSetBreakAlloc((long)10035);
+
+
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
