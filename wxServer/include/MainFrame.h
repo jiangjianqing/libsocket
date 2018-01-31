@@ -71,7 +71,7 @@ private:
     map<int,ServerCmdProcesser*> m_cmdProcessers;
 
     bool m_isRunning;
-    void appendInfo(const string& info);
+    void appendInfo(const wxString& info);
 };
 
 #endif // MAINFRAME_H

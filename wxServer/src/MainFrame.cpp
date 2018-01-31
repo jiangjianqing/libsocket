@@ -206,10 +206,11 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         }
             break;
         case (int)ServerCmdEventType::TcpSendFileResponse:{
-            thread t1 {[this,cmdProcesser,clientId](){
-                    wstring relativeFilename = L"";
-                    uint64_t start_pos = -1;
-                    cmdProcesser->getCurrRequestFileInfo(relativeFilename,start_pos);
+            wstring relativeFilename = L"";
+            uint64_t startpos = -1;
+            cmdProcesser->getCurrRequestFileInfo(relativeFilename,startpos);
+            thread t1 {[this,cmdProcesser,clientId,relativeFilename,startpos](){
+
                     wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
 
                     unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
@@ -218,16 +219,16 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
 
 
-                    int read_count = FileUtils::ReadFileData(fullFilename,start_pos,(char*)file_data,kFilePartSize);
+                    int read_count = FileUtils::ReadFileData(fullFilename,startpos,(char*)file_data,kFilePartSize);
 
                     if(read_count >= 0){
                         unsigned len = 0;
-                        uint64_t residue_length = file_size  - start_pos - read_count;
+                        uint64_t residue_length = file_size  - startpos - read_count;
                         if(residue_length > 0){
                             int i = 0;
                             i = i + 1;
                         }
-                        CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,read_count,start_pos,residue_length,buf,len);
+                        CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,read_count,startpos,residue_length,buf,len);
                         m_tcpServer.send((const char*)buf,len,clientId);
                     }else{//让异常状态给客户端，让其进行标记,并开始获取下一个文件
                         assert("没有读到文件");
@@ -236,6 +237,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     free(file_data);
             }};//end of thread;
             t1.detach();
+            appendInfo("send file :" + relativeFilename + " , startpos = " + std::to_string(startpos));
         }
             break;
         case (int)ServerCmdEventType::TcpAllFilesSendResult:{
@@ -271,7 +273,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 
 }
 
-void MainFrame::appendInfo(const string& info)
+void MainFrame::appendInfo(const wxString& info)
 {
     m_txtInfo->AppendText(info+ "\r\n");
     SetStatusText(info);
