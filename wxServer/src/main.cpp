@@ -7,6 +7,7 @@
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
+    #include <wx/debugrpt.h>
 #endif
 
 #include <iostream>
@@ -57,8 +58,10 @@ class MyApp: public wxApp
 
     void OnUnhandledException() override
     {
-        int i = 0;
-        i =i + 1;
+        wxDebugReport* p = new wxDebugReport;
+        p->AddAll(wxDebugReport::Context_Exception);
+        p->Process();
+        delete p;
     }
     bool OnExceptionInMainLoop() override
 
