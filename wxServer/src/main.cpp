@@ -3,6 +3,7 @@
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
+    #include <wx/debugrpt.h>
 #endif
 
 #include "MainFrame.h"
@@ -17,12 +18,17 @@ int main()
     return 0;
 }*/
 
+
+
 class MyApp: public wxApp
 {
     //IMPLEMENT_APP中会调用wxApp的OnInit方法，窗体的初始化工作应该放在这里进行
     //返回true代表正常，后续的OnRun和OnExit会被调用；返回false程序将退出
     bool OnInit()
     {
+        //打开wxwidget错误处理
+        wxHandleFatalExceptions(true);
+
         //Frame和Dialog的区别:
         //一般情况下，有菜单工具栏的是Frame，没有的是Dialog。
         //当然这是一般情况，因为你完全可以把Dialog做成Frame样子。
@@ -46,6 +52,20 @@ class MyApp: public wxApp
         return true;
           //init
         }
+
+    void OnFatalException()
+
+    {
+
+         wxDebugReport* p = new wxDebugReport;
+
+         p->AddAll(wxDebugReport::Context_Exception);
+
+         p->Process();
+
+         delete p;
+
+    }
 };
 
 //。wx中入口函数当然也是main，只是main函数已经在wx库中被定义好了，不需要再重新定义了。可以从源码wx/app.h中找到main函数被定义在宏wxIMPLEMENT_WXWIN_MAIN中：
