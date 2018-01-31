@@ -135,11 +135,14 @@ void TcpServer_NewConnect(int clientid, void* userdata)
     ServerCmdProcesser* cmdProcesser = new ServerCmdProcesser(mainFrame,clientid);
     mainFrame->m_cmdProcessers.insert(make_pair(clientid,cmdProcesser));
     mainFrame->m_tcpServer.setRecvCB(clientid,TcpServer_ReadCB,mainFrame);
-    unsigned char* buf = nullptr;
-    unsigned len = 0;
-    CmdFactory::makeIdentifyRequestMsg(buf,len);
-    mainFrame->m_tcpServer.send((const char*)buf,len,clientid);
-    free(buf);
+    thread t1{[mainFrame,clientid](){
+            unsigned char* buf = nullptr;
+            unsigned len = 0;
+            CmdFactory::makeIdentifyRequestMsg(buf,len);
+            mainFrame->m_tcpServer.send((const char*)buf,len,clientid);
+            free(buf);
+    }};
+    t1.detach();
 }
 
 void MainFrame::initSocket()
@@ -224,7 +227,7 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
                     if(read_count >= 0){
                         unsigned len = 0;
                         uint64_t residue_length = file_size  - startpos - read_count;
-                        if(residue_length > 0){
+                        if(residue_length < 0){
                             int i = 0;
                             i = i + 1;
                         }
