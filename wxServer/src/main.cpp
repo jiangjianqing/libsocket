@@ -7,8 +7,9 @@
 #include <wx/wxprec.h>
 #ifndef WX_PRECOMP
     #include <wx/wx.h>
-    #include <wx/debugrpt.h>
 #endif
+
+#include <wx/debugrpt.h>
 
 #include <iostream>
 #include "MainFrame.h"
@@ -58,10 +59,25 @@ class MyApp: public wxApp
 
     void OnUnhandledException() override
     {
+#if wxCHECK_VERSION(2,6,0)
+#if 0
+    wxDebugReport report;
+    wxDebugReportPreviewStd preview;
+
+    report.AddAll();
+    if ( preview.Show(report) )
+        report.Process();
+#endif
+#else
+    wxMessageBox(_("Something has gone wrong inside " APP_NAME " and it "
+                    "will terminate immediately.\n"
+                    "We are sorry for the inconvenience..."));
+#endif
+    /*
         wxDebugReport* p = new wxDebugReport;
         p->AddAll(wxDebugReport::Context_Exception);
         p->Process();
-        delete p;
+        delete p;*/
     }
     bool OnExceptionInMainLoop() override
 
