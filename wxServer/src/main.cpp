@@ -59,31 +59,35 @@ class MyApp: public wxApp
 
     void OnUnhandledException() override
     {
-#if wxCHECK_VERSION(2,6,0)
-#if 0
-    wxDebugReport report;
-    wxDebugReportPreviewStd preview;
+#if defined(__linux__)
+// Linux系统
+        wxDebugReport report;
+        wxDebugReportPreviewStd preview;
 
-    report.AddAll();
-    if ( preview.Show(report) )
-        report.Process();
+        report.AddAll();
+        if ( preview.Show(report) )
+            report.Process();
+#elif defined(_WIN32)
+// Windows系统
+
 #endif
-#else
-    wxMessageBox(_("Something has gone wrong inside " APP_NAME " and it "
-                    "will terminate immediately.\n"
-                    "We are sorry for the inconvenience..."));
-#endif
-    /*
-        wxDebugReport* p = new wxDebugReport;
-        p->AddAll(wxDebugReport::Context_Exception);
-        p->Process();
-        delete p;*/
+
     }
     bool OnExceptionInMainLoop() override
 
     {
-        int i = 0;
-        i =i + 1;
+#if defined(__linux__)
+// Linux系统
+        wxDebugReport report;
+        wxDebugReportPreviewStd preview;
+
+        report.AddAll();
+        if ( preview.Show(report) )
+            report.Process();
+#elif defined(_WIN32)
+// Windows系统
+
+#endif
 
         return true;
 /*

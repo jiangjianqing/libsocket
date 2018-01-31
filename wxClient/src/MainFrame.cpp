@@ -264,20 +264,26 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
         case (int)ClientCmdEventType::TcpIdentifyResponse:{
             int id = m_cmdProcessor.identifyResponseId();
             appendInfo("identifyResponseId = " + std::to_string(id));
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeIdentifyResponseMsg(id,buf,len);
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
+            thread t1{[this,id](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeIdentifyResponseMsg(id,buf,len);
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+            }};//end of thread;
+            t1.detach();
             }
             break;
         case (int)ClientCmdEventType::TcpFileListRequest:{
             appendInfo(wxT("ready to download file list."));
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeFileListRequest(m_cmdProcessor.identifyResponseId(),buf,len);
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
+            thread t1{[this](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeFileListRequest(m_cmdProcessor.identifyResponseId(),buf,len);
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+            }};//end of thread
+            t1.detach();
             }
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_NextFile:{
@@ -285,32 +291,40 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             if(m_cmdProcessor.toNextFilename()){
                 filename = m_cmdProcessor.getCurrFilename();
             }
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            if(filename.empty() == false){
-                CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
-            }else{
-                ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
-                CmdFactory::makeFileListSendResultResponse(true,vector<string>(),buf,len);
-            }
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
-
             if(!filename.empty()){
                 appendInfo(wxT("downloading file :") + filename);
             }else{
                 appendInfo(wxT("all file download."));
             }
+            thread t1{[this,filename](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    if(filename.empty() == false){
+                        CmdFactory::makeSendFileRequest(filename,0,buf,len);//从0位置获取文件数据
+                    }else{
+                        ///todo:如果没有文件需要发送,则通知服务器FileList获取成功
+                        CmdFactory::makeFileListSendResultResponse(true,vector<string>(),buf,len);
+                    }
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+            }};
+            t1.detach();
+
             }//end of case
             break;
         case (int)ClientCmdEventType::TcpSendFileRequest_CurrentFile:{
-            wstring filename = m_cmdProcessor.getCurrFilename();
-            uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeSendFileRequest(filename,startpos,buf,len);//根据startpos获取文件部分数据
-            m_tcpClient.send((const char*)buf,len);
-            free(buf);
+
+            thread t1{[this](){
+                    wstring filename = m_cmdProcessor.getCurrFilename();
+                    uint64_t startpos = m_cmdProcessor.getCurrFileStartPos();
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeSendFileRequest(filename,startpos,buf,len);//根据startpos获取文件部分数据
+                    m_tcpClient.send((const char*)buf,len);
+                    free(buf);
+            }};//end of thread;
+            t1.detach();
+
             }//end of case;
             break;
         case (int)ClientCmdEventType::TcpExecuteTaskRequest:
@@ -322,13 +336,7 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
 
         return;
     }
-/*
- *
- * //另一个thread中发送消息
-    wxThreadEvent e(wxEVT_COMMAND_THREAD, ID_MY_THREAD_EVENT);
-    e.SetString(_T("Some string"));
-    wxTheApp->QueueEvent(e.Clone());
-  */
+
 }
 
 void MainFrame::appendInfo(const wxString& info)

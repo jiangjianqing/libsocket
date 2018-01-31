@@ -162,82 +162,94 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         {
             string temp = "client online , clientIdd = " + std::to_string(clientId) + " , identifyId = " + std::to_string(cmdProcesser->identifyResponseId());
             appendInfo(temp);
+            thread t1{[this,clientId](){
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeStartUpdateRequestMsg(buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                    free(buf);
+            }};//end of thread;
+            t1.detach();
             //发送更新请求
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeStartUpdateRequestMsg(buf,len);
-            m_tcpServer.send((const char*)buf,len,clientId);
-            free(buf);
+
         }
             break;
         case (int)ServerCmdEventType::TcpFileListResponse:{
-            vector<wstring> relativeFilenameList = FileUtils::ls_R(FileUtils::s2ws(kFileRepoPath),true,[](const wstring& filename){
-                return true;
-            });
-            //生成文件摘要信息列表，这里使用智能指针更好
-            vector<file_brief_info_t*> files;
-            for(auto it = relativeFilenameList.begin(); it != relativeFilenameList.end(); it++){
-                wstring relativeFilename = *it;
-                wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
-                file_brief_info_t* info = CmdFactory::generateFileBriefInfo(fullFilename);
-                if(info != nullptr){
-                    int lenggg = relativeFilename.length();
-                    wcscpy(info->filename,relativeFilename.data());
-                    //memcpy(info->filename,relativeFilename.data(),relativeFilename.length());
-                    files.push_back(info);
-                }
-            }
-            unsigned char* buf = nullptr;
-            unsigned len = 0;
-            CmdFactory::makeFileListResponse(files,buf,len);
-            m_tcpServer.send((const char*)buf,len,clientId);
-            free(buf);
-            //释放文件摘要资源
-            for(auto it = files.begin(); it != files.end(); it++){
-                file_brief_info_t* info = *it;
-                free(info);
-            }
+            thread t1{[this,clientId](){
+                    vector<wstring> relativeFilenameList = FileUtils::ls_R(FileUtils::s2ws(kFileRepoPath),true,[](const wstring& filename){
+                        return true;
+                    });
+                    //生成文件摘要信息列表，这里使用智能指针更好
+                    vector<file_brief_info_t*> files;
+                    for(auto it = relativeFilenameList.begin(); it != relativeFilenameList.end(); it++){
+                        wstring relativeFilename = *it;
+                        wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
+                        file_brief_info_t* info = CmdFactory::generateFileBriefInfo(fullFilename);
+                        if(info != nullptr){
+                            wcscpy(info->filename,relativeFilename.data());
+                            //memcpy(info->filename,relativeFilename.data(),relativeFilename.length());
+                            files.push_back(info);
+                        }
+                    }
+                    unsigned char* buf = nullptr;
+                    unsigned len = 0;
+                    CmdFactory::makeFileListResponse(files,buf,len);
+                    m_tcpServer.send((const char*)buf,len,clientId);
+                    free(buf);
+                    //释放文件摘要资源
+                    for(auto it = files.begin(); it != files.end(); it++){
+                        file_brief_info_t* info = *it;
+                        free(info);
+                    }
+              }};//end of thread;
+            t1.detach();
         }
             break;
         case (int)ServerCmdEventType::TcpSendFileResponse:{
-            wstring relativeFilename = cmdProcesser->currRequestFilename();
-            uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
-            wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
+            thread t1 {[this,cmdProcesser,clientId](){
+                    wstring relativeFilename = cmdProcesser->currRequestFilename();
+                    uint64_t start_pos = cmdProcesser->currRequestFileStartPos();
+                    wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
 
-            unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
-            unsigned file_size = FileUtils::getFileSize(fullFilename);
+                    unsigned char* file_data = (unsigned char*)malloc(kFilePartSize);//按60k的包大小发送文件
+                    unsigned file_size = FileUtils::getFileSize(fullFilename);
 
-            unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
+                    unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
 
 
-            int read_count = FileUtils::ReadFileData(fullFilename,start_pos,(char*)file_data,kFilePartSize);
+                    int read_count = FileUtils::ReadFileData(fullFilename,start_pos,(char*)file_data,kFilePartSize);
 
-            if(read_count >= 0){
-                unsigned len = 0;
-                uint64_t residue_length = file_size  - start_pos - read_count;
-                if(residue_length > 0){
-                    int i = 0;
-                    i = i + 1;
-                }
-                CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,read_count,start_pos,residue_length,buf,len);
-                m_tcpServer.send((const char*)buf,len,clientId);
-            }else{//让异常状态给客户端，让其进行标记,并开始获取下一个文件
-                assert("没有读到文件");
-            }
-            free(buf);//注意：任何情况下都需要给客户端一个回应
-            free(file_data);
+                    if(read_count >= 0){
+                        unsigned len = 0;
+                        uint64_t residue_length = file_size  - start_pos - read_count;
+                        if(residue_length > 0){
+                            int i = 0;
+                            i = i + 1;
+                        }
+                        CmdFactory::makeSendFileResponseMsg(relativeFilename,(const char*)file_data,read_count,start_pos,residue_length,buf,len);
+                        m_tcpServer.send((const char*)buf,len,clientId);
+                    }else{//让异常状态给客户端，让其进行标记,并开始获取下一个文件
+                        assert("没有读到文件");
+                    }
+                    free(buf);//注意：任何情况下都需要给客户端一个回应
+                    free(file_data);
+            }};//end of thread;
+            t1.detach();
         }
             break;
         case (int)ServerCmdEventType::TcpAllFilesSendResult:{
-            if(cmdProcesser->isAllFilesSendOk()){
-                unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
-                unsigned len = 0;
-                CmdFactory::makeExecuteTaskRequest("upgrade",buf,len);
-                m_tcpServer.send((const char*)buf,len,clientId);
-                free(buf);
-            }else{//isAllFilesSendOk() == false
-                //assert("文件接收不完整");
-            }
+            thread t1{[this,cmdProcesser,clientId](){
+                    if(cmdProcesser->isAllFilesSendOk()){
+                        unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
+                        unsigned len = 0;
+                        CmdFactory::makeExecuteTaskRequest("upgrade",buf,len);
+                        m_tcpServer.send((const char*)buf,len,clientId);
+                        free(buf);
+                    }else{//isAllFilesSendOk() == false
+                        //assert("文件接收不完整");
+                    }
+            }};//end of thread;
+            t1.detach();
         }
             break;
         }//end of switch
