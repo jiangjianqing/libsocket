@@ -243,6 +243,7 @@ void MainFrame::onClientClosed(int id,const string& ip,int port)
     wxQueueEvent(this,event.Clone());
 }
 
+static int last_startpos = 0;
 void MainFrame::onThreadEvent(wxThreadEvent& event)
 {
     if(dynamic_cast<TcpClientThreadEvent*>(&event) != nullptr){
@@ -317,8 +318,13 @@ void MainFrame::onThreadEvent(wxThreadEvent& event)
             wstring filename = L"";
             uint64_t startpos = -1;
             m_cmdProcessor.getCurrRequestFileInfo(filename,startpos);
+            if(startpos > 0 && startpos == last_startpos){
+                int i = 0;
+                i= i + 1;
+            }
+            last_startpos = startpos;
             appendInfo("continue downloading file :" + filename + " ,startpos = " + std::to_string(startpos));
-            thread t1{[this,filename,startpos](){
+            thread t1{[this,filename,startpos,&last_startpos](){
 
                     unsigned char* buf = nullptr;
                     unsigned len = 0;
