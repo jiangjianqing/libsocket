@@ -183,6 +183,7 @@ void MainFrame::OnExit(wxCommandEvent& event)
 }
 void MainFrame::OnAbout(wxCommandEvent& event)
 {
+    //测试dump
     void * p = nullptr;
     ((wxButton*)p)->GetBestVirtualSize();
     wxMessageBox("This is a wxWidgets Hello World example",

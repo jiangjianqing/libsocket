@@ -89,7 +89,6 @@ win32: {
         LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcrash_generation_client
         LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcommon
 
-        LIBS += -L$$PWD/../DumpHelper/_lib/$$CONFIGURATION/$$PLATFORM -lDumpHelper
     #}
 
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
@@ -216,6 +215,7 @@ linux: {
 LIBS += -L$$PWD/../_bin/FileUtils/$$CONFIGURATION/$$PLATFORM -lFileUtils
 INCLUDEPATH += $$PWD/../FileUtils/include
 
+LIBS += -L$$PWD/../_bin/DumpHelper/$$CONFIGURATION/$$PLATFORM -lDumpHelper
 INCLUDEPATH += $$PWD/../DumpHelper/include
 
 INCLUDEPATH += $$PWD/include/
