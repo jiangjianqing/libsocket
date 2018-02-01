@@ -43,6 +43,10 @@ void ClientCmdProcessor::callCmdEventCb(const int& eventTypeId)
     //string info = std::to_string(port);
     //event.SetString(ostr.str());
     wxQueueEvent(m_wxEvtHandler,event.Clone());
+
+    if(eventTypeId == (int)ClientCmdEventType::TcpExecuteTaskRequest ){
+        m_luaEngine.executeTask(currTaskname());
+    }
     //wxTheApp->QueueEvent(e.Clone());
 }
 
