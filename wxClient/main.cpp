@@ -14,6 +14,7 @@
 #include <iostream>
 #include "MainFrame.h"
 
+#include "run_single_instance.h"
 
 using namespace std;
 /*
@@ -30,6 +31,11 @@ class MyApp: public wxApp
     //返回true代表正常，后续的OnRun和OnExit会被调用；返回false程序将退出
     bool OnInit()
     {
+        //加入单实例处理
+        if(runSingleInstance() == false){
+            exit(-1);
+        }
+
         //打开wxwidget错误处理
         wxHandleFatalExceptions(true);
 

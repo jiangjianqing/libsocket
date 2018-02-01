@@ -73,7 +73,7 @@ win32: {
     LIBS += -L$$PWD/../_lib/libuv/lib/windows/$$CONFIGURATION/$$PLATFORM -llibuv
     LIBS += wsock32.lib Ws2_32.lib Advapi32.lib User32.lib Iphlpapi.lib Psapi.lib Userenv.lib
 
-    #LIBS += core.lib
+    LIBS += Kernel32.lib #run_single_instance.h 需要
 
 
     CONFIG(release, debug|release):{
