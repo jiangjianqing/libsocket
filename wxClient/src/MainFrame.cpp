@@ -183,6 +183,8 @@ void MainFrame::OnExit(wxCommandEvent& event)
 }
 void MainFrame::OnAbout(wxCommandEvent& event)
 {
+    void * p = nullptr;
+    ((wxButton*)p)->GetBestVirtualSize();
     wxMessageBox("This is a wxWidgets Hello World example",
                  "About Hello World", wxOK | wxICON_INFORMATION);
 }

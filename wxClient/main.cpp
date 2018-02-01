@@ -15,15 +15,18 @@
 #include "MainFrame.h"
 
 #include "run_single_instance.h"
+#include "DumpHelper.h"
+class FileUtils;
 
 using namespace std;
-/*
-int main()
-{
-    cout << "Hello World!" << endl;
-    return 0;
-}*/
 
+
+//#if !defined(QT_NO_DEBUG)//debug模式才使用DumpHelper
+    //创建dump目录
+std::wstring dumpDir = L"./dumps";//L"C:\\dumps\\",
+DumpExceptionHandler handler;
+
+//#endif
 
 class MyApp: public wxApp
 {
@@ -31,13 +34,16 @@ class MyApp: public wxApp
     //返回true代表正常，后续的OnRun和OnExit会被调用；返回false程序将退出
     bool OnInit()
     {
+        FileUtils::mkdirp(dumpDir);
+        handler.installExceptionHandler(dumpDir);
+
         //加入单实例处理
         if(runSingleInstance() == false){
             exit(-1);
         }
 
-        //打开wxwidget错误处理
-        wxHandleFatalExceptions(true);
+        //wxwidget错误处理，由于使用了google_breakpad,所以屏蔽
+        //wxHandleFatalExceptions(true);
 
         //Frame和Dialog的区别:
         //一般情况下，有菜单工具栏的是Frame，没有的是Dialog。

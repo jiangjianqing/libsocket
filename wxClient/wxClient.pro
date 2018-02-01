@@ -83,6 +83,15 @@ win32: {
         LIBS += -L$$PWD/../_lib/protobuf/lib/$$PLATFORM -llibprotobufd
     }
 
+    #dump解析的话，我利用的是在release中加入调试信息，然后生成pdb配合传上来的dump进行代码的定位解析。
+    #debug {#调试模式下才使用DumpHelper
+        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lexception_handler
+        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcrash_generation_client
+        LIBS += -L$$PWD/../_lib/google_breakpad/lib/windows/$$CONFIGURATION/$$PLATFORM -lcommon
+
+        LIBS += -L$$PWD/../DumpHelper/_lib/$$CONFIGURATION/$$PLATFORM -lDumpHelper
+    #}
+
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lPropertyWidgets
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lImageViewer
     #LIBS += -L$$PWD/../_bin/$$CONFIGURATION/$$PLATFORM -lProcessFactory
@@ -206,6 +215,8 @@ linux: {
 
 LIBS += -L$$PWD/../_bin/FileUtils/$$CONFIGURATION/$$PLATFORM -lFileUtils
 INCLUDEPATH += $$PWD/../FileUtils/include
+
+INCLUDEPATH += $$PWD/../DumpHelper/include
 
 INCLUDEPATH += $$PWD/include/
 

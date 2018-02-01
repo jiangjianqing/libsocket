@@ -10,3 +10,6 @@
 [submodule "FileUtils"]
 	path = FileUtils
 	url = https://gitee.com/jjq_git/FileUtils
+[submodule "DumpHelper"]
+	path = DumpHelper
+	url = https://gitee.com/jjq_git/DumpHelper
