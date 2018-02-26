@@ -5,7 +5,7 @@
 #include "CmdFactory.h"
 #include "wx/msgdlg.h"
 #include <sstream>
-#include "CmdProcesserThreadEvent.h"
+#include "CmdProcessorThreadEvent.h"
 #include "FileUtils.h"
 #include <thread>
 
@@ -104,7 +104,7 @@ MainFrame::MainFrame() : wxFrame(NULL, wxID_ANY, kTitle) , m_isRunning(false)
 
 MainFrame::~MainFrame()
 {
-    for(auto it = m_cmdProcessers.begin();it != m_cmdProcessers.end(); it++){
+    for(auto it = m_cmdProcessors.begin();it != m_cmdProcessors.end(); it++){
         delete it->second;
     }
 }
@@ -120,10 +120,10 @@ void TcpServer_CloseCB(int clientid, void* userdata)
 void TcpServer_ReadCB(int clientid, const unsigned char* buf,const unsigned len, void* userdata)
 {
     MainFrame *mainFrame = (MainFrame *)userdata;
-    auto it = mainFrame->m_cmdProcessers.find(clientid);
-    if(it != mainFrame->m_cmdProcessers.end()){
-        ServerCmdProcesser* cmdProcesser = it->second;
-        cmdProcesser->recvData((const char*)buf,len);
+    auto it = mainFrame->m_cmdProcessors.find(clientid);
+    if(it != mainFrame->m_cmdProcessors.end()){
+        ServerCmdProcessor* cmdProcessor = it->second;
+        cmdProcessor->recvData((const char*)buf,len);
     }
     //mainFrame->m_cmdProcessers[clientid]->recvTcpData((const char*)buf,len);
 }
@@ -132,8 +132,8 @@ void TcpServer_NewConnect(int clientid, void* userdata)
 {
     fprintf(stdout,"new connect:%d\n",clientid);
     MainFrame *mainFrame = (MainFrame *)userdata;
-    ServerCmdProcesser* cmdProcesser = new ServerCmdProcesser(mainFrame,clientid);
-    mainFrame->m_cmdProcessers.insert(make_pair(clientid,cmdProcesser));
+    ServerCmdProcessor* cmdProcessor = new ServerCmdProcessor(mainFrame,clientid);
+    mainFrame->m_cmdProcessors.insert(make_pair(clientid,cmdProcessor));
     mainFrame->m_tcpServer.setRecvCB(clientid,TcpServer_ReadCB,mainFrame);
     thread t1{[mainFrame,clientid](){
             unsigned char* buf = nullptr;
@@ -156,14 +156,14 @@ void MainFrame::initSocket()
 
 void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
 {
-    if(typeid(event) == typeid(CmdProcesserThreadEvent)){
-        CmdProcesserThreadEvent& cmdProcessEvent = (CmdProcesserThreadEvent&)event;
-        ServerCmdProcesser* cmdProcesser = cmdProcessEvent.cmdProcesser();
-        int clientId = cmdProcesser->clientId();
+    if(typeid(event) == typeid(CmdProcessorThreadEvent)){
+        CmdProcessorThreadEvent& cmdProcessEvent = (CmdProcessorThreadEvent&)event;
+        ServerCmdProcessor* cmdProcessor = cmdProcessEvent.cmdProcessor();
+        int clientId = cmdProcessor->clientId();
         switch(event.GetId()){
         case (int)ServerCmdEventType::TcpIdentifyResponse:
         {
-            string temp = "client online , clientIdd = " + std::to_string(clientId) + " , identifyId = " + std::to_string(cmdProcesser->identifyResponseId());
+            string temp = "client online , clientIdd = " + std::to_string(clientId) + " , identifyId = " + std::to_string(cmdProcessor->identifyResponseId());
             appendInfo(temp);
             thread t1{[this,clientId](){
                     unsigned char* buf = nullptr;
@@ -211,8 +211,8 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         case (int)ServerCmdEventType::TcpSendFileResponse:{
             wstring relativeFilename = L"";
             uint64_t startpos = -1;
-            cmdProcesser->getCurrRequestFileInfo(relativeFilename,startpos);
-            thread t1 {[this,cmdProcesser,clientId,relativeFilename,startpos](){
+            cmdProcessor->getCurrRequestFileInfo(relativeFilename,startpos);
+            thread t1 {[this,cmdProcessor,clientId,relativeFilename,startpos](){
 
                     wstring fullFilename = FileUtils::s2ws(kFileRepoPath) + relativeFilename;
 
@@ -244,8 +244,8 @@ void MainFrame::onSocketThreadEvent(wxThreadEvent& event)
         }
             break;
         case (int)ServerCmdEventType::TcpAllFilesSendResult:{
-            thread t1{[this,cmdProcesser,clientId](){
-                    if(cmdProcesser->isAllFilesSendOk()){
+            thread t1{[this,cmdProcessor,clientId](){
+                    if(cmdProcessor->isAllFilesSendOk()){
                         unsigned char* buf = nullptr;//注意：任何情况下都需要给客户端一个回应
                         unsigned len = 0;
                         CmdFactory::makeExecuteTaskRequest("upgrade",buf,len);

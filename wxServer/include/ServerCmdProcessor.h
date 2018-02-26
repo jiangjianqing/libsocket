@@ -4,10 +4,10 @@
 #include "wx/event.h"
 #include "AbstractServerCmdProcessor.h"
 
-class ServerCmdProcesser : public AbstractServerCmdProcessor
+class ServerCmdProcessor : public AbstractServerCmdProcessor
 {
 public:
-    explicit ServerCmdProcesser(wxEvtHandler* evtHandler , int clientId);
+    explicit ServerCmdProcessor(wxEvtHandler* evtHandler , int clientId);
 
 protected:
     void callCmdEventCb(const int& eventTypeId) override;

@@ -8,7 +8,7 @@
 #include "wx/textctrl.h"
 #include "tcpserver.h"
 #include "UdpBroadcaster.h"
-#include "ServerCmdProcesser.h"
+#include "ServerCmdProcessor.h"
 #include "CmdBufParser.h"
 #include <map>
 
@@ -68,7 +68,7 @@ private:
     uv::TcpServer m_tcpServer;
     uv::UdpClient m_udpBroadcaster;
 
-    map<int,ServerCmdProcesser*> m_cmdProcessers;
+    map<int,ServerCmdProcessor*> m_cmdProcessors;
 
     bool m_isRunning;
     void appendInfo(const wxString& info);
